@@ -10,7 +10,7 @@ model = YOLO('yolov8n.pt')
 #TestVideo.mp4
 
 # Abrir o ficheiro de vídeo
-file_path = 'Small.mp4'
+file_path = 'TestVideo.mp4'
 cap = cv2.VideoCapture(file_path)
 
 #Inicializaçao de variaveis
