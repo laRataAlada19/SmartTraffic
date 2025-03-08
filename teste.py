@@ -7,7 +7,7 @@ import time
 
 # Configurações iniciais
 parser = argparse.ArgumentParser(description="Contador de veículos com YOLO e tracking")
-parser.add_argument('--video', type=str, default='Small.mp4', help='Caminho para o vídeo')
+parser.add_argument('--video', type=str, default='4.mp4', help='Caminho para o vídeo')
 parser.add_argument('--max_track_history', type=int, default=30, help='Número máximo de frames no tracking')
 args = parser.parse_args()
 
@@ -29,7 +29,7 @@ def process_frame(frame, model, detected_vehicles, class_counter, track_history,
             x, y, w, h = box
             class_id = int(cls)
 
-            if track_id not in detected_vehicles:
+            if track_id not in detected_vehicles and results[0].boxes.conf.cpu().tolist()[0] > 0.7:
                 detected_vehicles.add(track_id)
                 class_name = model.names[class_id]
                 class_counter[class_name] += 1
@@ -58,7 +58,7 @@ cap = cv2.VideoCapture(args.video)
 class_counter = defaultdict(int)
 detected_vehicles = set()
 track_history = defaultdict(lambda: deque(maxlen=args.max_track_history))
-class_relevant = {'car', 'truck', 'bus', 'moto', 'bike'}
+class_relevant = {'car', 'truck', 'bus', 'motorcycle', 'bike'}
 
 prev_time = time.time()
 

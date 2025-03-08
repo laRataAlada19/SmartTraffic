@@ -5,7 +5,7 @@ import numpy as np
 from ultralytics import YOLO
 from sort import *
 
-video_path = 'TestVideo.mp4'
+video_path = '4.mp4'
 cap = cv2.VideoCapture(video_path)
 model = YOLO('yolov8n.pt')
 
@@ -49,10 +49,10 @@ while True:
             class_detect = int(class_detect)
             class_detect = classnames[class_detect]
             conf = math.ceil(confidence * 100)
-            cvzone.putTextRect(frame, f'{class_detect}', [x1 + 8, y1 - 12], thickness=2, scale=1)
+            cvzone.putTextRect(frame, f'{class_detect,conf}', [x1 + 8, y1 - 12], thickness=2, scale=1)
             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-            if class_detect == 'car' or class_detect == 'truck' or class_detect == 'bus'\
+            if class_detect == 'car' or class_detect == 'truck' or class_detect == 'bus' or class_detect=='motorbike'\
                     and conf > 60:
                 detections = np.array([x1,y1,x2,y2,conf])
                 current_detections = np.vstack([current_detections,detections])
