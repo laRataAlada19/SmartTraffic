@@ -53,6 +53,7 @@ def is_duplicate(detected_vehicles, new_box):
     return False
 
 def process_frame(frame, model, detected_vehicles, class_counter, track_history, max_track_history):
+    # persist=True para manter o rastreamento de objetos entre frames
     results = model.track(frame, persist=True)
     if results and results[0].boxes and results[0].boxes.id is not None:
         boxes = results[0].boxes.xywh.cpu()
@@ -73,7 +74,9 @@ def process_frame(frame, model, detected_vehicles, class_counter, track_history,
 
             track = track_history[track_id]
             track.append((float(box[0]), float(box[1])))
-            points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
+
+            #desenha a trajetoria do veiculo, ao usar o track_history para armazenar as coordenadas do centro da caixa delimitadora do veiculo em cada frame.
+            points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2)) 
             cv2.polylines(annotated_frame, [points], isClosed=False, color=(0, 255, 0), thickness=2)
 
         return annotated_frame
@@ -109,3 +112,6 @@ cap.release()
 cv2.destroyAllWindows()
 
 display_results(detected_vehicles, class_counter)
+
+#source myenv/bin/activate 
+#python test_track.py --video vid4.mp4
