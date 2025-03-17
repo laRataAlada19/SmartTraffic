@@ -1,0 +1,48 @@
+
+==== RESULTS FOR 1.mp4 ====
+Total Unique Detections: 48
+Class: car, Count: 38
+Class: bus, Count: 4
+Class: truck, Count: 5
+Class: motorcycle, Count: 1
+========================
+
+
+==== RESULTS FOR 2.mp4 ====
+Total Unique Detections: 184
+Class: car, Count: 147
+Class: truck, Count: 22
+Class: bus, Count: 9
+Class: motorcycle, Count: 6
+========================
+
+
+==== RESULTS FOR 3.mp4 ====
+Total Unique Detections: 31
+Class: car, Count: 23
+Class: motorcycle, Count: 4
+Class: truck, Count: 4
+========================
+
+
+==== RESULTS FOR 4.mp4 ====
+Total Unique Detections: 41
+Class: car, Count: 41
+========================
+
+
+==== RESULTS FOR 5.mp4 ====
+Total Unique Detections: 37
+Class: car, Count: 31
+Class: bus, Count: 5
+Class: truck, Count: 1
+========================
+
+
+==== TOTAL COUNT FOR ALL VIDEOS ====
+Class: car, Total Count: 280
+Class: bus, Total Count: 18
+Class: truck, Total Count: 32
+Class: motorcycle, Total Count: 11
+========================
+
