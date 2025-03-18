@@ -1,0 +1,62 @@
+
+==== RESULTS FOR 1.mp4 ====
+Total Unique Detections: 52
+Class: car, Count: 43
+Class: bus, Count: 4
+Class: truck, Count: 4
+Class: motorcycle, Count: 1
+========================
+
+
+==== RESULTS FOR 2.mp4 ====
+Total Unique Detections: 184
+Class: car, Count: 145
+Class: truck, Count: 27
+Class: bus, Count: 7
+Class: motorcycle, Count: 5
+========================
+
+
+==== RESULTS FOR 3.mp4 ====
+Total Unique Detections: 32
+Class: car, Count: 24
+Class: motorcycle, Count: 5
+Class: truck, Count: 3
+========================
+
+
+==== RESULTS FOR 4.mp4 ====
+Total Unique Detections: 44
+Class: car, Count: 44
+========================
+
+
+==== RESULTS FOR 5.mp4 ====
+Total Unique Detections: 34
+Class: car, Count: 30
+Class: bus, Count: 3
+Class: truck, Count: 1
+========================
+
+
+==== TOTAL COUNT FOR ALL VIDEOS ====
+Class: car, Total Count: 286
+Class: bus, Total Count: 14
+Class: truck, Total Count: 35
+Class: motorcycle, Total Count: 11
+========================
+
+
+=== MAPE por Vídeo ===
+1.mp4: 8.11%
+2.mp4: 31.98%
+3.mp4: 60.80%
+4.mp4: 75.14%
+5.mp4: 69.70%
+
+=== MAPE por Classe ===
+bike: 100.00%
+bus: 200.00%
+truck: 25.00%
+car: 39.64%
+motorcycle: 47.92%

@@ -143,9 +143,6 @@ def process_frame(frame, model, detected_vehicles, class_counter, track_history)
         return annotated_frame
     return frame
 
-
-
-
 # ==========================
 # PROCESSAMENTO DE VÍDEOS
 # ==========================
@@ -270,6 +267,7 @@ model = load_model()
 clean_file("results.txt")
 
 main(video_files, model, ground_truth)
+
 # Para executar:
 # source myenv/bin/activate 
 # python test_track.py
