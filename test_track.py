@@ -1,3 +1,6 @@
+# ==========================
+# IMPORTS
+# ==========================
 from ultralytics import YOLO
 import cv2
 from collections import defaultdict, deque
@@ -5,10 +8,11 @@ import numpy as np
 import time
 import torch
 import re
-
+# ==========================
+# Variaveis Globais
+# ==========================
 video_files = ["1.mp4", "2.mp4", "3.mp4", "4.mp4", "5.mp4"]
 total_class_counter = defaultdict(int)
-
 ground_truth = {
     "1.mp4": {"car": 37, "motorcycle": 1},
     "2.mp4": {"car": 205, "truck": 27, "motorcycle": 3},
@@ -17,11 +21,13 @@ ground_truth = {
     "5.mp4": {"car": 33, "bus": 1, "truck": 1}
 }
 
-# Carregar modelo
-def load_model():
-    return YOLO('yolov8n.pt')
+# ==========================
+# FUNÇÕES AUXILIARES
+# ==========================
 
-#deal with saving results to a file
+# ==========================
+# ARQUIVOS
+# ==========================
 def clean_file(file):
     with open(file, "w") as f:
         f.write("")
@@ -77,18 +83,12 @@ def save_stats_to_file(mape_results, class_mape_results, filename="results.txt")
         for cls, mape_value in class_mape_results.items():
             f.write(f"{cls}: {mape_value:.2f}%\n")
 
-#estatisticas
-def calculate_mape(actual, predicted):
-    actual = np.array(actual)
-    predicted = np.array(predicted)
-    mask = actual > 0  # Evita divisão por zero (considera apenas classes presentes no ground truth)
-    
-    if np.any(mask):
-        return np.mean(np.abs((actual[mask] - predicted[mask]) / actual[mask])) * 100
-    return None  # Retorna None se não houver valores reais para comparar
-
-# para eliminar deteçoes duplicadas em varias frames consecutivas, medindo a sobreposição entre as caixas delimitadoras.
-def compute_iou(box1, box2):
+# ==========================
+# MODELO
+# ==========================
+def load_model():#carregar o modelo YOLOv5
+    return YOLO('yolov8n.pt')
+def compute_iou(box1, box2):# verifica se a nova caixa delimitadora é uma duplicata de uma caixa delimitadora já detectada. Se a IoU entre a nova caixa e uma caixa já detectada for maior que 0.5, consideramos a nova caixa como uma duplicata.
     x1, y1, w1, h1 = box1
     x2, y2, w2, h2 = box2
 
@@ -106,15 +106,15 @@ def compute_iou(box1, box2):
     box2_area = (box2_x2 - box2_x1) * (box2_y2 - box2_y1)
 
     return inter_area / (box1_area + box2_area - inter_area + 1e-6) # retorna IoU, ou seja, a interseção sobre a união. Idealmente, o valor deve ser 0 pois não há sobreposição, e 1 se as caixas são idênticas, ou seja, idealmente sobrepostas.
-
-# verifica se a nova caixa delimitadora é uma duplicata de uma caixa delimitadora já detectada. Se a IoU entre a nova caixa e uma caixa já detectada for maior que 0.5, consideramos a nova caixa como uma duplicata.
 def is_duplicate(detected_vehicles, new_box):
     for old_box in detected_vehicles.values():
         if compute_iou(old_box, new_box) > 0.5:
             return True
     return False
 
-# Processa cada frame do vídeo, rastreando os veículos e a sua trajetória
+# ==========================
+# PROCESSAMENTO DE FRAMES
+# ==========================
 def process_frame(frame, model, detected_vehicles, class_counter, track_history):
     # persist=True para manter o rastreamento de objetos entre frames
     results = model.track(frame, persist=True)
@@ -127,13 +127,11 @@ def process_frame(frame, model, detected_vehicles, class_counter, track_history)
 
         vehicle_classes = {'car', 'truck', 'bus', 'motorcycle', 'bike'}
         for box, track_id, cls, conf in zip(boxes, track_ids, clss, conf_list):
-            if model.names[int(cls)] not in vehicle_classes or conf < 0.6:
-                continue
-
-            if track_id not in detected_vehicles and not is_duplicate(detected_vehicles, box):
-                detected_vehicles[track_id] = box
-                class_name = model.names[int(cls)]
-                class_counter[class_name] += 1
+            if model.names[int(cls)] in vehicle_classes and conf >= 0.6:
+                if track_id not in detected_vehicles and not is_duplicate(detected_vehicles, box):
+                    detected_vehicles[track_id] = box
+                    class_name = model.names[int(cls)]
+                    class_counter[class_name] += 1
 
             track = track_history[track_id]
             track.append((float(box[0]), float(box[1])))
@@ -145,111 +143,133 @@ def process_frame(frame, model, detected_vehicles, class_counter, track_history)
         return annotated_frame
     return frame
 
-# Inicializar modelo
-model = load_model()
-clean_file("results.txt")
 
-for video_file in video_files:
+
+
+# ==========================
+# PROCESSAMENTO DE VÍDEOS
+# ==========================
+def process_video(video_file, model, ground_truth, total_class_counter):
     print(f"Processing: {video_file}")
     cap = cv2.VideoCapture(video_file)
-
     if not cap.isOpened():
         print(f"Erro ao abrir {video_file}")
-        continue  # Pula para o próximo vídeo
-
-    # Reset tracking variables for each new video
+        return
+    
+    # Variáveis de rastreamento
     class_counter = defaultdict(int)
-    detected_vehicles = {}  
+    detected_vehicles = {}
     track_history = defaultdict(lambda: deque(maxlen=30))
     prev_time = time.time()
+    prevFrame = None
 
-    prevFrame = None  # Reset Optical Flow frame
-
-    # Properly reset tracker for Ultralytics model
+    # Reset tracker do modelo Ultralytics
     if hasattr(model, 'model'):
-        model.model.tracker = None  # Ultralytics tracker reset
-
-    # Get initial video resolution (if needed)
+        model.model.tracker = None  
+    
+    # Obter primeiro frame para resolução
     ret, first_frame = cap.read()
     if not ret:
         print(f"Erro ao ler o primeiro frame de {video_file}")
         cap.release()
-        continue
-    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reset video to start
+        return
+    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Reset do vídeo
 
-    # Define target frame size (adjust as needed)
-    target_size = (640, 480)  # Example size
-
+    target_size = (640, 480)  # Tamanho padrão dos frames
+    
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret or frame is None:
-            break  # Se o frame não for válido, encerra o loop
+            break
 
-        # Resize frame to target size to ensure consistency
         frame = cv2.resize(frame, target_size)
-
-        # Ensure prevFrame matches size
-        if prevFrame is None:
+        
+        # Ajustar prevFrame
+        if prevFrame is None or prevFrame.shape != frame.shape:
             prevFrame = frame.copy()
-        elif prevFrame.shape != frame.shape:
-            prevFrame = cv2.resize(prevFrame, (frame.shape[1], frame.shape[0]))
-
-        # Process frame
+        
+        # Processar frame
         frame = process_frame(frame, model, detected_vehicles, class_counter, track_history)
-
-        # Calculate FPS
+        
+        # Calcular FPS
         curr_time = time.time()
         fps = 1 / max(curr_time - prev_time, 1e-6)
         prev_time = curr_time
-
-        # Display FPS
+        
+        # Mostrar FPS no frame
         cv2.putText(frame, f"FPS: {fps:.2f}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
         cv2.imshow('Frame', frame)
         if cv2.waitKey(25) & 0xFF == ord('q'):
-            break  
-
-        prevFrame = frame.copy()  # Update previous frame
-
+            break
+        
+        prevFrame = frame.copy()
+    
     cap.release()
     cv2.destroyAllWindows()
-    
     save_results_to_file(video_file, detected_vehicles, class_counter, total_class_counter)
 
-save_total_counts(total_class_counter)
-
-model_predictions = load_predictions_from_file()
-
-# Calcular MAPE por vídeo (somente classes do ground truth)
-mape_results = {}
-for video, actual_counts in ground_truth.items():
-    predicted_counts = model_predictions.get(video, {})
+# ==========================
+# CÁLCULO DE MAPE
+# ==========================
+def calculate_mape(actual, predicted,video):
+    actual = np.array(actual)
+    predicted = np.array(predicted)
+    mask = actual > 0  # Evita divisão por zero (considera apenas classes presentes no ground truth)
+    print(f"Video: {video}")
+    print(f"Actual: {actual}")
+    print(f"Predicted: {predicted}")
+    if np.any(mask):
+        print(f"Mape: {np.mean(np.abs((actual[mask] - predicted[mask]) / actual[mask])) * 100}")
+        return np.mean(np.abs((actual[mask] - predicted[mask]) / actual[mask])) * 100
+    return None  # Retorna None se não houver valores reais para comparar
+def calculate_mape_results(ground_truth, model_predictions):
+    mape_results = {}
+    class_mape_results = {}
+    all_classes = {cls for counts in ground_truth.values() for cls in counts.keys()}
     
-    # Filtrar apenas classes presentes no ground truth
-    all_classes = set(actual_counts.keys())
+    for video, actual_counts in ground_truth.items():
+        predicted_counts = model_predictions.get(video, {})
+        all_classes_video = set(actual_counts.keys())
+        
+        actual_values = [actual_counts.get(cls, 0) for cls in all_classes_video]
+        predicted_values = [predicted_counts.get(cls, 0) for cls in all_classes_video]
+        
+        mape_results[video] = calculate_mape(actual_values, predicted_values, video)
     
-    actual_values = [actual_counts.get(cls, 0) for cls in all_classes]
-    predicted_values = [predicted_counts.get(cls, 0) for cls in all_classes]
-
-    mape_results[video] = calculate_mape(actual_values, predicted_values)
-
-# Calcular MAPE por classe (evitando distorções por classes ausentes)
-class_mape_results = {}
-all_classes = {cls for counts in ground_truth.values() for cls in counts.keys()}
-
-for cls in all_classes:
-    actual_values = []
-    predicted_values = []
+    for cls in all_classes:
+        actual_values = []
+        predicted_values = []
+        for video in ground_truth:
+            if cls in ground_truth[video]:
+                actual_values.append(ground_truth[video].get(cls, 0))
+                predicted_values.append(model_predictions.get(video, {}).get(cls, 0))
+        class_mape_results[cls] = calculate_mape(np.array(actual_values), np.array(predicted_values), video)
     
-    for video in ground_truth:
-        if cls in ground_truth[video]:  # Só consideramos classes que aparecem no ground truth
-            actual_values.append(ground_truth[video].get(cls, 0))
-            predicted_values.append(model_predictions.get(video, {}).get(cls, 0))
+    return mape_results, class_mape_results
 
-    class_mape_results[cls] = calculate_mape(np.array(actual_values), np.array(predicted_values))
+# ==========================
+# MAIN
+# ==========================
+def main(video_files, model, ground_truth):
+    total_class_counter = defaultdict(int)
+    
+    for video_file in video_files:
+        process_video(video_file, model, ground_truth, total_class_counter)
+    
+    save_total_counts(total_class_counter)
+    model_predictions = load_predictions_from_file()
+    
+    mape_results, class_mape_results = calculate_mape_results(ground_truth, model_predictions)
+    save_stats_to_file(mape_results, class_mape_results)
+    
+    print("Processamento concluído para todos os vídeos.")
 
-save_stats_to_file(mape_results, class_mape_results)
+# Inicializar modelo
+model = load_model()
 
-print("Processamento concluído para todos os vídeos.")
+clean_file("results.txt")
 
-#source myenv/bin/activate 
-#python test_track.py
+main(video_files, model, ground_truth)
+# Para executar:
+# source myenv/bin/activate 
+# python test_track.py
