@@ -46,3 +46,17 @@ Class: truck, Total Count: 32
 Class: motorcycle, Total Count: 11
 ========================
 
+
+=== MAPE por Vídeo ===
+1.mp4: 1.35%
+2.mp4: 48.94%
+3.mp4: 60.61%
+4.mp4: 76.84%
+5.mp4: 135.35%
+
+=== MAPE por Classe ===
+motorcycle: 50.00%
+truck: 37.96%
+car: 35.33%
+bike: 100.00%
+bus: 400.00%
