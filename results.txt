@@ -18,3 +18,13 @@ Total Unique Detections: 32
 Class: car, Count: 24
 Class: motorcycle, Count: 5
 Class: truck, Count: 3
+
+==== RESULTS FOR 4.mp4 ====
+Total Unique Detections: 44
+Class: car, Count: 44
+
+==== RESULTS FOR 5.mp4 ====
+Total Unique Detections: 34
+Class: car, Count: 30
+Class: bus, Count: 3
+Class: truck, Count: 1

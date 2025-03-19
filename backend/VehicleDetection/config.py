@@ -1,5 +1,15 @@
 from collections import defaultdict
+import psycopg2
 
+# Configurações do banco de dados
+DB_CONFIG = {
+    "dbname": "vehicle_detection",
+    "user": "user",
+    "password": "123",
+    "host": "localhost"
+}
+
+# Outros dados de configuração
 video_files = ["1.mp4", "2.mp4", "3.mp4", "4.mp4", "5.mp4"]
 total_class_counter = defaultdict(int)
 
@@ -10,3 +20,7 @@ ground_truth = {
     "4.mp4": {"car": 59, "motorcycle": 68, "truck": 3},
     "5.mp4": {"car": 33, "bus": 1, "truck": 1}
 }
+
+
+
+
