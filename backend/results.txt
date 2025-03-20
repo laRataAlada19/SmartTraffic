@@ -1,0 +1,7 @@
+
+==== RESULTS FOR 1.mp4 ====
+Total Unique Detections: 52
+Class: car, Count: 43
+Class: bus, Count: 4
+Class: truck, Count: 4
+Class: motorcycle, Count: 1

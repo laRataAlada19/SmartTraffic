@@ -3,10 +3,12 @@ import time
 from collections import defaultdict, deque
 from frame_processing import process_frame
 from file_operations import save_results_to_file
+from database import Database
 import os
 
 
 def process_video(video_file, model, ground_truth, total_class_counter):
+    db = Database()
     print(f"Processing: {video_file}")
     if os.path.exists(video_file):
         print(f"O arquivo {video_file} existe.")
@@ -41,4 +43,5 @@ def process_video(video_file, model, ground_truth, total_class_counter):
     
     cap.release()
     cv2.destroyAllWindows()
+    db.save_results_to_bd(video_file, detected_vehicles, class_counter, total_class_counter)
     save_results_to_file(video_file, detected_vehicles, class_counter, total_class_counter)
