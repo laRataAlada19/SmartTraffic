@@ -10,7 +10,7 @@ DB_CONFIG = {
 }
 
 # Outros dados de configuração
-video_files = ["1.mp4"]
+video_files = ["6.mp4"]
 total_class_counter = defaultdict(int)
 
 ground_truth = {
