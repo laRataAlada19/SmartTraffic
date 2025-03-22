@@ -1,13 +1,11 @@
 import cv2
 import time
-from collections import defaultdict, deque
 from frame_processing import process_frame
 from file_operations import save_results_to_file
 from database import Database
 from datetime import datetime, timedelta
 import os
-
-
+from config import detected_vehicles, class_counter, track_history
 
 def process_video(video_file, model, ground_truth, total_class_counter,time_of_start):
     db = Database()
@@ -21,9 +19,6 @@ def process_video(video_file, model, ground_truth, total_class_counter,time_of_s
         print(f"Erro ao abrir {video_file}")
         return
     
-    class_counter = defaultdict(int)
-    detected_vehicles = {}
-    track_history = defaultdict(lambda: deque(maxlen=30))
     prev_time = time.time()
 
     current_time = time_of_start

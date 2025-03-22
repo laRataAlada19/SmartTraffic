@@ -1,7 +1,7 @@
-from collections import defaultdict
+from collections import defaultdict, deque, Counter
 import psycopg2
 
-# Configurações do banco de dados
+
 DB_CONFIG = {
     "dbname": "vehicle_detection",
     "user": "user",
@@ -9,9 +9,15 @@ DB_CONFIG = {
     "host": "localhost"
 }
 
-# Outros dados de configuração
-video_files = ["6.mp4"]
+video_files = ["1.mp4", "2.mp4", "3.mp4", "4.mp4", "5.mp4"]
+
 total_class_counter = defaultdict(int)
+
+class_counter = defaultdict(int)
+
+detected_vehicles = {}
+
+track_history = defaultdict(lambda: deque(maxlen=30))
 
 ground_truth = {
     "1.mp4": {"car": 37, "motorcycle": 1},
@@ -21,5 +27,14 @@ ground_truth = {
     "5.mp4": {"car": 33, "bus": 1, "truck": 1}
 }
 
+vehicle_timestamps = defaultdict(list)
 
+direction_summary = defaultdict(Counter)
 
+average_speed_car = []
+average_speed_truck = []
+average_speed_bus = []
+average_speed_motorcycle = []
+average_speed_bike = []
+
+average_speeds_summary = {"car": average_speed_car, "truck": average_speed_truck, "bus": average_speed_bus, "motorcycle": average_speed_motorcycle, "bike": average_speed_bike}
