@@ -1,5 +1,6 @@
 from collections import defaultdict, deque, Counter
 import psycopg2
+import os
 
 
 DB_CONFIG = {
@@ -9,7 +10,24 @@ DB_CONFIG = {
     "host": "localhost"
 }
 
-video_files = ["1.mp4", "2.mp4", "3.mp4", "4.mp4", "5.mp4"]
+videos_directory = "videos"
+
+video_files_by_camera={}
+
+for camera_folder in os.listdir(videos_directory):
+    camera_path = os.path.join(videos_directory, camera_folder)
+    if os.path.isdir(camera_path):
+        video_files = [
+            os.path.join(camera_path, file)
+            for file in os.listdir(camera_path)
+            if file.endswith(".mp4")
+        ]
+        video_files_by_camera[camera_folder] = video_files
+
+for camera, videos in video_files_by_camera.items():
+    print(f"Câmera: {camera}")
+    for video in videos:
+        print(f"  - {video}")
 
 total_class_counter = defaultdict(int)
 

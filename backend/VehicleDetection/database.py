@@ -35,9 +35,13 @@ class Database:
             self.connection.close()
             print("Conexão com o banco de dados encerrada.")
     
-    def save_results_to_bd(self, video_file, detected_vehicles, class_counter, total_class_counter):
+    def save_results_to_bd(self, video_file, detected_vehicles, class_counter, total_class_counter,camera):
         try:
-            query = "INSERT INTO vehicle_counts(timestamp,total_vehicles,car,motorcycle,bike,truck,bus) VALUES(%s, %s, %s, %s, %s, %s, %s)"
+            camera_id = self.get_camera_id(camera)
+            if not camera_id:
+                return
+            
+            query = "INSERT INTO vehicle_counts(timestamp,total_vehicles,car,motorcycle,bike,truck,bus,camera_id) VALUES(%s, %s, %s, %s, %s, %s, %s)"
             self.connect()
 
             for vehicle_type, count in class_counter.items():
@@ -53,9 +57,29 @@ class Database:
                 class_counter.get("bike", 0),
                 class_counter.get("truck", 0),
                 class_counter.get("bus", 0),
+                camera_id
             )
             self.execute_query(query, params)
             self.close()
             print("Resultados salvos no banco de dados com sucesso!")
         except Exception as e:
             print(f"Erro ao salvar resultados no banco de dados: {e}")
+
+    def get_camera_id(self, camera_name):
+        """
+        Busca o ID da câmera na tabela 'camera' com base no nome.
+        """
+        try:
+            self.connect()
+            query = "SELECT id FROM camera WHERE name = %s"
+            result = self.execute_query(query, (camera_name,))
+            self.close()
+
+            if result:
+                return result[0]['id']  # Retorna o ID da câmera
+            else:
+                print(f"Nenhuma câmera encontrada com o nome: {camera_name}")
+                return None
+        except Exception as e:
+            print(f"Erro ao buscar o ID da câmera: {e}")
+            return None

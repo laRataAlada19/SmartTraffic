@@ -2,44 +2,12 @@ import numpy as np
 import cv2
 from model import is_duplicate
 import math
-from config import vehicle_timestamps, direction_summary, average_speed_bike, average_speed_bus, average_speed_car, average_speed_motorcycle, average_speed_truck
+from config import DB_CONFIG, vehicle_timestamps, direction_summary, average_speed_bike, average_speed_bus, average_speed_car, average_speed_motorcycle, average_speed_truck
 from datetime import datetime
 from collections import Counter
 
-def _map_direction_(track, track_id):
-    start_x, start_y = track[0]  # First recorded position
-    end_x, end_y = track[-1]  # Last recorded position
 
-    dx, dy = end_x - start_x, start_y - end_y  # Inverted Y-axis for correct orientation
-
-    # Compute angle in degrees
-    angle = math.degrees(math.atan2(dy, dx)) % 360
-
-    # Map angle to direction
-    if 337.5 <= angle < 360 or 0 <= angle < 22.5:
-        direction = "E"
-    elif 22.5 <= angle < 67.5:
-        direction = "NE"
-    elif 67.5 <= angle < 112.5:
-        direction = "N"
-    elif 112.5 <= angle < 157.5:
-        direction = "NW"
-    elif 157.5 <= angle < 202.5:
-        direction = "W"
-    elif 202.5 <= angle < 247.5:
-        direction = "SW"
-    elif 247.5 <= angle < 292.5:
-        direction = "S"
-    else:
-        direction = "SE"
-
-    # Store direction history
-    if track_id not in direction_summary:
-        direction_summary[track_id] = []  # Initialize list for each vehicle
-
-    direction_summary[track_id].append(direction)  # Append new direction for this vehicle
-
-def process_frame(frame, model, detected_vehicles, class_counter, track_history):
+def process_frame(frame, model, detected_vehicles, class_counter, track_history,camera):
     results = model.track(frame, persist=True)
     
     if results and results[0].boxes and results[0].boxes.id is not None:
@@ -57,6 +25,7 @@ def process_frame(frame, model, detected_vehicles, class_counter, track_history)
                     detected_vehicles[track_id] = box
                     class_name = model.names[int(cls)]
                     class_counter[class_name] += 1
+
 
             if track_id not in vehicle_timestamps:
                 vehicle_timestamps[track_id] = {"timestamps": [], "positions": []}
@@ -105,16 +74,12 @@ def process_frame(frame, model, detected_vehicles, class_counter, track_history)
                         speed_kph = None
                 else:
                     avg_speed_mps = None
-
             track = track_history[track_id]
             track.append((float(box[0]), float(box[1])))
-            if len(track) > 5:  # Ensure we have enough data points for direction calculation'
-                _map_direction_(track, track_id)
-            
-            # desenha a trajetoria do veiculo, ao usar o track_history para armazenar as coordenadas do centro da caixa 
             # delimitadora do veiculo em cada frame.
             points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
             cv2.polylines(annotated_frame, [points], isClosed=False, color=(0, 255, 0), thickness=2)
 
+ 
         return annotated_frame
     return frame
