@@ -9,6 +9,12 @@ DB_CONFIG = {
     "password": "123",
     "host": "localhost"
 }
+DW_CONFIG = {
+    "dbname": "warehouse_vehicle_count_db",
+    "user": "user",
+    "password": "123",
+    "host": "localhost"
+}
 
 videos_directory = "videos"
 
