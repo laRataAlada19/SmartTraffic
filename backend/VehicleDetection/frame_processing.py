@@ -74,6 +74,8 @@ def process_frame(frame, model, detected_vehicles, class_counter, track_history,
                         speed_kph = None
                 else:
                     avg_speed_mps = None
+            if track_id not in track_history:
+                track_history[track_id] = []
             track = track_history[track_id]
             track.append((float(box[0]), float(box[1])))
             # delimitadora do veiculo em cada frame.
@@ -81,5 +83,6 @@ def process_frame(frame, model, detected_vehicles, class_counter, track_history,
             cv2.polylines(annotated_frame, [points], isClosed=False, color=(0, 255, 0), thickness=2)
 
  
-        return annotated_frame
+        return annotated_frame, track_history  # Return track_history along with the annotated frame
+    
     return frame

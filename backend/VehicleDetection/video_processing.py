@@ -9,6 +9,7 @@ import psycopg2
 import os
 from config import detected_vehicles, class_counter, track_history, direction_summary, total_class_counter, DB_CONFIG
 
+
 def process_video(video_file, model, ground_truth, total_class_counter,time_of_start,camera):
     db = Database()
     print(f"Processing: {video_file}")
@@ -26,13 +27,16 @@ def process_video(video_file, model, ground_truth, total_class_counter,time_of_s
     current_time = time_of_start
     next_save_time = current_time + timedelta(minutes=1)  # Próximo minuto para salvar os dados
 
+    # Initialize track_history
+    track_history = {}
+
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
         frame = cv2.resize(frame, (640, 480))
-        frame = process_frame(frame, model, detected_vehicles, class_counter, track_history,camera)
+        frame, track_history = process_frame(frame, model, detected_vehicles, class_counter, track_history, camera)
 
         curr_time = time.time()
         fps = 1 / max(curr_time - prev_time, 1e-6)
@@ -48,7 +52,7 @@ def process_video(video_file, model, ground_truth, total_class_counter,time_of_s
 
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
-    for track_id in track_history:
+    for track_id in track_history :
         _map_direction_(track_history, track_id, camera)
     cap.release()
     cv2.destroyAllWindows()
@@ -82,7 +86,18 @@ def get_camera_direction(camera_name):
         print(f"Erro ao conectar ao banco de dados ou executar a query: {e}")
         return None
 
-def _map_direction_(track, track_id, camera):
+def _map_direction_(track_history, track_id, camera):
+    # Ensure the track exists and is not empty
+    if track_id not in track_history or not track_history[track_id]:
+        print(f"Track ID {track_id} is missing or empty. Skipping direction mapping.")
+        return
+
+    # Ensure the track_id is in detected_vehicles
+    if track_id not in detected_vehicles:
+        print(f"Track ID {track_id} is not in detected_vehicles. Skipping direction mapping.")
+        return
+
+    track = track_history[track_id]
     start_x, start_y = track[0]  # First recorded position
     end_x, end_y = track[-1]  # Last recorded position
 
