@@ -41,7 +41,7 @@ class Database:
             if not camera_id:
                 return
             
-            query = "INSERT INTO vehicle_counts(timestamp,total_vehicles,car,motorcycle,bike,truck,bus,camera_id) VALUES(%s, %s, %s, %s, %s, %s, %s)"
+            query = "INSERT INTO vehicle_counts(timestamp,total_vehicles,car,motorcycle,bike,truck,bus,camera_id) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"
             self.connect()
 
             for vehicle_type, count in class_counter.items():
