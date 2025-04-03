@@ -3,6 +3,9 @@ from warehouse import Warehouse
 import pandas as pd
 import os
 
+#pip install luigi
+#pip install pandas
+
 dw = Warehouse()
 
 class ExtractTask(luigi.Task):
@@ -15,7 +18,7 @@ class ExtractTask(luigi.Task):
         os.makedirs(output_path, exist_ok=True)
 
         dw.connect_db()
-        data = dw.get_data()
+        data = dw.extract_data()
         
         if data is not None and not data.empty:
             with open(self.output().path, 'w', encoding='utf-8') as f:
@@ -57,6 +60,7 @@ class LoadTask(luigi.Task):
         if transformed_data is not None and not transformed_data.empty:
             dw.load_dim_date(transformed_data)
             dw.load_dim_time(transformed_data)
+            dw.load_dim_location(transformed_data)
             loaded_data = dw.load_fact_vehicle_count(transformed_data)
             #print(f"DEBUG: Loaded Data: \n{loaded_data}")
             print("INFO: Data loaded successfully")

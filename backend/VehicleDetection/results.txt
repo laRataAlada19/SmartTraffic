@@ -1,0 +1,26 @@
+
+==== RESULTS FOR videos/cam1/1.mp4 ====
+Total Unique Detections: 48
+
+Vehicle Type Summary
+Class: car, Count: 38
+Class: bus, Count: 4
+Class: truck, Count: 5
+Class: motorcycle, Count: 1
+
+Direction Summary:
+N: 0
+S: 19
+E: 27
+W: 0
+NE: 0
+NW: 0
+SE: 0
+SW: 0
+
+Speed Summary:
+car: 43.44 Km/h
+truck: 35.80 Km/h
+bus: 22.80 Km/h
+motorcycle: 67.50 Km/h
+=========================

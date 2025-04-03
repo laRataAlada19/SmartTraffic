@@ -3,7 +3,6 @@ from psycopg2.extras import RealDictCursor
 from config import DB_CONFIG
 from datetime import datetime
 
-
 class Database:
     def __init__(self):
         self.connection = None
