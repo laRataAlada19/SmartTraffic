@@ -1,9 +1,10 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import LocationList from './components/LocationList.vue';
 </script>
 
 <template>
-  <p>SmartTraffic</p>
+  <div id="app">
+    <LocationList />
+  </div>
 </template>
 
