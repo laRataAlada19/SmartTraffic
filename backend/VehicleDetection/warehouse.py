@@ -6,6 +6,7 @@ import numpy as np
 from sqlalchemy.types import Integer
 
 #pip install sqlalchemy
+#pip install pandas
 
 class Warehouse:
     def __init__(self):
@@ -13,7 +14,7 @@ class Warehouse:
         self.conn = None
         self.date_df = None
         self.time_df = None
-        self.camera_df = None
+        self.location_df = None
 
     def connect_db(self):
         try:
@@ -42,13 +43,14 @@ class Warehouse:
             print(f"Erro ao encerrar a conexão com o DW: {e}")
             raise
 
-    def get_data(self):
+    def extract_data(self):
         try:
             query = """
-                        select vc.id, vc.timestamp, vc.total_vehicles, vc.car, vc.motorcycle, 
-                            vc.bike, vc.truck, vc.bus, vc.camera_id, c.name, c.position, c.direction 
+                        select vc.id, vc.car, vc.motorcycle, vc.bike, vc.truck, vc.bus,
+                               vc.n, vc.s, vc.e, vc.w, vc.ne, vc.nw, vc.se, vc.sw, 
+                               vc.timestamp, vc.location_id, l.location, l.direction
                         from vehicle_counts vc
-                        join camera c on c.id = vc.camera_id;
+                        join location l on l.location_id = vc.location_id;
                     """
             with self.conn:
                 df = pd.read_sql(query, self.conn)
@@ -78,10 +80,14 @@ class Warehouse:
                 "NORTE": "N", "NORTH": "N", "N": "N",
                 "SUL": "S", "SOUTH": "S", "S": "S",
                 "LESTE": "E", "EAST": "E", "L": "E", "E": "E",
-                "OESTE": "W", "WEST": "W", "W": "W", "O": "W"
+                "OESTE": "W", "WEST": "W", "W": "W", "O": "W",
+                "NORDESTE": "NE", "NORTHEAST": "NE", "NE": "NE",
+                "NOROESTE": "NW", "NORTHWEST": "NW", "NW": "NW",
+                "SUDESTE": "SE", "SOUTHEAST": "SE", "SE": "SE",
+                "SUDOESTE": "SW", "SOUTHWEST": "SW", "SW": "SW"
             })
 
-            df["direction"] = df["direction"].where(df["direction"].isin(["N", "S", "E", "W"]), "UNKNOWN")
+            df["direction"] = df["direction"].where(df["direction"].isin(["N", "S", "E", "W", "NE", "NW", "SE", "SW"]), "UNKNOWN")
 
             print("Data transformed successfully")
             print(df.head())
@@ -137,19 +143,19 @@ class Warehouse:
             print(f"Erro ao carregar a tabela dim_time: {e}")
             raise
 
-    def load_dim_camera(self, df):
+    def load_dim_location(self, df):
         try:
             # Extract unique camera data
-            self.camera_df = df[["name", "position", "direction"]].drop_duplicates()
+            self.location_df = df[["location", "direction"]].drop_duplicates()
 
             # Insert data efficiently
             with self.engine.begin() as conn:
-                self.camera_df.to_sql("dim_camera", conn, if_exists="append", index=False)
+                self.location_df.to_sql("dim_location", conn, if_exists="append", index=False)
                 
-            self.camera_df = pd.read_sql("SELECT * FROM dim_camera", self.engine)
-            print("Loaded dim_camera table")
+            self.location_df = pd.read_sql("SELECT * FROM dim_location", self.engine)
+            print("Loaded dim_location table")
         except Exception as e:
-            print(f"Error loading dim_camera table: {e}")
+            print(f"Error loading dim_location table: {e}")
             raise
 
     def load_fact_vehicle_count(self, df):
@@ -161,7 +167,7 @@ class Warehouse:
             # Ensure dimension tables have proper types
             self.date_df["full_date"] = pd.to_datetime(self.date_df["full_date"], errors="coerce").dt.date
             self.time_df["full_time"] = pd.to_datetime(self.time_df["full_time"].astype(str), format='%H:%M:%S', errors="coerce").dt.time
-            self.camera_df["id"] = self.camera_df["id"].astype(str)
+            self.location_df["location_id"] = self.location_df["location_id"].astype(str)
 
             # Merge with validation
             fact_df = df.merge(
@@ -175,17 +181,17 @@ class Warehouse:
                 right_on="full_time",
                 how="inner"
             ).merge(
-                self.camera_df[["camera_id", "name"]],
-                left_on="id",
-                right_on="camera_id",
+                self.location_df[["location_id", "name"]],
+                left_on="location_id",
+                right_on="location_id",
                 how="inner"
             )
 
             # Prepare final columns
             fact_df = fact_df[[
-                "date_id", "time_id", "camera_id",
-                "total_vehicles", "car", "motorcycle",
-                "bike", "truck", "bus"
+                "date_id", "time_id", "location_id",
+                "car", "motorcycle", "bike", "truck", "bus",
+                "n", "s", "e", "w", "ne", "nw", "se", "sw"
             ]]
 
             # Insert efficiently
@@ -201,12 +207,19 @@ class Warehouse:
                         'date_id': Integer(),
                         'time_id': Integer(),
                         'camera_id': Integer(),
-                        'total_vehicles': Integer(),
                         'car': Integer(),
                         'motorcycle': Integer(),
                         'bike': Integer(),
                         'truck': Integer(),
-                        'bus': Integer()
+                        'bus': Integer(),
+                        'n': Integer(),
+                        's': Integer(),
+                        'e': Integer(),
+                        'w': Integer(),
+                        'ne': Integer(),
+                        'nw': Integer(),
+                        'se': Integer(),
+                        'sw': Integer()
                     }
                 )
 
