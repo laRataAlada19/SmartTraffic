@@ -8,36 +8,30 @@ const locationName = ref(''); // Campo para o nome da nova localização
 const direction = ref(''); // Campo para a direção da câmera
 const locationStore = useLocationStore(); // Acessar o store de localização
 
-// Função para criar uma nova localização
 const createLocation = async () => {
-  if (locationName.value.trim() === '') {
-    alert('O nome da localização não pode estar vazio.');
-    return;
-  }
-
   try {
-    await addLocation(locationName.value, direction.value); // Chama a função do store
-    locationName.value = ''; // Limpa o campo de entrada
-    direction.value = ''; // Limpa o campo de direção
-    alert('Localização criada com sucesso!');
+    // Verifica se os campos estão preenchidos
+    if (!locationName.value || !direction.value) {
+      alert('Por favor, preencha todos os campos.');
+      return;
+    }
+
+
+    // Atualiza o store com a nova localização
+    locationStore.addLocation(locationName.value, direction.value);
+    
+    // Limpa os campos após a criação
+    locationName.value = '';
+    direction.value = '';
   } catch (error) {
     console.error('Erro ao criar localização:', error);
-    alert('Erro ao criar localização.');
   }
 };
 
-const addLocation = async (name, direction) => {
-  try {
-    const response = await axios.post('/api/locations', {
-      name,
-      direction,
-    });
-    locationStore.locations.push(response.data);
-  } catch (error) {
-    console.error('Erro ao adicionar localização:', error);
-    throw error;
-  }
-};
+onMounted(() => {
+  locationStore.fetchLocations();
+});
+
 </script>
 
 <template>
@@ -45,7 +39,7 @@ const addLocation = async (name, direction) => {
     <h1>Location List</h1>
     <ul>
       <li v-for="location in locationStore.locations" :key="location.id">
-        {{ location.name }}
+       {{ location.location_id }}:{{ location.location }} - {{ location.direction }}
       </li>
       <li v-if="locationStore.locations.length === 0">
         No locations available.
