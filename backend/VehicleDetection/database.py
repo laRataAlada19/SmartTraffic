@@ -1,7 +1,8 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from config import DB_CONFIG
+from config import DB_CONFIG,direction_summary
 from datetime import datetime
+from collections import Counter
 
 class Database:
     def __init__(self):
@@ -34,51 +35,71 @@ class Database:
             self.connection.close()
             print("Conexão com o banco de dados encerrada.")
     
-    def save_results_to_bd(self, video_file, detected_vehicles, class_counter, total_class_counter,camera):
+    def exists_result(self, timestamp, camera):
         try:
-            camera_id = self.get_camera_id(camera)
-            if not camera_id:
-                return
+            conn = psycopg2.connect(**DB_CONFIG)
+            cur = conn.cursor()
+
+            query = """
+            SELECT COUNT(*) FROM vehicle_count 
+            WHERE timestamp = %s AND location_id = 8
+            """
+            cur.execute(query, (timestamp, camera))
+            result = cur.fetchone()[0]
             
-            query = "INSERT INTO vehicle_counts(timestamp,total_vehicles,car,motorcycle,bike,truck,bus,camera_id) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"
+            cur.close()
+            conn.close()
+
+            return result > 0
+        except Exception as e:
+            print(f"Erro ao verificar existência de dados: {e}")
+            return False
+
+
+    def save_results_to_bd(self, class_counter, total_class_counter, timestamp, camera):
+        try:
+            from collections import Counter
+
             self.connect()
 
+            # Inicializa os contadores de direção
+            final_directions = {"N": 0, "S": 0, "E": 0, "W": 0, "NE": 0, "NW": 0, "SE": 0, "SW": 0}
+
+            # Conta a direção mais comum de cada track
+            for track_id, direction in direction_summary.items():
+                if direction:
+                    final_directions[direction] += 1
+
+            # Atualiza o total acumulado por tipo de veículo
             for vehicle_type, count in class_counter.items():
                 total_class_counter[vehicle_type] += count
 
-            current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            total_detection = len(detected_vehicles)
+            query = """
+                INSERT INTO vehicle_counts (
+                    timestamp, car, motorcycle, bike, truck, bus,
+                    n, s, e, w, ne, nw, se, sw
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+
             params = (
-                current_timestamp, 
-                total_detection,
+                timestamp,
                 class_counter.get("car", 0),
                 class_counter.get("motorcycle", 0),
                 class_counter.get("bike", 0),
                 class_counter.get("truck", 0),
                 class_counter.get("bus", 0),
-                camera_id
+                final_directions["N"],
+                final_directions["S"],
+                final_directions["E"],
+                final_directions["W"],
+                final_directions["NE"],
+                final_directions["NW"],
+                final_directions["SE"],
+                final_directions["SW"],
             )
+
             self.execute_query(query, params)
             self.close()
-            print("Resultados salvos no banco de dados com sucesso!")
+            print(f"[{timestamp}] Dados salvos para câmara '{camera}' com sucesso!")
         except Exception as e:
             print(f"Erro ao salvar resultados no banco de dados: {e}")
-
-    def get_camera_id(self, camera_name):
-        """
-        Busca o ID da câmera na tabela 'camera' com base no nome.
-        """
-        try:
-            self.connect()
-            query = "SELECT id FROM camera WHERE name = %s"
-            result = self.execute_query(query, (camera_name,))
-            self.close()
-
-            if result:
-                return result[0]['id']  # Retorna o ID da câmera
-            else:
-                print(f"Nenhuma câmera encontrada com o nome: {camera_name}")
-                return None
-        except Exception as e:
-            print(f"Erro ao buscar o ID da câmera: {e}")
-            return None

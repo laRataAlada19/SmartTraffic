@@ -9,54 +9,73 @@ import psycopg2
 import os
 from config import detected_vehicles, class_counter, track_history, direction_summary, total_class_counter, DB_CONFIG
 
+def arredondar_para_proximo_5_minutos(data_hora):
+    data_hora = data_hora.replace(second=0, microsecond=0)
+    minutos_extra = (5 - data_hora.minute % 5) % 5
+    return data_hora + timedelta(minutes=minutos_extra)
 
-def process_video(video_file, model, ground_truth, total_class_counter,time_of_start,camera):
+def process_video(video_file, model, ground_truth, total_class_counter, time_of_start, camera):
     db = Database()
     print(f"Processing: {video_file}")
-    if os.path.exists(video_file):
-        print(f"O arquivo {video_file} existe.")
-    else:
+    
+    if not os.path.exists(video_file):
         print(f"O arquivo {video_file} não foi encontrado.")
+        return
+
     cap = cv2.VideoCapture(video_file)
     if not cap.isOpened():
         print(f"Erro ao abrir {video_file}")
         return
-    
-    prev_time = time.time()
 
-    current_time = time_of_start
-    next_save_time = current_time + timedelta(minutes=1)  # Próximo minuto para salvar os dados
-
-    # Initialize track_history
+    # Dados iniciais
+    fps_video = cap.get(cv2.CAP_PROP_FPS)
+    frame_number = 0
     track_history = {}
+    ultimo_tempo_guardado = arredondar_para_proximo_5_minutos(time_of_start)
 
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
 
+        # Tempo atual do vídeo com base no número de frames
+        current_video_time = time_of_start + timedelta(seconds=(frame_number / fps_video))
+        tempo_agrupado = arredondar_para_proximo_5_minutos(current_video_time)
+
         frame = cv2.resize(frame, (640, 480))
         frame, track_history = process_frame(frame, model, detected_vehicles, class_counter, track_history, camera)
 
-        curr_time = time.time()
-        fps = 1 / max(curr_time - prev_time, 1e-6)
-        prev_time = curr_time
-        
-        cv2.putText(frame, f"FPS: {fps:.2f}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+        # Mostra o FPS 
+        cv2.putText(frame, f"Frame: {frame_number}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
         cv2.imshow('Frame', frame)
-       
-        if datetime.now() >= next_save_time:
-            print(f"Salvando dados na base de dados para o minuto: {next_save_time}")
-            db.save_results_to_bd(video_file, detected_vehicles, class_counter, total_class_counter,camera)
-            next_save_time += timedelta(minutes=1) 
 
+        
+        if tempo_agrupado != ultimo_tempo_guardado:
+            print(f"[{tempo_agrupado}] Salvando dados na base de dados...")
+            if not db.exists_result(tempo_agrupado, camera):
+                #db.save_results_to_bd(class_counter, total_class_counter, tempo_agrupado, camera)
+                print(f"[{tempo_agrupado}] Dados salvos na base de dados.")
+            else:
+                print(f"[{tempo_agrupado}] Já existe entrada para esta câmara. Ignorado.")
+            ultimo_tempo_guardado = tempo_agrupado
+
+        frame_number += 1
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
-    for track_id in track_history :
+
+
+
+    for track_id in track_history:
         _map_direction_(track_history, track_id, camera)
+    if not db.exists_result(ultimo_tempo_guardado, camera):
+        print(f"[{ultimo_tempo_guardado}] Salvando dados finais na base de dados (forçado no fim do vídeo)...")
+        db.save_results_to_bd(class_counter, total_class_counter, ultimo_tempo_guardado, camera)
+    else:
+        print(f"[{ultimo_tempo_guardado}] Dados já existentes no fim do vídeo.")
     cap.release()
     cv2.destroyAllWindows()
     save_results_to_file(video_file, detected_vehicles, class_counter, total_class_counter)
+
 
 def get_camera_direction(camera_name):
     """
@@ -66,9 +85,9 @@ def get_camera_direction(camera_name):
         # Conectar ao banco de dados
         connection = psycopg2.connect(**DB_CONFIG)
         cursor = connection.cursor()
-
+ 
         # Query para buscar a direção da câmera
-        query = "SELECT direction FROM camera WHERE name = %s"
+        query = "SELECT direction FROM location WHERE location_id = 8"
         cursor.execute(query, (camera_name,))
         result = cursor.fetchone()
 
@@ -117,50 +136,90 @@ def _map_direction_(track_history, track_id, camera):
 
     # Map angle to direction
 
-    if camera_direction == "norte":
-        if 45 <= angle < 135:
+    if camera_direction == "N":
+        if 22.5 <= angle < 67.5:
+            direction = "NE"
+        elif 67.5 <= angle < 112.5:
             direction = "N"
-        elif 135 <= angle < 225:
+        elif 112.5 <= angle < 157.5:
+            direction = "NW"
+        elif 157.5 <= angle < 202.5:
             direction = "W"
-        elif 225 <= angle < 315:
+        elif 202.5 <= angle < 247.5:
+            direction = "SW"
+        elif 247.5 <= angle < 292.5:
             direction = "S"
+        elif 292.5 <= angle < 337.5:
+            direction = "SE"
         else:
             direction = "E"
     elif camera_direction == "S":
-        if 45 <= angle < 135:
+        if 22.5 <= angle < 67.5:
+            direction = "SW"
+        elif 67.5 <= angle < 112.5:
             direction = "S"
-        elif 135 <= angle < 225:
+        elif 112.5 <= angle < 157.5:
+            direction = "SE"
+        elif 157.5 <= angle < 202.5:
             direction = "E"
-        elif 225 <= angle < 315:
+        elif 202.5 <= angle < 247.5:
+            direction = "NE"
+        elif 247.5 <= angle < 292.5:
             direction = "N"
+        elif 292.5 <= angle < 337.5:
+            direction = "NW"
         else:
             direction = "W"
     elif camera_direction == "E":
-        if 45 <= angle < 135:
+        if 22.5 <= angle < 67.5:
+            direction = "SE"
+        elif 67.5 <= angle < 112.5:
             direction = "E"
-        elif 135 <= angle < 225:
+        elif 112.5 <= angle < 157.5:
+            direction = "NE"
+        elif 157.5 <= angle < 202.5:
             direction = "N"
-        elif 225 <= angle < 315:
+        elif 202.5 <= angle < 247.5:
+            direction = "NW"
+        elif 247.5 <= angle < 292.5:
             direction = "W"
+        elif 292.5 <= angle < 337.5:
+            direction = "SW"
         else:
             direction = "S"
     elif camera_direction == "W":
-        if 45 <= angle < 135:
+        if 22.5 <= angle < 67.5:
+            direction = "NW"
+        elif 67.5 <= angle < 112.5:
             direction = "W"
-        elif 135 <= angle < 225:
+        elif 112.5 <= angle < 157.5:
+            direction = "SW"
+        elif 157.5 <= angle < 202.5:
             direction = "S"
-        elif 225 <= angle < 315:
+        elif 202.5 <= angle < 247.5:
+            direction = "SE"
+        elif 247.5 <= angle < 292.5:
             direction = "E"
+        elif 292.5 <= angle < 337.5:
+            direction = "NE"
         else:
             direction = "N"
     else:
         print(f"Direção da câmera '{camera}' não reconhecida. Usando cálculo padrão.")
-        if 45 <= angle < 135:
+        if 22.5 <= angle < 67.5:
+            direction = "NE"
+        elif 67.5 <= angle < 112.5:
             direction = "N"
-        elif 135 <= angle < 225:
+        elif 112.5 <= angle < 157.5:
+            direction = "NW"
+        elif 157.5 <= angle < 202.5:
             direction = "W"
-        elif 225 <= angle < 315:
+        elif 202.5 <= angle < 247.5:
+            direction = "SW"
+        elif 247.5 <= angle < 292.5:
             direction = "S"
+        elif 292.5 <= angle < 337.5:
+            direction = "SE"
         else:
             direction = "E"
 
