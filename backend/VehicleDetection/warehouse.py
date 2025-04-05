@@ -55,7 +55,7 @@ class Warehouse:
             query = """
                         select vc.id, vc.car, vc.motorcycle, vc.bike, vc.truck, vc.bus,
                                vc.n, vc.s, vc.e, vc.w, vc.ne, vc.nw, vc.se, vc.sw, 
-                               vc.timestamp, vc.location_id as db_location_id, l.location, l.direction
+                               vc.timestamp, l.location, l.direction
                         from vehicle_counts vc
                         join location l on l.location_id = vc.location_id;
                     """
@@ -149,43 +149,20 @@ class Warehouse:
 
     def load_dim_location(self, df):
         try:
-            self.location_df = df[["db_location_id", "location", "direction"]].drop_duplicates()
+            self.location_df = df[["location", "direction"]].drop_duplicates()
 
             with self.engine.begin() as conn:
                 for _, row in self.location_df.iterrows():
-                    existing_location = pd.read_sql(
-                        f"SELECT * FROM dim_location WHERE db_location_id = {row['db_location_id']}",
-                        conn
+                    conn.execute(
+                        text("""
+                            INSERT INTO dim_location (location, direction)
+                            VALUES (:location, :direction)
+                        """), 
+                        {
+                            "location": row["location"],
+                            "direction": row["direction"]
+                        }
                     )
-
-                    if not existing_location.empty:
-                        conn.execute(
-                            text("""
-                                UPDATE dim_location
-                                SET location = :location,
-                                    direction = :direction
-                                WHERE db_location_id = :db_location_id
-                            """), 
-                            {
-                                "location": row["location"],
-                                "direction": row["direction"],
-                                "db_location_id": row["db_location_id"]
-                            }
-                        )
-                        print(f"CUSTOM: Updated db_location_id {row['db_location_id']}")
-                    else:
-                        conn.execute(
-                            text("""
-                                INSERT INTO dim_location (db_location_id, location, direction)
-                                VALUES (:db_location_id, :location, :direction)
-                            """), 
-                            {
-                                "db_location_id": row["db_location_id"],
-                                "location": row["location"],
-                                "direction": row["direction"]
-                            }
-                        )
-                        print(f"CUSTOM: Inserted new db_location_id {row['db_location_id']}")
                         
             self.location_df = pd.read_sql("SELECT * FROM dim_location", self.engine)
         except Exception as e:
@@ -211,9 +188,9 @@ class Warehouse:
                 right_on="full_time",
                 how="inner"
             ).merge(
-                self.location_df[["location_id", "db_location_id"]],
-                left_on="db_location_id",
-                right_on="db_location_id",
+                self.location_df[["location_id", "location"]],
+                left_on="location",
+                right_on="location",
                 how="inner"
             )
             

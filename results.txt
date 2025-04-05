@@ -1,0 +1,28 @@
+CREATE TABLE dim_location (
+  location_id SERIAL PRIMARY KEY,
+  location VARCHAR(80) NOT NULL,
+  direction VARCHAR(25) NOT NULL
+);
+
+CREATE TABLE fact_vehicle_counts (
+     id SERIAL PRIMARY KEY, 
+     date_id INT NOT NULL,
+     time_id INT NOT NULL,
+     location_id INT NOT NULL,
+     car INT DEFAULT 0,
+     motorcycle INT DEFAULT 0, 
+     bike INT DEFAULT 0,
+     truck INT DEFAULT 0,
+     bus INT DEFAULT 0,
+     n INT DEFAULT 0,
+     s INT DEFAULT 0,
+     e INT DEFAULT 0,
+     w INT DEFAULT 0,
+     ne INT DEFAULT 0,
+     nw INT DEFAULT 0,
+     se INT DEFAULT 0,
+     sw INT DEFAULT 0,
+     FOREIGN KEY (date_id) REFERENCES dim_date(date_id),
+     FOREIGN KEY (time_id) REFERENCES dim_time(time_id),
+     FOREIGN KEY (location_id) REFERENCES dim_location(location_id)
+);
