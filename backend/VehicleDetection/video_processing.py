@@ -45,15 +45,16 @@ def process_video(video_file, model, ground_truth, total_class_counter, time_of_
         frame = cv2.resize(frame, (640, 480))
         frame, track_history = process_frame(frame, model, detected_vehicles, class_counter, track_history, camera)
 
-        # Mostra o FPS (não necessário em produção)
+        # Mostra o FPS 
         cv2.putText(frame, f"Frame: {frame_number}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
         cv2.imshow('Frame', frame)
 
-        # Se mudámos para o próximo intervalo de 5 minutos
+        
         if tempo_agrupado != ultimo_tempo_guardado:
             print(f"[{tempo_agrupado}] Salvando dados na base de dados...")
             if not db.exists_result(tempo_agrupado, camera):
-                db.save_results_to_bd(class_counter, total_class_counter, tempo_agrupado, camera)
+                #db.save_results_to_bd(class_counter, total_class_counter, tempo_agrupado, camera)
+                print(f"[{tempo_agrupado}] Dados salvos na base de dados.")
             else:
                 print(f"[{tempo_agrupado}] Já existe entrada para esta câmara. Ignorado.")
             ultimo_tempo_guardado = tempo_agrupado
