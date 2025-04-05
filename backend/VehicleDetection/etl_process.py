@@ -2,56 +2,78 @@ import luigi
 from warehouse import Warehouse
 import pandas as pd
 import os
-
-#pip install luigi
-#pip install pandas
+from datetime import datetime
 
 dw = Warehouse()
 
+path = "backend/VehicleDetection/data/"
+
 class ExtractTask(luigi.Task):
     def output(self):
-        return luigi.LocalTarget('data/extracted.csv') 
+        return luigi.LocalTarget(path+'extracted.csv')
+
+    def complete(self):
+        # Only consider complete if file exists and was modified recently
+        if not os.path.exists(self.output().path):
+            return False
+        file_age = datetime.now() - datetime.fromtimestamp(os.path.getmtime(self.output().path))
+
+        print(f"CUSTOM: file location: {os.path.abspath(self.output().path)}")
+        return file_age.total_seconds() < 60  # Consider stale after 1 minute
 
     def run(self):
-        # Ensure the directory exists
-        output_path = os.path.dirname(self.output().path)
-        os.makedirs(output_path, exist_ok=True)
+        os.makedirs(os.path.dirname(self.output().path), exist_ok=True)
 
+        print("CUSTOM: Starting extraction...")
         dw.connect_db()
         data = dw.extract_data()
-        
+        dw.close_db()
+
         if data is not None and not data.empty:
-            with open(self.output().path, 'w', encoding='utf-8') as f:
-                data.to_csv(f, index=False)
-                print(f"DEBUG: Extracted data written successfully")
+            data.to_csv(self.output().path, index=False, encoding='utf-8')
+            print("CUSTOM: Extracted data written successfully")
         else:
-            print("DEBUG: No data to write to file.")
-        
+            raise Exception("CUSTOM: No data extracted!")
+
 class TransformTask(luigi.Task):
     def requires(self):
         return ExtractTask()
 
     def output(self):
-        return luigi.LocalTarget('data/transformed.csv')
-    
+        return luigi.LocalTarget(path+'transformed.csv')
+
+    def complete(self):
+        # Only complete if output exists and is newer than input
+        if not os.path.exists(self.output().path):
+            return False
+        
+        input_mtime = os.path.getmtime(self.input().path)
+        output_mtime = os.path.getmtime(self.output().path)
+        return output_mtime > input_mtime
+
     def run(self):
+        print("CUSTOM: Starting transformation...")
         with self.input().open('r') as f:
             extracted_data = pd.read_csv(f)
 
-        extracted_data = dw.transform_data(extracted_data)
+        transformed_data = dw.transform_data(extracted_data)
         
-        if extracted_data is not None and not extracted_data.empty:
-            with open(self.output().path, 'w', encoding='utf-8') as f:
-                extracted_data.to_csv(f, index=False)
-                print(f"DEBUG: Transformed data written successfully")
+        if transformed_data is not None and not transformed_data.empty:
+            transformed_data.to_csv(self.output().path, index=False, encoding='utf-8')
+            print("CUSTOM: Transformed data written successfully")
         else:
-            print("DEBUG: No transformed data to write to file.")
-        
+            raise Exception("CUSTOM: Transformation failed!")
+
 class LoadTask(luigi.Task):
     def requires(self):
         return TransformTask()
 
+    def complete(self):
+        # LoadTask has no output, so it should always run
+        return False
+
     def run(self):
+        print("CUSTOM: Starting load process...")
         dw.connect_dw()
         
         with self.input().open('r') as f:
@@ -61,16 +83,20 @@ class LoadTask(luigi.Task):
             dw.load_dim_date(transformed_data)
             dw.load_dim_time(transformed_data)
             dw.load_dim_location(transformed_data)
-            loaded_data = dw.load_fact_vehicle_count(transformed_data)
-            #print(f"DEBUG: Loaded Data: \n{loaded_data}")
-            print("INFO: Data loaded successfully")
+            dw.load_fact_vehicle_count(transformed_data)
+            print("CUSTOM: Data loaded successfully")
         else:
-            print("DEBUG: No data to load.")
+            raise Exception("CUSTOM: No data to load!")
         
         dw.close_dw()
-        
+
 if __name__ == '__main__':
-    luigi.run(main_task_cls=LoadTask)
+    # Force clean the output files to ensure fresh run
+    for f in [path+'extracted.csv', path+'transformed.csv']:
+        if os.path.exists(f):
+            os.remove(f)
+    
+    luigi.run(main_task_cls=LoadTask, local_scheduler=True)
 
 # luigid -> para iniciar o servidor 
 # http://localhost:8082/ -> para acessar o servidor

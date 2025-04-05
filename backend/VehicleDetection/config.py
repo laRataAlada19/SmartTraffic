@@ -7,7 +7,7 @@ DB_CONFIG = {
     "dbname": "vehicle_detection",
     "user": "user",
     "password": "123",
-    "port": "5433",
+    "port": "5432",
     "host": "localhost"
 }
 DW_CONFIG = {
