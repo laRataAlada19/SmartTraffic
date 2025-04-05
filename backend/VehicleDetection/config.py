@@ -14,6 +14,7 @@ DW_CONFIG = {
     "dbname": "warehouse_vehicle_count_db",
     "user": "user",
     "password": "123",
+    "port": "5433",
     "host": "localhost"
 }
 

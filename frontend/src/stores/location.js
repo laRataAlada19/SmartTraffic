@@ -31,9 +31,35 @@ export const useLocationStore = defineStore('location', () => {
     }
   };
 
+  const deleteLocation = async (locationId) => {
+    try {
+      await axios.delete(`/api/locations/${locationId}`);
+      locations.value = locations.value.filter(location => location.id !== locationId);
+    } catch (error) {
+      console.error('Erro ao excluir localização:', error);
+      throw error;
+    }
+  }
+
+  const updateLocation = async (locationId, updatedLocation) => {
+    try {
+      const response = await axios.put(`/api/locations/${locationId}`, updatedLocation);
+      const index = locations.value.findIndex(location => location.id === locationId);
+      if (index !== -1) {
+        locations.value[index] = response.data;
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar localização:', error);
+      throw error;
+    }
+  }
+
+
   return {
     locations,
     fetchLocations,
     addLocation,
+    deleteLocation,
+    updateLocation
   };
 });
