@@ -4,6 +4,30 @@ CREATE TABLE dim_location (
   direction VARCHAR(25) NOT NULL
 );
 
+CREATE TABLE dim_location (
+  location_id SERIAL PRIMARY KEY,
+  db_location_id INT UNIQUE NOT NULL,
+  location VARCHAR(80) NOT NULL,
+  direction VARCHAR(25) NOT NULL
+);
+
+CREATE TABLE dim_time (
+  time_id SERIAL PRIMARY KEY,
+  full_time TIME UNIQUE NOT NULL,
+  hour INT,
+  minute INT,
+  period VARCHAR(10)
+);
+
+CREATE TABLE dim_date (
+  date_id SERIAL PRIMARY KEY,
+  full_date DATE UNIQUE NOT NULL,
+  year INT,
+  month INT,
+  day INT,
+  weekday VARCHAR(20)
+);
+
 CREATE TABLE fact_vehicle_counts (
      id SERIAL PRIMARY KEY, 
      date_id INT NOT NULL,
@@ -26,3 +50,9 @@ CREATE TABLE fact_vehicle_counts (
      FOREIGN KEY (time_id) REFERENCES dim_time(time_id),
      FOREIGN KEY (location_id) REFERENCES dim_location(location_id)
 );
+
+Laravel : http://localhost:8000
+Vue : http://localhost:8001
+
+Main DB: port 5432
+Warehouse DB: port 5433
