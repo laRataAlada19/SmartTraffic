@@ -1,12 +1,12 @@
 CREATE TABLE dim_location (
   location_id SERIAL PRIMARY KEY,
+  db_location_id INT UNIQUE NOT NULL,
   location VARCHAR(80) NOT NULL,
   direction VARCHAR(25) NOT NULL
 );
 
 CREATE TABLE dim_location (
   location_id SERIAL PRIMARY KEY,
-  db_location_id INT UNIQUE NOT NULL,
   location VARCHAR(80) NOT NULL,
   direction VARCHAR(25) NOT NULL
 );
@@ -51,8 +51,16 @@ CREATE TABLE fact_vehicle_counts (
      FOREIGN KEY (location_id) REFERENCES dim_location(location_id)
 );
 
-Laravel : http://localhost:8000
-Vue : http://localhost:8001
+Laravel : http://localhost:8000/
+Vue : http://localhost:8001/
+Superset: http://localhost:8088/login/
 
 Main DB: port 5432
 Warehouse DB: port 5433
+postgresql+psycopg2://user:123@host.docker.internal/warehouse_vehicle_count_db -> para conectar a DW na dashboard do superset
+
+docker compose down -v && docker compose build --no-cache && docker compose up
+
+docker compose up -> para projeto_informatico
+
+docker compose -f docker-compose-image-tag.yml up -> para superset
