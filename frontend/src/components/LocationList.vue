@@ -45,6 +45,15 @@ onMounted(() => {
         No locations available.
       </li>
     </ul>
+    <iframe
+  width="600"
+  height="400"
+  seamless
+  frameBorder="0"
+  scrolling="no"
+  src="http://localhost:8088/superset/explore/p/0br91Yq1aYM/?standalone=1&height=400"
+>
+</iframe>
 
     <!-- Formulário para criar nova localização -->
     <div>
