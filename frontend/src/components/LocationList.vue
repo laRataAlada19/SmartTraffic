@@ -51,10 +51,14 @@ onMounted(() => {
   seamless
   frameBorder="0"
   scrolling="no"
-  src="http://localhost:8088/superset/explore/p/0br91Yq1aYM/?standalone=1&height=400"
+  sandbox
+  src="http://localhost:8088/superset/explore/p/a9BQerOEqDk/?standalone=1&height=400"
 >
 </iframe>
 
+<a href="http://localhost:8088/superset/explore/p/a9BQerOEqDk/?standalone=1&height=400" target="_blank">
+  Open Dashboard
+</a>
     <!-- Formulário para criar nova localização -->
     <div>
       <input v-model="locationName" type="text" placeholder="Digite o nome da localização"/>
