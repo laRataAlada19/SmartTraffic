@@ -64,3 +64,31 @@ docker compose down -v && docker compose build --no-cache && docker compose up
 docker compose up -> para projeto_informatico
 
 docker compose -f docker-compose-image-tag.yml up -> para superset
+
+
+
+
+
+
+-----
+docker exec -it projeto_informatico-backend-1 php artisan migrate:status
+php artisan migrate
+
+
+
+CREATE TABLE locations (
+    location_id SERIAL PRIMARY KEY,
+    location VARCHAR(100) NOT NULL,
+    direction VARCHAR(50) NOT NULL
+);
+
+
+
+alter table vehicle_counts
+add constraint fk_vehicle_counts_location_id
+foreign key (location_id)
+references locations(location_id);
+
+
+da drop dessa tab (drop table location cascade;) pq o nome esta mal, n esta de acordo com alguma conveçao
+eu fui ver ao proj de DAD e temos no plural tmb

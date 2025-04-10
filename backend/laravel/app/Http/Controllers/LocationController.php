@@ -5,17 +5,25 @@ namespace App\Http\Controllers;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class LocationController extends Controller
 {
     public function index()
     {
-        Log::info('Teste de logging no Laravel');
-        return response()->json(Location::all(), 200);
+        try {
+            $locations = Location::all();
+            return response()->json($locations, 200);
+        } catch (\Exception $e) {
+            Log::error('Error fetching locations: ' . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function store(Request $request)
     {
+        Log::info('Storing a new location', ['request' => $request->all()]);
+
         $validated = $request->validate([
             'location' => 'required|string|max:255',
             'direction' => 'required|string|max:10',

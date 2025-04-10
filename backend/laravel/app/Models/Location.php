@@ -7,17 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 class Location extends Model
 {
     use HasFactory;
-
-    protected $table = 'location';
-
+    
+    protected $connection = 'pgsql'; // Explicitly set connection
+    protected $table = 'locations'; // Just table name without schema
+    
     protected $fillable = [
         'location', 
-        'direction',
+        'direction'
     ];
 
     public $timestamps = false;
-
-    protected $primaryKey = 'location_id'; // Especifica a chave primária
-    public $incrementing = false; // Define se a chave primária é auto-incrementada
-    protected $keyType = 'string'; // Define o tipo da chave primária (se necessário)
+    protected $primaryKey = 'location_id';
+    public $incrementing = true;
+    protected $keyType = 'integer';
 }
