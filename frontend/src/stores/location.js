@@ -20,11 +20,10 @@ export const useLocationStore = defineStore('location', () => {
   // Função para adicionar uma nova localização
   const addLocation = async (location,direction) => {
     try {
-     console.log("loc",location);
-    console.log("dir",direction);
+      console.log("loc",location);
+      console.log("dir",direction);
       const response = await axios.post('/api/locations', { location ,direction});
       locations.value.push(response.data); // Atualiza o estado local com a nova localização
-
     } catch (error) {
       console.error('Erro ao adicionar localização:', error);
       throw error;
