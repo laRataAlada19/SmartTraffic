@@ -1,0 +1,40 @@
+services:
+  backend:
+    container_name: laravel
+    build:
+      context: ./backend/laravel
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/laravel/.env
+      
+  frontend:
+    container_name: vue
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8001:3000"
+    environment:
+      - NODE_ENV=development
+      - VUE_APP_API_URL=http://backend
+    stdin_open: true
+    tty: true
+
+  etl:
+      container_name: etl
+      build:
+        context: ./backend/etl
+        dockerfile: Dockerfile
+
+  vehicleDetection:
+    container_name: vehicle_detection
+    build:
+      context: ./backend/VehicleDetection
+      dockerfile: Dockerfile
+    image: projeto_informatico-vehicledetection
+
+volumes:
+  pgdata: {}
+  warehouse-data: {}

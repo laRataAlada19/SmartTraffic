@@ -7,18 +7,11 @@ DB_CONFIG = {
     "dbname": "vehicle_detection",
     "user": "user",
     "password": "123",
-    "port": "5433",
-    "host": "localhost"
-}
-DW_CONFIG = {
-    "dbname": "warehouse_vehicle_count_db",
-    "user": "user",
-    "password": "123",
-    "port": "5433",
-    "host": "localhost"
-}
+    "port": "5432",
+    "host": "host.docker.internal"
+} #"port": "5433",
 
-videos_directory = "videos"
+videos_directory = "./backend/VehicleDetection/videos"
 
 video_files_by_camera={}
 

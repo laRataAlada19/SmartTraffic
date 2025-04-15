@@ -1,14 +1,10 @@
+========= DW =========
 CREATE TABLE dim_location (
   location_id SERIAL PRIMARY KEY,
-  db_location_id INT UNIQUE NOT NULL,
-  location VARCHAR(80) NOT NULL,
-  direction VARCHAR(25) NOT NULL
-);
-
-CREATE TABLE dim_location (
-  location_id SERIAL PRIMARY KEY,
-  location VARCHAR(80) NOT NULL,
-  direction VARCHAR(25) NOT NULL
+  location VARCHAR(100) NOT NULL,
+  location_old VARCHAR(100),
+  direction VARCHAR(50) NOT NULL,
+  direction_old VARCHAR(50)
 );
 
 CREATE TABLE dim_time (
@@ -51,6 +47,51 @@ CREATE TABLE fact_vehicle_counts (
      FOREIGN KEY (location_id) REFERENCES dim_location(location_id)
 );
 
+
+========= DB =========
+CREATE TABLE locations (
+    location_id SERIAL PRIMARY KEY,
+    location VARCHAR(100) NOT NULL,
+    direction VARCHAR(50) NOT NULL,
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+create table vehicle_counts (
+  id SERIAL PRIMARY KEY,
+  car INT,
+  motorcycle INT,
+  bike INT,
+  truck INT,
+  bus INT,
+  n INT,
+  s INT,
+  e INT,
+  w INT,
+  ne INT,
+  nw INT,
+  se INT,
+  sw INT,
+  timestamp TIMESTAMP,
+  location_id int not null,
+  FOREIGN KEY (location_id) REFERENCES locations(location_id)
+);
+
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_location_modtime
+BEFORE UPDATE ON locations
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+
+
+
+
 Laravel : http://localhost:8000/
 Vue : http://localhost:8001/
 Superset: http://localhost:8088/login/
@@ -59,36 +100,51 @@ Main DB: port 5432
 Warehouse DB: port 5433
 postgresql+psycopg2://user:123@host.docker.internal/warehouse_vehicle_count_db -> para conectar a DW na dashboard do superset
 
+psql -h localhost -p 5433 -U user -d vehicle_detection -> entrar na bd com docker, n e a msm bd
+
+docker exec laravel php artisan migrate -> sempre que se faz docker build
+
 docker compose down -v && docker compose build --no-cache && docker compose up
 
 docker compose up -> para projeto_informatico
+
+You are connected to database "vehicle_detection" as user "user" via socket in "/tmp" at port "5432".
 
 docker compose -f docker-compose-image-tag.yml up -> para superset
 
 
 
+#┌───────────── Minute (0-59)
+#│ ┌───────────── Hour (0-23)
+#│ │ ┌───────────── Day of month (1-31)
+#│ │ │ ┌───────────── Month (1-12)
+#│ │ │ │ ┌───────────── Day of week (0-6, Sunday=0)
+#│ │ │ │ │
+#│ │ │ │ │
+#*/2 * * * *   ← every 2 minutes
 
 
 
------
-docker exec -it projeto_informatico-backend-1 php artisan migrate:status
-php artisan migrate
+  db:
+    container_name: vehicle_db
+    image: postgres:12
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=vehicle_detection
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=123
+    volumes:
+      - pgdata:/var/lib/postgresql/data  
 
-
-
-CREATE TABLE locations (
-    location_id SERIAL PRIMARY KEY,
-    location VARCHAR(100) NOT NULL,
-    direction VARCHAR(50) NOT NULL
-);
-
-
-
-alter table vehicle_counts
-add constraint fk_vehicle_counts_location_id
-foreign key (location_id)
-references locations(location_id);
-
-
-da drop dessa tab (drop table location cascade;) pq o nome esta mal, n esta de acordo com alguma conveçao
-eu fui ver ao proj de DAD e temos no plural tmb
+  warehouse:
+    container_name: vehicle_dw
+    image: postgres:12
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_DB=warehouse_vehicle_count_db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=123
+    volumes:
+      - warehouse-data:/var/lib/postgresql/data

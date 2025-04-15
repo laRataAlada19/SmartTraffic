@@ -7,7 +7,6 @@ from datetime import datetime
 def main():
     model = load_model()
     clean_file("results.txt")
-
    
     time_of_start = datetime.strptime("2025-03-20 16:35:40", "%Y-%m-%d %H:%M:%S")
     for video in video_files:

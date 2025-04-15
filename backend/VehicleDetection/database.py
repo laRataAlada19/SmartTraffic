@@ -55,7 +55,6 @@ class Database:
             print(f"Erro ao verificar existência de dados: {e}")
             return False
 
-
     def save_results_to_bd(self, class_counter, total_class_counter, timestamp, camera):
         try:
             from collections import Counter
@@ -73,7 +72,7 @@ class Database:
             # Atualiza o total acumulado por tipo de veículo
             for vehicle_type, count in class_counter.items():
                 total_class_counter[vehicle_type] += count
-
+                
             query = """
                 INSERT INTO vehicle_counts (
                     timestamp, car, motorcycle, bike, truck, bus,

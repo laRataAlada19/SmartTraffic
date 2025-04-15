@@ -3,66 +3,90 @@
 namespace App\Http\Controllers;
 
 use App\Models\Location;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
+use App\Http\Requests\CreateLocationRequest;
+use App\Http\Requests\IndexLocationRequest;
+use App\Http\Requests\UpdateLocationRequest;
 
 class LocationController extends Controller
 {
-    public function index()
+    public function index(IndexLocationRequest $request)
     {
         try {
-            $locations = Location::all();
-            return response()->json($locations, 200);
+            $query = Location::query();
+
+            if ($request->filled('location')) {
+                $query->where('location', 'like', '%' . $request->location . '%');
+            }
+
+            if ($request->filled('direction')) {
+                $query->where('direction', 'like', '%' . $request->direction . '%');
+            }
+
+            if ($request->filled('sort_by') && $request->filled('sort_order')) {
+                $query->orderBy($request->sort_by, $request->sort_order);
+            }
+
+            $locations = $query->paginate($request->input('per_page', 20));
+            
+            return response()->json([
+                'data' => $locations->items(),
+                'meta' => [
+                    'current_page' => $locations->currentPage(),
+                    'last_page' => $locations->lastPage(),
+                    'per_page' => $locations->perPage(),
+                    'total' => $locations->total(),
+                ],
+            ]);
         } catch (\Exception $e) {
             Log::error('Error fetching locations: ' . $e->getMessage());
-            throw $e;
+            return response()->json(['message' => 'Error fetching locations'], 500);
         }
     }
 
-    public function store(Request $request)
+    public function store(CreateLocationRequest $request)
     {
-        Log::info('Storing a new location', ['request' => $request->all()]);
-
-        $validated = $request->validate([
-            'location' => 'required|string|max:255',
-            'direction' => 'required|string|max:10',
-        ]);
-
-        $location = Location::create([
-            'location' => $validated['location'],
-            'direction' => $validated['direction'],
-        ]);
-
-        return response()->json($location, 201);
+        try {
+            $location = Location::create($request->validated());
+            return response()->json($location, 201);
+        } catch (\Exception $e) {
+            Log::error('Error creating location: ' . $e->getMessage());
+            return response()->json(['message' => 'Error creating location'], 500);
+        }
     }
 
     public function show($id)
     {
-        $location = Location::find($id);
-        if (!$location) {
-            return response()->json(['message' => 'Location not found'], 404);
+        try {
+            $location = Location::find($id);
+            return response()->json($location);
+        } catch (\Exception $e) {
+            Log::error('Error fetching location: ' . $e->getMessage());
+            return response()->json(['message' => 'Error fetching location'], 500);
         }
-        return response()->json($location);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateLocationRequest $request, $id)
     {
-        $location = Location::find($id);
-        if (!$location) {
-            return response()->json(['message' => 'Location not found'], 404);
+        try {
+            $location = Location::find($id);
+            $location->update($request->validate());
+            return response()->json($location, 200);
+        } catch (\Exception $e) {
+            Log::error('Error updating location: ' . $e->getMessage());
+            return response()->json(['message' => 'Error updating location'], 500);
         }
-        $location->update($request->all());
-        return response()->json($location);
     }
 
     public function destroy($id)
     {
-        $location = Location::find($id);
-        if (!$location) {
-            return response()->json(['message' => 'Location not found'], 404);
+        try {
+            $location = Location::find($id);
+            $location->delete();
+            return response()->json(['message' => 'Location deleted successfully'], 204);
+        } catch (\Exception $e) {
+            Log::error('Error deleting location: ' . $e->getMessage());
+            return response()->json(['message' => 'Error deleting location'], 500);
         }
-        $location->delete();
-        return response()->json(['message' => 'Location deleted successfully']);
     }
 }
