@@ -12,4 +12,9 @@ class Location extends Model
         'location', 
         'direction'
     ];
+
+    public $timestamps = false;
+    protected $primaryKey = 'location_id';
+    public $incrementing = true;
+    protected $keyType = 'integer';
 }

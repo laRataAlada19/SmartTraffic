@@ -39,7 +39,7 @@ class LocationController extends Controller
                 ],
             ]);
         } catch (\Exception $e) {
-            Log::error('Error fetching locations: ' . $e->getMessage());
+            Log::error('Error fetching locatsadasions: ' . $e->getMessage());
             return response()->json(['message' => 'Error fetching locations'], 500);
         }
     }
@@ -51,7 +51,7 @@ class LocationController extends Controller
             return response()->json($location, 201);
         } catch (\Exception $e) {
             Log::error('Error creating location: ' . $e->getMessage());
-            return response()->json(['message' => 'Error creating location'], 500);
+            return response()->json(['message' => 'Error creating location' . $e->getMessage()], 500);
         }
     }
 
