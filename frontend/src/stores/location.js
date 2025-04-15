@@ -10,19 +10,22 @@ export const useLocationStore = defineStore('location', () => {
   const fetchLocations = async () => {
     try {
       const response = await axios.get('/api/locations');
-      console.log("aqui" , response.data);
-      locations.value = response.data;
+      console.log("aqui" , response.data.data);
+      locations.value = response.data.data;
     } catch (error) {
       console.error('Erro ao buscar locais:', error);
     }
   };
 
   // Função para adicionar uma nova localização
-  const addLocation = async (location,direction) => {
+  const addLocation = async (location, direction) => {
     try {
-      console.log("loc",location);
-      console.log("dir",direction);
-      const response = await axios.post('/api/locations', { location ,direction});
+      const response = await axios.post('/api/locations', null, {
+        params: {
+          location: location,
+          direction: direction,
+        },
+      });
       locations.value.push(response.data); // Atualiza o estado local com a nova localização
     } catch (error) {
       console.error('Erro ao adicionar localização:', error);
