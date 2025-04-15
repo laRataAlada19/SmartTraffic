@@ -6,9 +6,12 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend/laravel:/var/www/html
+      - /var/www/html/vendor  
     env_file:
       - ./backend/laravel/.env
-      
+
   frontend:
     container_name: vue
     build:
@@ -16,6 +19,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8001:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules       
     environment:
       - NODE_ENV=development
       - VUE_APP_API_URL=http://backend
@@ -23,10 +29,10 @@ services:
     tty: true
 
   etl:
-      container_name: etl
-      build:
-        context: ./backend/etl
-        dockerfile: Dockerfile
+    container_name: etl
+    build:
+      context: ./backend/etl
+      dockerfile: Dockerfile
 
   vehicleDetection:
     container_name: vehicle_detection

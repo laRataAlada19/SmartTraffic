@@ -40,7 +40,7 @@ onMounted(() => {
     <h1>Location List</h1>
     <ul>
       <li v-for="location in locationStore.locations" :key="location.id">
-       {{ location.location_id }}:{{ location.location }} :: {{ location.direction }}
+       {{ location.location_id }}:{{ location.location }} - {{ location.direction }}
       </li>
       <li v-if="locationStore.locations.length === 0">
         No locations available.
