@@ -6,7 +6,7 @@ from datetime import datetime
 
 dw = Warehouse()
 
-path = "backend/etl/data/"
+path = "/app/data/"
 
 class ExtractTask(luigi.Task):
     def output(self):

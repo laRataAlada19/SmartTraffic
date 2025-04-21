@@ -1,1 +1,0 @@
-*/10 * * * * /usr/local/bin/python /app/etl_process.py >> /var/log/cron.log 2>&1

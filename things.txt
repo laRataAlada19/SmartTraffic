@@ -90,8 +90,6 @@ FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 
 
-
-
 Laravel : http://localhost:8000/
 Vue : http://localhost:8001/
 Superset: http://localhost:8088/login/
@@ -100,18 +98,17 @@ Main DB: port 5432
 Warehouse DB: port 5433
 postgresql+psycopg2://user:123@host.docker.internal/warehouse_vehicle_count_db -> para conectar a DW na dashboard do superset
 
-psql -h localhost -p 5433 -U user -d vehicle_detection -> entrar na bd com docker, n e a msm bd
-
-docker exec laravel php artisan migrate -> sempre que se faz docker build
-
-docker compose down -v && docker compose build --no-cache && docker compose up
-
+docker compose down -v
 docker compose up -> para projeto_informatico
-
-You are connected to database "vehicle_detection" as user "user" via socket in "/tmp" at port "5432".
 
 docker compose -f docker-compose-image-tag.yml up -> para superset
 
+
+docker exec -it vehicle_detection bash
+tail -f /var/log/cron_VehicleDetection.log
+-----
+docker exec -it etl bash 
+tail -f /var/log/cron_etl.log
 
 
 #┌───────────── Minute (0-59)
@@ -124,27 +121,9 @@ docker compose -f docker-compose-image-tag.yml up -> para superset
 #*/2 * * * *   ← every 2 minutes
 
 
+cd "/Users/nazariy/Library/Application Support/Postgres/var-17"
+nano "postgresql.conf"
+mudar a linha que diz listen_addresses para #listen_addresses = '*'
 
-  db:
-    container_name: vehicle_db
-    image: postgres:12
-    ports:
-      - "5433:5432"
-    environment:
-      - POSTGRES_DB=vehicle_detection
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=123
-    volumes:
-      - pgdata:/var/lib/postgresql/data  
-
-  warehouse:
-    container_name: vehicle_dw
-    image: postgres:12
-    ports:
-      - "5434:5432"
-    environment:
-      - POSTGRES_DB=warehouse_vehicle_count_db
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=123
-    volumes:
-      - warehouse-data:/var/lib/postgresql/data
+nano "pg_hba.conf"
+adicionar no final isto -> host    all             all             192.168.65.0/24         md5

@@ -41,7 +41,7 @@ class Database:
             cur = conn.cursor()
 
             query = """
-            SELECT COUNT(*) FROM vehicle_count 
+            SELECT COUNT(*) FROM vehicle_counts 
             WHERE timestamp = %s AND location_id = 8
             """
             cur.execute(query, (timestamp, camera))
@@ -75,13 +75,15 @@ class Database:
                 
             query = """
                 INSERT INTO vehicle_counts (
-                    timestamp, car, motorcycle, bike, truck, bus,
-                    n, s, e, w, ne, nw, se, sw
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    car, motorcycle, bike, truck, bus,
+                    n, s, e, w, ne, nw, se, sw,
+                    timestamp, location_id
+                ) VALUES (%s, %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s, %s, %s, %s,
+                    %s, 8)
             """
 
             params = (
-                timestamp,
                 class_counter.get("car", 0),
                 class_counter.get("motorcycle", 0),
                 class_counter.get("bike", 0),
@@ -95,6 +97,7 @@ class Database:
                 final_directions["NW"],
                 final_directions["SE"],
                 final_directions["SW"],
+                timestamp
             )
 
             self.execute_query(query, params)

@@ -1,0 +1,1 @@
+*/2 * * * * /usr/local/bin/python /app/check_new_videos.py >> /var/log/cron_VehicleDetection.log 2>&1

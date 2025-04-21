@@ -1,6 +1,2 @@
 psycopg2-binary
-numpy
-opencv-python
-ultralytics
-flask
 requests

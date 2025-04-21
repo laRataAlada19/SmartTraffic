@@ -1,1 +1,6 @@
-
+vehicle_count_id,car,motorcycle,bike,truck,bus,n,s,e,w,ne,nw,se,sw,timestamp,location_id,location,direction
+37,23,4,0,4,0,0,0,24,1,4,1,0,0,2025-03-20 16:35:00,8,Cedar St & 15th Ave,SW
+38,23,4,0,4,0,0,0,24,1,4,1,0,0,2025-03-20 16:35:00,8,Cedar St & 15th Ave,SW
+39,1,1,1,1,1,1,1,1,1,1,1,1,1,2025-04-21 15:43:00,3,Pine St & 5th Ave,E
+40,1,1,1,1,1,1,1,1,1,1,1,1,1,2025-04-21 16:12:34,5,Market St & 9th Ave,NE
+41,1,1,1,1,1,1,1,1,1,1,1,1,1,2025-04-21 16:40:25,7,Maple St & 13th Ave,SE

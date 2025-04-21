@@ -11,7 +11,9 @@ DB_CONFIG = {
     "host": "host.docker.internal"
 } #"port": "5433",
 
-videos_directory = "./backend/VehicleDetection/videos"
+#videos_directory = "./backend/VehicleDetection/videos"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+videos_directory = os.path.join(BASE_DIR, "videos")
 
 video_files_by_camera={}
 

@@ -1,24 +1,28 @@
 FROM python:3.13-slim
 
-# Install dependencies
 WORKDIR /app
 COPY ./ ./
+
+# Install only necessary Python packages for watching
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Ensure python3 is available (for cron jobs)
-RUN ln -s /usr/local/bin/python /usr/bin/python3
+# Install cron and basic utilities
+RUN apt-get update && apt-get install -y \
+    cron \
+    procps \
+    && apt-get clean
 
-# Install cron
-RUN apt-get update && apt-get install -y cron
+# Set up crontab for VehicleDetection
+COPY crontab_vehicle.txt /etc/cron.d/vehicle-cron
+RUN chmod 0644 /etc/cron.d/vehicle-cron && crontab /etc/cron.d/vehicle-cron
 
-# Copy crontab file and apply
-COPY crontab.txt /etc/cron.d/VehicleDetection-cron
-RUN chmod 0644 /etc/cron.d/VehicleDetection-cron && crontab /etc/cron.d/VehicleDetection-cron
+# Make sure script is executable
+RUN chmod +x /app/check_new_videos.py
 
-# Give execution rights on the script
-RUN chmod +x /app/main.py
+# Create log file with appropriate permissions
+RUN touch /var/log/cron_VehicleDetection.log && chmod 666 /var/log/cron_VehicleDetection.log
 
-# Create log file
-RUN touch /var/log/cron_VehicleDetection.log
+CMD ["cron", "-f"]
 
-CMD cron && tail -f /var/log/cron_VehicleDetection.log
+ENV DOCKER_ENV=true
+ENV WATCH_DIR=/app/backend/VehicleDetection/videos/cam1

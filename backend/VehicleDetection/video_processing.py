@@ -47,8 +47,8 @@ def process_video(video_file, model, ground_truth, total_class_counter, time_of_
 
         # Mostra o FPS (não necessário em produção)
         # Mostra o FPS 
-        cv2.putText(frame, f"Frame: {frame_number}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
-        cv2.imshow('Frame', frame)
+        #cv2.putText(frame, f"Frame: {frame_number}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+        #cv2.imshow('Frame', frame)
 
         # Se mudámos para o próximo intervalo de 5 minutos
         
@@ -63,8 +63,8 @@ def process_video(video_file, model, ground_truth, total_class_counter, time_of_
             ultimo_tempo_guardado = tempo_agrupado
 
         frame_number += 1
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-            break
+        #if cv2.waitKey(25) & 0xFF == ord('q'):
+            #break
 
 
 
@@ -76,21 +76,17 @@ def process_video(video_file, model, ground_truth, total_class_counter, time_of_
     else:
         print(f"[{ultimo_tempo_guardado}] Dados já existentes no fim do vídeo.")
     cap.release()
-    cv2.destroyAllWindows()
+    #cv2.destroyAllWindows()
     save_results_to_file(video_file, detected_vehicles, class_counter, total_class_counter)
 
-
 def get_camera_direction(camera_name):
-    """
-    Conecta ao banco de dados e retorna a direção da câmera com base no nome.
-    """
     try:
         # Conectar ao banco de dados
         connection = psycopg2.connect(**DB_CONFIG)
         cursor = connection.cursor()
  
         # Query para buscar a direção da câmera
-        query = "SELECT direction FROM location WHERE location_id = 8"
+        query = "SELECT direction FROM locations WHERE location_id = 8"
         cursor.execute(query, (camera_name,))
         result = cursor.fetchone()
 
@@ -207,6 +203,74 @@ def _map_direction_(track_history, track_id, camera):
             direction = "NE"
         else:
             direction = "N"
+    elif camera_direction == "NE":
+        if 22.5 <= angle < 67.5:
+            direction = "N"
+        elif 67.5 <= angle < 112.5:
+            direction = "NE"
+        elif 112.5 <= angle < 157.5:
+            direction = "E"
+        elif 157.5 <= angle < 202.5:
+            direction = "SE"
+        elif 202.5 <= angle < 247.5:
+            direction = "S"
+        elif 247.5 <= angle < 292.5:
+            direction = "SW"
+        elif 292.5 <= angle < 337.5:
+            direction = "W"
+        else:
+            direction = "NW"
+    elif camera_direction == "NW":
+        if 22.5 <= angle < 67.5:
+            direction = "W"
+        elif 67.5 <= angle < 112.5:
+            direction = "NW"
+        elif 112.5 <= angle < 157.5:
+            direction = "SW"
+        elif 157.5 <= angle < 202.5:
+            direction = "S"
+        elif 202.5 <= angle < 247.5:
+            direction = "SE"
+        elif 247.5 <= angle < 292.5:
+            direction = "E"
+        elif 292.5 <= angle < 337.5:
+            direction = "NE"
+        else:
+            direction = "N"
+    elif camera_direction == "SE":
+        if 22.5 <= angle < 67.5:
+            direction = "E"
+        elif 67.5 <= angle < 112.5:
+            direction = "SE"
+        elif 112.5 <= angle < 157.5:
+            direction = "S"
+        elif 157.5 <= angle < 202.5:
+            direction = "SW"
+        elif 202.5 <= angle < 247.5:
+            direction = "W"
+        elif 247.5 <= angle < 292.5:
+            direction = "NW"
+        elif 292.5 <= angle < 337.5:
+            direction = "N"
+        else:
+            direction = "NE"
+    elif camera_direction == "SW":
+        if 22.5 <= angle < 67.5:
+            direction = "S"
+        elif 67.5 <= angle < 112.5:
+            direction = "SW"
+        elif 112.5 <= angle < 157.5:
+            direction = "SE"
+        elif 157.5 <= angle < 202.5:
+            direction = "E"
+        elif 202.5 <= angle < 247.5:
+            direction = "NE"
+        elif 247.5 <= angle < 292.5:
+            direction = "N"
+        elif 292.5 <= angle < 337.5:
+            direction = "NW"
+        else:
+            direction = "W"
     else:
         print(f"Direção da câmera '{camera}' não reconhecida. Usando cálculo padrão.")
         if 22.5 <= angle < 67.5:
