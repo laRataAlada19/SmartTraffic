@@ -6,7 +6,7 @@ Vehicle Type Summary
 Class: car, Count: 38
 Class: bus, Count: 4
 Class: truck, Count: 5
-Class: motorcycle, Count: 1
+Class: motorcycle, Count: 1n
 
 Direction Summary:
 N: 0
