@@ -3,13 +3,23 @@ import psycopg2
 import os
 
 
-DB_CONFIG = {
-    "dbname": "vehicle_detection",
-    "user": "user",
-    "password": "123",
+#DB_CONFIG = {
+ #   "dbname": "vehicle_detection",
+  #  "user": "user",
+   # "password": "123",
+    #"port": "5432",
+    #"host": "host.docker.internal"
+#} #"port": "5433",
+
+DB_CONFIG_neon_tech = {
+    "dbname": "neondb",
+    "user": "neondb_owner",
+    "password": "npg_o1YqvCrGuK5O",
     "port": "5432",
-    "host": "host.docker.internal"
-} #"port": "5433",
+    "host": "ep-damp-sunset-a2kojsnk-pooler.eu-central-1.aws.neon.tech"
+}
+
+DATABASE_SCHEMA = "vehicle_detection"
 
 #videos_directory = "./backend/VehicleDetection/videos"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

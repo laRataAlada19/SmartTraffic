@@ -1,0 +1,25 @@
+
+==== RESULTS FOR /Users/nazariy/projects/projeto_informatico/backend/VehicleDetection/videos/cam1/3.mp4 ====
+Total Unique Detections: 31
+
+Vehicle Type Summary
+Class: car, Count: 23
+Class: motorcycle, Count: 4
+Class: truck, Count: 4
+
+Direction Summary:
+N: 0
+S: 5
+E: 1
+W: 24
+NE: 0
+NW: 0
+SE: 0
+SW: 0
+
+Speed Summary:
+car: 111.22 Km/h
+truck: 175.89 Km/h
+bus: 177.49 Km/h
+motorcycle: 358.90 Km/h
+=========================

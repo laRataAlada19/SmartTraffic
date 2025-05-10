@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import math
 import psycopg2
 import os
-from config import detected_vehicles, class_counter, track_history, direction_summary, total_class_counter, DB_CONFIG
+from config import detected_vehicles, class_counter, track_history, direction_summary, total_class_counter, DB_CONFIG_neon_tech, DATABASE_SCHEMA
 
 def arredondar_para_proximo_5_minutos(data_hora):
     data_hora = data_hora.replace(second=0, microsecond=0)
@@ -82,11 +82,11 @@ def process_video(video_file, model, ground_truth, total_class_counter, time_of_
 def get_camera_direction(camera_name):
     try:
         # Conectar ao banco de dados
-        connection = psycopg2.connect(**DB_CONFIG)
+        connection = psycopg2.connect(**DB_CONFIG_neon_tech)
         cursor = connection.cursor()
  
         # Query para buscar a direção da câmera
-        query = "SELECT direction FROM locations WHERE location_id = 8"
+        query = f"SELECT direction FROM {DATABASE_SCHEMA}.locations WHERE location_id = 1"
         cursor.execute(query, (camera_name,))
         result = cursor.fetchone()
 

@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from model import is_duplicate
 import math
-from config import DB_CONFIG, vehicle_timestamps, direction_summary, average_speed_bike, average_speed_bus, average_speed_car, average_speed_motorcycle, average_speed_truck
+from config import vehicle_timestamps, direction_summary, average_speed_bike, average_speed_bus, average_speed_car, average_speed_motorcycle, average_speed_truck
 from datetime import datetime
 from collections import Counter
 

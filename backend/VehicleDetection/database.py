@@ -1,6 +1,6 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from config import DB_CONFIG,direction_summary
+from config import DB_CONFIG_neon_tech, DATABASE_SCHEMA,direction_summary
 from datetime import datetime
 from collections import Counter
 
@@ -10,7 +10,7 @@ class Database:
 
     def connect(self):
         try:
-            self.connection = psycopg2.connect(**DB_CONFIG)
+            self.connection = psycopg2.connect(**DB_CONFIG_neon_tech)
             print("Conexão com o banco de dados estabelecida com sucesso!")
         except Exception as e:
             print(f"Erro ao conectar ao banco de dados: {e}")
@@ -37,11 +37,11 @@ class Database:
     
     def exists_result(self, timestamp, camera):
         try:
-            conn = psycopg2.connect(**DB_CONFIG)
+            conn = psycopg2.connect(**DB_CONFIG_neon_tech)
             cur = conn.cursor()
 
-            query = """
-            SELECT COUNT(*) FROM vehicle_counts 
+            query = f"""
+            SELECT COUNT(*) FROM {DATABASE_SCHEMA}.vehicle_counts 
             WHERE timestamp = %s AND location_id = 8
             """
             cur.execute(query, (timestamp, camera))
@@ -73,14 +73,14 @@ class Database:
             for vehicle_type, count in class_counter.items():
                 total_class_counter[vehicle_type] += count
                 
-            query = """
-                INSERT INTO vehicle_counts (
+            query = f"""
+                INSERT INTO {DATABASE_SCHEMA}.vehicle_counts (
                     car, motorcycle, bike, truck, bus,
                     n, s, e, w, ne, nw, se, sw,
                     timestamp, location_id
                 ) VALUES (%s, %s, %s, %s, %s,
                     %s, %s, %s, %s, %s, %s, %s, %s,
-                    %s, 8)
+                    %s, 1)
             """
 
             params = (

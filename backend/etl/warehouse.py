@@ -1,5 +1,5 @@
 import pandas as pd
-from config import DB_CONFIG_neon_tech
+from config import DB_CONFIG_neon_tech, DATABASE_SCHEMA, WAREHOUSE_SCHEMA
 from sqlalchemy import create_engine, text
 import psycopg2
 import os
@@ -95,7 +95,7 @@ class Warehouse:
                 SELECT id AS vehicle_count_id, car, motorcycle, bike, truck, bus,
                     n, s, e, w, ne, nw, se, sw, 
                     timestamp, location_id
-                FROM vehicle_detection.vehicle_counts
+                FROM {DATABASE_SCHEMA}.vehicle_counts
                 WHERE id > {last_id}
             """
             with self.conn:
@@ -116,7 +116,7 @@ class Warehouse:
 
             query_loc = f"""
                 SELECT location_id, location, direction, updated_at
-                FROM vehicle_detection.locations
+                FROM {DATABASE_SCHEMA}.locations
                 WHERE updated_at > '{last_updated}'
                 OR location_id IN ({vehicle_location_ids_str})
             """
@@ -163,8 +163,6 @@ class Warehouse:
         try:
             if not df.empty:
                 df.dropna(inplace=True)  # Remove missing values
-
-                print(f"CUSTOM: Data to transform: {df}")
                 
                 # Convert timestamp to datetime and extract date, time, hour, minute, and period(AM/PM)
                 df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
@@ -229,15 +227,15 @@ class Warehouse:
             with self.engine.begin() as conn:
                 for _, row in self.date_df.iterrows():
                     conn.execute(
-                        text("""
-                            INSERT INTO warehouse_vehicle_count_db.dim_date (full_date, year, month, day, weekday)
+                        text(f"""
+                            INSERT INTO {WAREHOUSE_SCHEMA}.dim_date (full_date, year, month, day, weekday)
                             VALUES (:full_date, :year, :month, :day, :weekday)
                             ON CONFLICT (full_date) DO NOTHING;
                         """),
                         row.to_dict()
                     )
 
-            self.date_df = pd.read_sql("SELECT * FROM warehouse_vehicle_count_db.dim_date", self.engine)
+            self.date_df = pd.read_sql(f"SELECT * FROM {WAREHOUSE_SCHEMA}.dim_date", self.engine)
             print("CUSTOM: Loaded dim_date table")
         except Exception as e:
             print(f"CUSTOM: Erro ao carregar a tabela dim_date: {e}")
@@ -249,15 +247,15 @@ class Warehouse:
             with self.engine.begin() as conn:
                 for _, row in self.time_df.iterrows():
                     conn.execute(
-                        text("""
-                            INSERT INTO warehouse_vehicle_count_db.dim_time (full_time, hour, minute, period)
+                        text(f"""
+                            INSERT INTO {WAREHOUSE_SCHEMA}.dim_time (full_time, hour, minute, period)
                             VALUES (:full_time, :hour, :minute, :period)
                             ON CONFLICT (full_time) DO NOTHING;
                         """),
                         row.to_dict()
                     )
 
-            self.time_df = pd.read_sql("SELECT * FROM warehouse_vehicle_count_db.dim_time", self.engine)
+            self.time_df = pd.read_sql(f"SELECT * FROM {WAREHOUSE_SCHEMA}.dim_time", self.engine)
             print("CUSTOM: Loaded dim_time table")
         except Exception as e:
             print(f"CUSTOM: Erro ao carregar a tabela dim_time: {e}")
@@ -281,9 +279,9 @@ class Warehouse:
                 location_ids = tuple(int(id) for id in unique_location_ids)
                 
                 # Get existing locations from dimension table
-                query = """
+                query = f"""
                     SELECT location_id, location, direction
-                    FROM warehouse_vehicle_count_db.dim_location
+                    FROM {WAREHOUSE_SCHEMA}.dim_location
                     WHERE location_id IN %(location_ids)s
                 """
                 existing = pd.read_sql(
@@ -313,8 +311,8 @@ class Warehouse:
                         if location_id not in existing_dict:
                             # Insert new location
                             conn.execute(
-                                text("""
-                                    INSERT INTO warehouse_vehicle_count_db.dim_location (location_id, location, direction)
+                                text(f"""
+                                    INSERT INTO {WAREHOUSE_SCHEMA}.dim_location (location_id, location, direction)
                                     VALUES (:location_id, :location, :direction)
                                 """),
                                 {
@@ -330,8 +328,8 @@ class Warehouse:
                             if (existing_location["location"] != location or 
                                 existing_location["direction"] != direction):
                                 conn.execute(
-                                    text("""
-                                        UPDATE warehouse_vehicle_count_db.dim_location
+                                    text(f"""
+                                        UPDATE {WAREHOUSE_SCHEMA}.dim_location
                                         SET location = :location,
                                             direction = :new_direction,
                                             location_old = :old_location,
@@ -351,7 +349,7 @@ class Warehouse:
                 skipped_rows = len(combined_df) - new_rows - updated_rows
 
                 # Refresh the in-memory cache
-                self.location_df = pd.read_sql("SELECT * FROM warehouse_vehicle_count_db.dim_location", self.engine)
+                self.location_df = pd.read_sql(f"SELECT * FROM {WAREHOUSE_SCHEMA}.dim_location", self.engine)
                 print("CUSTOM: Loaded dim_location table")
                 print(f"CUSTOM: New rows inserted: {new_rows}, Updated: {updated_rows}, Skipped: {skipped_rows}")
         except Exception as e:
@@ -360,12 +358,14 @@ class Warehouse:
 
     def load_fact_vehicle_count(self, df):
         try:
+            # Convert date and time columns to appropriate formats
             df["date"] = pd.to_datetime(df["date"], errors="coerce").dt.date
-            df["time"] = pd.to_datetime(df["time"], format='%H:%M:%S', errors="coerce").dt.time
+            df["time"] = pd.to_datetime(df["time"].astype(str), errors="coerce").dt.time
             
             self.date_df["full_date"] = pd.to_datetime(self.date_df["full_date"], errors="coerce").dt.date
             self.time_df["full_time"] = pd.to_datetime(self.time_df["full_time"].astype(str), format='%H:%M:%S', errors="coerce").dt.time
             
+            # Merge dataframes to get the fact data
             fact_df = df.merge(
                 self.date_df[["date_id", "full_date"]],
                 left_on="date",
@@ -392,33 +392,75 @@ class Warehouse:
             ]]
             
             with self.engine.begin() as conn:
-                existing_combinations = pd.read_sql("SELECT date_id, time_id, location_id FROM warehouse_vehicle_count_db.fact_vehicle_counts", conn)
+                # Check if the fact table is empty
+                existing_combinations = pd.read_sql(
+                    f"SELECT date_id, time_id, location_id FROM {WAREHOUSE_SCHEMA}.fact_vehicle_counts", conn
+                )
                 
-                fact_df['composite_key'] = fact_df['date_id'].astype(str) + '_' + \
-                                        fact_df['time_id'].astype(str) + '_' + \
-                                        fact_df['location_id'].astype(str)
-                
-                existing_combinations['composite_key'] = existing_combinations['date_id'].astype(str) + '_' + \
-                                                        existing_combinations['time_id'].astype(str) + '_' + \
-                                                        existing_combinations['location_id'].astype(str)
-                
-                new_records = fact_df[~fact_df['composite_key'].isin(existing_combinations['composite_key'])]
-                
-                new_records = new_records.drop(columns=['composite_key'])
-                
-                if not new_records.empty:
-                    new_records.to_sql(
-                        "warehouse_vehicle_count_db.fact_vehicle_counts",
-                        conn,
-                        if_exists="append",
-                        index=False,
-                        chunksize=500,
-                        method="multi"
-                    )
-                    print(f"CUSTOM: Inserted {len(new_records)} new records into fact_vehicle_counts")
-                else:
-                    print("CUSTOM: No new records to insert")
+                print(f"CUSTOM: Existing combinations count: {existing_combinations}")
 
+                if existing_combinations.empty:
+                    # First insertion into an empty fact table
+                    print("CUSTOM: First insertion.")
+                    for _, row in fact_df.iterrows():  # Use fact_df directly here
+                        conn.execute(
+                            text(f"""
+                                INSERT INTO {WAREHOUSE_SCHEMA}.fact_vehicle_counts (
+                                    date_id, time_id, location_id,
+                                    car, motorcycle, bike, truck, bus,
+                                    n, s, e, w, ne, nw, se, sw
+                                ) VALUES (
+                                    :date_id, :time_id, :location_id,
+                                    :car, :motorcycle, :bike, :truck, :bus,
+                                    :n, :s, :e, :w, :ne, :nw, :se, :sw
+                                );
+                            """),
+                            row.to_dict()
+                        )
+                    
+                    print(f"CUSTOM: Inserted {len(fact_df)} new records into fact_vehicle_counts")
+                else:
+                    # If the fact table has data, check for conflicts
+                    print("CUSTOM: Checking for conflicts.")
+                    
+                    # Create a composite key column to check for existing records
+                    fact_df['composite_key'] = fact_df['date_id'].astype(str) + '_' + \
+                                            fact_df['time_id'].astype(str) + '_' + \
+                                            fact_df['location_id'].astype(str)
+                    
+                    existing_combinations['composite_key'] = existing_combinations['date_id'].astype(str) + '_' + \
+                                                            existing_combinations['time_id'].astype(str) + '_' + \
+                                                            existing_combinations['location_id'].astype(str)
+                    
+                    # Identify new records by checking which composite keys are not in the existing combinations
+                    new_records = fact_df[~fact_df['composite_key'].isin(existing_combinations['composite_key'])]
+                    
+                    # Drop the composite_key column for the final insert
+                    new_records = new_records.drop(columns=['composite_key'])
+                    
+                    if not new_records.empty:
+                        # Insert new records without conflict (conflict check is already handled)
+                        for _, row in new_records.iterrows():
+                            conn.execute(
+                                text(f"""
+                                    INSERT INTO {WAREHOUSE_SCHEMA}.fact_vehicle_counts (
+                                        date_id, time_id, location_id,
+                                        car, motorcycle, bike, truck, bus,
+                                        n, s, e, w, ne, nw, se, sw
+                                    ) VALUES (
+                                        :date_id, :time_id, :location_id,
+                                        :car, :motorcycle, :bike, :truck, :bus,
+                                        :n, :s, :e, :w, :ne, :nw, :se, :sw
+                                    )
+                                    ON CONFLICT (date_id, time_id, location_id) DO NOTHING;
+                                """),
+                                row.to_dict()
+                            )
+
+                        print(f"CUSTOM: Inserted {len(new_records)} new records into fact_vehicle_counts")
+                    else:
+                        print("CUSTOM: No new records to insert")
+            
             return fact_df
         except Exception as e:
             print(f"CUSTOM: Error loading fact table: {str(e)}")
