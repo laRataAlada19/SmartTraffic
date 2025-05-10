@@ -1,5 +1,5 @@
 import pandas as pd
-from config import DB_CONFIG, DW_CONFIG
+from config import DB_CONFIG_neon_tech
 from sqlalchemy import create_engine, text
 import psycopg2
 import os
@@ -17,7 +17,7 @@ class Warehouse:
 
     def connect_db(self):
         try:
-            self.conn = psycopg2.connect(**DB_CONFIG)
+            self.conn = psycopg2.connect(**DB_CONFIG_neon_tech)
             print("CUSTOM: Conexão com a DB estabelecida com sucesso!")
         except Exception as e:
             print(f"CUSTOM: Erro ao conectar com a BD: {e}")
@@ -26,7 +26,7 @@ class Warehouse:
 
     def connect_dw(self):
         try:
-            self.engine = create_engine(f"postgresql+psycopg2://{DW_CONFIG['user']}:{DW_CONFIG['password']}@{DW_CONFIG['host']}/{DW_CONFIG['dbname']}")
+            self.engine = create_engine(f"postgresql+psycopg2://{DB_CONFIG_neon_tech['user']}:{DB_CONFIG_neon_tech['password']}@{DB_CONFIG_neon_tech['host']}/{DB_CONFIG_neon_tech['dbname']}")
             print("CUSTOM: Conexão com o DW estabelecida com sucesso!")
         except Exception as e:
             print(f"CUSTOM: Erro ao conectar com o DW: {e}")
@@ -95,7 +95,7 @@ class Warehouse:
                 SELECT id AS vehicle_count_id, car, motorcycle, bike, truck, bus,
                     n, s, e, w, ne, nw, se, sw, 
                     timestamp, location_id
-                FROM vehicle_counts
+                FROM vehicle_detection.vehicle_counts
                 WHERE id > {last_id}
             """
             with self.conn:
@@ -116,7 +116,7 @@ class Warehouse:
 
             query_loc = f"""
                 SELECT location_id, location, direction, updated_at
-                FROM locations
+                FROM vehicle_detection.locations
                 WHERE updated_at > '{last_updated}'
                 OR location_id IN ({vehicle_location_ids_str})
             """
@@ -163,6 +163,8 @@ class Warehouse:
         try:
             if not df.empty:
                 df.dropna(inplace=True)  # Remove missing values
+
+                print(f"CUSTOM: Data to transform: {df}")
                 
                 # Convert timestamp to datetime and extract date, time, hour, minute, and period(AM/PM)
                 df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
@@ -228,14 +230,14 @@ class Warehouse:
                 for _, row in self.date_df.iterrows():
                     conn.execute(
                         text("""
-                            INSERT INTO dim_date (full_date, year, month, day, weekday)
+                            INSERT INTO warehouse_vehicle_count_db.dim_date (full_date, year, month, day, weekday)
                             VALUES (:full_date, :year, :month, :day, :weekday)
                             ON CONFLICT (full_date) DO NOTHING;
                         """),
                         row.to_dict()
                     )
 
-            self.date_df = pd.read_sql("SELECT * FROM dim_date", self.engine)
+            self.date_df = pd.read_sql("SELECT * FROM warehouse_vehicle_count_db.dim_date", self.engine)
             print("CUSTOM: Loaded dim_date table")
         except Exception as e:
             print(f"CUSTOM: Erro ao carregar a tabela dim_date: {e}")
@@ -248,14 +250,14 @@ class Warehouse:
                 for _, row in self.time_df.iterrows():
                     conn.execute(
                         text("""
-                            INSERT INTO dim_time (full_time, hour, minute, period)
+                            INSERT INTO warehouse_vehicle_count_db.dim_time (full_time, hour, minute, period)
                             VALUES (:full_time, :hour, :minute, :period)
                             ON CONFLICT (full_time) DO NOTHING;
                         """),
                         row.to_dict()
                     )
 
-            self.time_df = pd.read_sql("SELECT * FROM dim_time", self.engine)
+            self.time_df = pd.read_sql("SELECT * FROM warehouse_vehicle_count_db.dim_time", self.engine)
             print("CUSTOM: Loaded dim_time table")
         except Exception as e:
             print(f"CUSTOM: Erro ao carregar a tabela dim_time: {e}")
@@ -281,7 +283,7 @@ class Warehouse:
                 # Get existing locations from dimension table
                 query = """
                     SELECT location_id, location, direction
-                    FROM dim_location
+                    FROM warehouse_vehicle_count_db.dim_location
                     WHERE location_id IN %(location_ids)s
                 """
                 existing = pd.read_sql(
@@ -312,7 +314,7 @@ class Warehouse:
                             # Insert new location
                             conn.execute(
                                 text("""
-                                    INSERT INTO dim_location (location_id, location, direction)
+                                    INSERT INTO warehouse_vehicle_count_db.dim_location (location_id, location, direction)
                                     VALUES (:location_id, :location, :direction)
                                 """),
                                 {
@@ -329,7 +331,7 @@ class Warehouse:
                                 existing_location["direction"] != direction):
                                 conn.execute(
                                     text("""
-                                        UPDATE dim_location
+                                        UPDATE warehouse_vehicle_count_db.dim_location
                                         SET location = :location,
                                             direction = :new_direction,
                                             location_old = :old_location,
@@ -349,7 +351,7 @@ class Warehouse:
                 skipped_rows = len(combined_df) - new_rows - updated_rows
 
                 # Refresh the in-memory cache
-                self.location_df = pd.read_sql("SELECT * FROM dim_location", self.engine)
+                self.location_df = pd.read_sql("SELECT * FROM warehouse_vehicle_count_db.dim_location", self.engine)
                 print("CUSTOM: Loaded dim_location table")
                 print(f"CUSTOM: New rows inserted: {new_rows}, Updated: {updated_rows}, Skipped: {skipped_rows}")
         except Exception as e:
@@ -390,7 +392,7 @@ class Warehouse:
             ]]
             
             with self.engine.begin() as conn:
-                existing_combinations = pd.read_sql("SELECT date_id, time_id, location_id FROM fact_vehicle_counts", conn)
+                existing_combinations = pd.read_sql("SELECT date_id, time_id, location_id FROM warehouse_vehicle_count_db.fact_vehicle_counts", conn)
                 
                 fact_df['composite_key'] = fact_df['date_id'].astype(str) + '_' + \
                                         fact_df['time_id'].astype(str) + '_' + \
@@ -406,7 +408,7 @@ class Warehouse:
                 
                 if not new_records.empty:
                     new_records.to_sql(
-                        "fact_vehicle_counts",
+                        "warehouse_vehicle_count_db.fact_vehicle_counts",
                         conn,
                         if_exists="append",
                         index=False,
