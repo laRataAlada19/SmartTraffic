@@ -89,6 +89,28 @@ BEFORE UPDATE ON locations
 FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 
+NEON.TECH
+fazer isto, na consola do neon.tech, se o superset estiver cm problemas
+
+DO $$
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (
+        SELECT n.nspname AS schema_name, t.typname AS enum_type
+        FROM pg_type t
+        JOIN pg_enum e ON t.oid = e.enumtypid
+        JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace
+        WHERE n.nspname = 'public'
+        GROUP BY n.nspname, t.typname
+    ) LOOP
+        EXECUTE format('DROP TYPE IF EXISTS %I.%I CASCADE', r.schema_name, r.enum_type);
+    END LOOP;
+END $$;
+
+**isto apaga todas as enumerações do schema public**
+!!!se continuar a dar erro, limpar cache do browser e não guardar as credenciais da conta(admin, admin)!!!
+
 
 Laravel : http://localhost:8000/
 Vue : http://localhost:8001/
