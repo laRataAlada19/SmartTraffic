@@ -27,25 +27,43 @@ const logout = () => {
 </script>
 
 <template>
-  <Toaster />
-  <GlobalAlertDialog ref="alert-dialog"></GlobalAlertDialog>
-  <div class="p-8 mx-auto max-w-3xl">
+
+  <div v-if="$route.name === 'login'" class="min-h-screen">
+    <div class="bg-red-500 text-white p-8">TESTE TAILWIND</div>
+
+    <RouterView />
+  </div>
+  <div v-else class="p-8 mx-auto max-w-3xl">
+    <Toaster />
+    <GlobalAlertDialog ref="alert-dialog"></GlobalAlertDialog>
+    <div class="bg-red-500 text-white p-8">TESTE TAILWIND</div>
+
     <div class="flex justify-between">
-      <h1 class="text-4xl pb-8">Smart Traffic {{ storeAuth.userFirstLastName ? 'of ' + storeAuth.userFirstLastName : '' }}</h1>
-      <img v-if="storeAuth.user" class="w-14 h-14 rounded-full" :src="storeAuth.userPhotoUrl" alt="Rounded avatar">
+      <h1 class="text-4xl pb-8">
+        Smart Traffic {{ storeAuth.userFirstLastName ? 'of ' + storeAuth.userFirstLastName : '' }}
+      </h1>
+      <img v-if="storeAuth.user" class="w-14 h-14 rounded-full" :src="storeAuth.userPhotoUrl" alt="Rounded avatar" />
     </div>
+
     <nav class="flex space-x-1 border-b-2 border-gray-800 text-base">
       <span class="grow"></span>
-      <RouterLink v-show="!storeAuth.user" :to="{ name: 'login'}" class="w-24 h-10 leading-10 text-center rounded-t-xl 
-          border-none  text-white select-none bg-gray-400 cursor-pointer hover:bg-gray-500"
-        activeClass="bg-gray-800 hover:bg-gray-800">
+      <RouterLink
+        v-show="!storeAuth.user"
+        :to="{ name: 'login'}"
+        class="w-24 h-10 leading-10 text-center rounded-t-xl text-white bg-gray-400 hover:bg-gray-500"
+        active-class="bg-gray-800"
+      >
         Login
       </RouterLink>
-      <button  v-show="storeAuth.user" @click="logout" class="w-24 h-10 leading-10 text-center rounded-t-xl 
-          border-none  text-white select-none bg-gray-400 cursor-pointer hover:bg-gray-500">
+      <button
+        v-show="storeAuth.user"
+        @click="logout"
+        class="w-24 h-10 leading-10 text-center rounded-t-xl text-white bg-gray-400 hover:bg-gray-500"
+      >
         Logout
       </button>
     </nav>
-    <RouterView></RouterView>
+
+    <RouterView />
   </div>
 </template>

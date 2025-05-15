@@ -94,8 +94,8 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'schema' => 'public',
-            'sslmode' => 'prefer',
+            'schema' => 'vehicle_detection',
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
         ],
 
         'sqlsrv' => [

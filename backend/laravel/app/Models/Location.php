@@ -13,6 +13,9 @@ class Location extends Model
         'direction'
     ];
 
+    protected $table = 'vehicle_detection.locations';
+
+
     public $timestamps = false;
     protected $primaryKey = 'location_id';
     public $incrementing = true;

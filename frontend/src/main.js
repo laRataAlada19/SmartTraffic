@@ -2,7 +2,9 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import axios from 'axios';
 import App from './App.vue';
-import router from './router'; // Certifique-se de que o caminho está correto
+import './assets/main.css';
+import router from './router'; 
+
 
 const app = createApp(App);
 
