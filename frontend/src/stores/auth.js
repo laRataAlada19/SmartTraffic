@@ -14,6 +14,8 @@ export const useAuthStore = defineStore("auth", () => {
   });
 
   const canUpdateDeleteProject = (project) => { return project && user.value && (userType.value === 'A' || user.value.id === project.created_by_id) }
+  axios.defaults.baseURL = 'http://localhost:8000';
+  axios.defaults.withCredentials = true; // para enviar cookies, se precisares
 
   const userFirstLastName = computed(() => {
     const names = userName.value.trim().split(" ");
@@ -51,11 +53,11 @@ export const useAuthStore = defineStore("auth", () => {
   const login = async (credentials) => {
     storeError.resetMessages();
     try {
-      const responseLogin = await axios.post("auth/login", credentials);
+      const responseLogin = await axios.post("/api/auth/login", credentials);
       token.value = responseLogin.data.token;
       localStorage.setItem('token', token.value);
       axios.defaults.headers.common.Authorization = "Bearer " + token.value;
-      const responseUser = await axios.get("users/me");
+      const responseUser = await axios.get("/api/users/me");
       user.value = responseUser.data.data;
       repeatRefreshToken();
       router.push({ name: "tasks" });
