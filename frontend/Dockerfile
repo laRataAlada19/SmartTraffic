@@ -1,15 +1,20 @@
+# Use uma imagem base com Node.js
 FROM node:18-alpine
 
+# Defina o diretório de trabalho no container
 WORKDIR /app
-COPY package*.json ./
+
+# Copie os arquivos do projeto para o container
+COPY package.json package-lock.json ./
+
+# Instale as dependências do projeto
 RUN npm install
+
+# Copie o restante dos arquivos do projeto
 COPY . .
 
-# Instalar dependências
-RUN npm install
+# Exponha a porta usada pelo Vite
+EXPOSE 5173
 
-# Explicitly run the dev server (adjust if your script is named differently)
+# Comando para iniciar o servidor de desenvolvimento
 CMD ["npm", "run", "dev"]
-
-
-EXPOSE 3000

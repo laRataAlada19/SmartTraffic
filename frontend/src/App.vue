@@ -29,14 +29,14 @@ const logout = () => {
 <template>
 
   <div v-if="$route.name === 'login'" class="min-h-screen">
-    <div class="bg-red-500 text-white p-8">TESTE TAILWIND</div>
+  
 
     <RouterView />
   </div>
   <div v-else class="p-8 mx-auto max-w-3xl">
     <Toaster />
     <GlobalAlertDialog ref="alert-dialog"></GlobalAlertDialog>
-    <div class="bg-red-500 text-white p-8">TESTE TAILWIND</div>
+
 
     <div class="flex justify-between">
       <h1 class="text-4xl pb-8">

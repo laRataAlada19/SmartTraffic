@@ -29,63 +29,62 @@ const goToRegister = () => {
 </script>
 
 <template>
-
   <div class="flex items-center justify-center min-h-screen bg-white px-4">
-    <Card class="w-full max-w-md p-6 rounded-xl shadow-lg border border-blue-300">
+    <Card class="w-full max-w-lg p-6 rounded-xl border-0 shadow-none bg-transparent">
       
-      <div class="flex justify-center mb-6">
+      <div class="flex justify-center mb-8">
         <img
           :src="logo"
           alt="Smart Traffic Logo"
-          class="w-28 h-28 rounded-xl object-contain bg-[#0B132B] p-4"
+          class="w-40 h-40 sm:w-48 sm:h-48 rounded-2xl object-contain bg-[#0B132B] p-4"
         />
       </div>
 
-
-      <CardContent class="space-y-5">
-        <div class="flex flex-col space-y-2">
-          <Label for="email" class="text-base">User:</Label>
+      <CardContent class="space-y-4">
+        <!-- Campo Email -->
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+          <Label for="email" class="text-base w-24 text-center sm:text-left">User:</Label>
           <Input
             id="email"
             type="email"
             v-model="credentials.email"
             placeholder="Enter your email"
-            class="rounded-full bg-gray-200 px-4 py-2 w-full"
+            class="rounded-full bg-gray-200 px-4 py-2 flex-1 w-full"
             autocomplete="username"
           />
-          <ErrorMessage :errorMessage="storeError.fieldMessage('email')" />
         </div>
+        <ErrorMessage :errorMessage="storeError.fieldMessage('email')" />
 
-        <div class="flex flex-col space-y-2">
-          <Label for="password" class="text-base">Password:</Label>
+        <!-- Campo Password -->
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+          <Label for="password" class="text-base w-24 text-center sm:text-left">Password:</Label>
           <Input
             id="password"
             type="password"
             v-model="credentials.password"
             placeholder="Enter your password"
-            class="rounded-full bg-gray-200 px-4 py-2 w-full"
+            class="rounded-full bg-gray-200 px-4 py-2 flex-1 w-full"
             autocomplete="current-password"
           />
-          <ErrorMessage :errorMessage="storeError.fieldMessage('password')" />
         </div>
+        <ErrorMessage :errorMessage="storeError.fieldMessage('password')" />
       </CardContent>
 
-
-      <CardFooter class="flex justify-between pt-6">
+      <CardFooter class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6">
         <Button
           @click="goToRegister"
-          class="bg-green-400 hover:bg-green-500 text-white rounded-md px-6 py-2 transition-colors duration-300"
+          class="bg-green-400 hover:bg-green-500 text-white rounded-[12px] px-6 py-2 transition-colors duration-300 w-full sm:w-auto"
         >
           Criar Conta
         </Button>
         <Button
           @click="login"
-          class="bg-gray-200 hover:bg-gray-300 text-black rounded-md px-6 py-2 transition-colors duration-300"
+          class="bg-gray-200 hover:bg-gray-300 text-black rounded-[12px] px-6 py-2 transition-colors duration-300 w-full sm:w-auto"
         >
           Login
         </Button>
-        
       </CardFooter>
     </Card>
   </div>
 </template>
+
