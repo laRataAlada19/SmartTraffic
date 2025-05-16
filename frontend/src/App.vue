@@ -27,43 +27,65 @@ const logout = () => {
 </script>
 
 <template>
-
   <div v-if="$route.name === 'login'" class="min-h-screen">
-  
-
     <RouterView />
   </div>
-  <div v-else class="p-8 mx-auto max-w-3xl">
+
+  <div v-else class="min-h-screen bg-white">
     <Toaster />
-    <GlobalAlertDialog ref="alert-dialog"></GlobalAlertDialog>
+    <GlobalAlertDialog ref="alert-dialog" />
 
-
-    <div class="flex justify-between">
-      <h1 class="text-4xl pb-8">
-        Smart Traffic {{ storeAuth.userFirstLastName ? 'of ' + storeAuth.userFirstLastName : '' }}
-      </h1>
-      <img v-if="storeAuth.user" class="w-14 h-14 rounded-full" :src="storeAuth.userPhotoUrl" alt="Rounded avatar" />
-    </div>
-
-    <nav class="flex space-x-1 border-b-2 border-gray-800 text-base">
-      <span class="grow"></span>
-      <RouterLink
-        v-show="!storeAuth.user"
-        :to="{ name: 'login'}"
-        class="w-24 h-10 leading-10 text-center rounded-t-xl text-white bg-gray-400 hover:bg-gray-500"
-        active-class="bg-gray-800"
-      >
-        Login
+    <nav class="bg-[#0B132B] text-white flex items-center px-6 py-3 shadow-md fixed top-0 left-0 w-full z-50">
+      <RouterLink to="/" class="flex items-center space-x-2">
+        <img src="@/assets/smart-traffic-logo.png" alt="Logo" class="w-8 h-8" />
       </RouterLink>
-      <button
-        v-show="storeAuth.user"
-        @click="logout"
-        class="w-24 h-10 leading-10 text-center rounded-t-xl text-white bg-gray-400 hover:bg-gray-500"
-      >
-        Logout
-      </button>
+
+      <div class="flex space-x-8 ml-12">
+        <RouterLink
+          to="/"
+          class="text-white hover:text-green-400 transition"
+          active-class="font-bold"
+        >
+          Início
+        </RouterLink>
+        <RouterLink
+          to="/graficos"
+          class="text-white hover:text-green-400 transition"
+          active-class="font-bold"
+        >
+          Gráficos
+        </RouterLink>
+        <RouterLink
+          to="/localizacoes"
+          class="text-white hover:text-green-400 transition"
+          active-class="font-bold"
+        >
+          Localizações
+        </RouterLink>
+      </div>
+
+      <div class="ml-auto flex items-center space-x-4">
+        <span class="hidden sm:block text-sm">{{ storeAuth.userFirstLastName }}</span>
+        <img
+          v-if="storeAuth.user"
+          class="w-10 h-10 rounded-full object-cover"
+          :src="storeAuth.userPhotoUrl"
+          alt="Avatar"
+        />
+        <button
+          v-show="storeAuth.user"
+          @click="logout"
+          class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-1 rounded-full text-sm"
+        >
+          Logout
+        </button>
+      </div>
     </nav>
 
-    <RouterView />
+    <div class="p-6 max-w-6xl mx-auto pt-20">
+      <RouterView />
+    </div>
   </div>
 </template>
+
+

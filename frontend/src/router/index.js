@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/auth' 
-import LocationList from '@/components/LocationList.vue';
+import LocationList from '@/components/locations/LocationsList.vue';
 import Login from '@/components/auth/Login.vue'
+import Home from '@/components/Home.vue';
 
 let handlingFirstRoute = true
 const router = createRouter({
@@ -12,10 +13,15 @@ const router = createRouter({
       name: 'login',
       component: Login
     },
+    {
+      path: '/localizacoes',
+      name: 'localizacoes',
+      component: LocationList
+    },
    {
     path: '/',
     name: 'Home',
-    component: LocationList,
+    component: Home,
   },
   ]
 })
