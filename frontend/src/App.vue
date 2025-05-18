@@ -49,20 +49,21 @@ const logout = () => {
           Início
         </RouterLink>
         <RouterLink
-          to="/graficos"
+          to="/tables"
           class="text-white hover:text-green-400 transition"
           active-class="font-bold"
         >
           Gráficos
         </RouterLink>
         <RouterLink
-          to="/localizacoes"
+          to="/locations"
           class="text-white hover:text-green-400 transition"
           active-class="font-bold"
         >
           Localizações
         </RouterLink>
       </div>
+
 
       <div class="ml-auto flex items-center space-x-4">
         <span class="hidden sm:block text-sm">{{ storeAuth.userFirstLastName }}</span>
@@ -87,5 +88,3 @@ const logout = () => {
     </div>
   </div>
 </template>
-
-

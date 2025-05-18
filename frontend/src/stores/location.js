@@ -2,20 +2,17 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
-
 export const useLocationStore = defineStore('location', () => {
   const locations = ref([]);
 
   const fetchLocations = async () => {
     try {
       const response = await axios.get('/api/locations');
-      console.log("aqui" , response.data.data);
       locations.value = response.data.data;
     } catch (error) {
       console.error('Erro ao buscar locais:', error);
     }
   };
-
 
   const addLocation = async (location, direction) => {
     try {
@@ -54,7 +51,6 @@ export const useLocationStore = defineStore('location', () => {
       throw error;
     }
   }
-
 
   return {
     locations,

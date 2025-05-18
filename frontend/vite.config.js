@@ -20,11 +20,6 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
         secure: false
-      },
-      '/locations': {
-        target: 'http://backend:80',
-        changeOrigin: true,
-        secure: false
       }
     }
   }

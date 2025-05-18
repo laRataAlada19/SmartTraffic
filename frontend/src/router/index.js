@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/auth' 
 import LocationList from '@/components/locations/LocationsList.vue';
+import TablesList from '@/components/tables/TablesList.vue';
 import Login from '@/components/auth/Login.vue'
 import Home from '@/components/Home.vue';
 
@@ -14,10 +15,15 @@ const router = createRouter({
       component: Login
     },
     {
-      path: '/localizacoes',
-      name: 'localizacoes',
+      path: '/locations',
+      name: 'locations',
       component: LocationList
     },
+    {
+      path: '/tables',
+      name: 'Tables',
+      component: TablesList
+    },    
    {
     path: '/',
     name: 'Home',
