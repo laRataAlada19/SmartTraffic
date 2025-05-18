@@ -50,8 +50,36 @@ export const useAuthStore = defineStore("auth", () => {
     localStorage.removeItem('token')
     axios.defaults.headers.common.Authorization = ''
   };
-
   const login = async (credentials) => {
+    storeError.resetMessages();
+    try {
+      const responseLogin = await axios.post("/api/auth/login", credentials);
+      token.value = responseLogin.data.token;
+      localStorage.setItem('token', token.value);
+      axios.defaults.headers.common.Authorization = "Bearer " + token.value;
+      const responseUser = await axios.get("/api/users/me");
+      user.value = responseUser.data.data;
+      repeatRefreshToken();
+      router.push({ name: "tasks" });
+      return user.value;
+    } catch (e) {
+      clearUser();
+      
+      // Improved error handling
+      const errorMessage = e.response?.data?.message || "Network error or server unavailable";
+      const errors = e.response?.data?.errors || [];
+      const status = e.response?.status || 500;
+      
+      storeError.setErrorMessages(
+        errorMessage,
+        errors,
+        status,
+        "Authentication Error!"
+      );
+      return false;
+    }
+  };
+  const login2 = async (credentials) => {
     storeError.resetMessages();
     try {
       const responseLogin = await axios.post("/api/auth/login", credentials);
