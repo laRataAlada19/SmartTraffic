@@ -56,6 +56,8 @@ export const useLocationStore = defineStore('location', () => {
     }
   }
 
+  
+
   return {
     locations,
     fetchLocations,

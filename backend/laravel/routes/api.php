@@ -28,3 +28,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
 Route::get('/fact-vehicle-counts', [FactVehicleCountController::class, 'index']);
+Route::get('/fact-vehicle-counts/total', [FactVehicleCountController::class, 'getTotalVehicleCount']);  
+Route::get('/fact-vehicle-counts/total/car', [FactVehicleCountController::class, 'getTotalCarCount']);
+Route::get('/fact-vehicle-counts/total/motorcycle', [FactVehicleCountController::class, 'getTotalMotorcycleCount']);
+Route::get('/fact-vehicle-counts/total/bike', [FactVehicleCountController::class, 'getTotalBikeCount']);
+Route::get('/fact-vehicle-counts/total/truck', [FactVehicleCountController::class, 'getTotalTruckCount']);
+Route::get('/fact-vehicle-counts/total/bus', [FactVehicleCountController::class, 'getTotalBusCount']);
+Route::get('/fact-vehicle-counts/must-movimented-streets', [FactVehicleCountController::class, 'getMustMovimentedStreets']);
+Route::get('/fact-vehicle-counts/less-movimented-streets', [FactVehicleCountController::class, 'getLessMovimentedStreets']);
