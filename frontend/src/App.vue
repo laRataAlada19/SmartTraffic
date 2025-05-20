@@ -1,11 +1,14 @@
 <script setup>
 import { onMounted, useTemplateRef, provide } from 'vue'
 import { RouterView } from 'vue-router'
+import { useProjectStore } from '@/stores/project'
+import { useTaskStore } from '@/stores/task'
 import { useAuthStore } from '@/stores/auth'
 import Toaster from '@/components/ui/toast/Toaster.vue'
 import GlobalAlertDialog from '@/components/common/GlobalAlertDialog.vue'
 
-
+const storeProject = useProjectStore()
+const storeTask = useTaskStore()
 const storeAuth = useAuthStore()
 
 onMounted(() => {
@@ -27,64 +30,39 @@ const logout = () => {
 </script>
 
 <template>
-  <div v-if="$route.name === 'login'" class="min-h-screen">
-    <RouterView />
-  </div>
-
-  <div v-else class="min-h-screen bg-white">
-    <Toaster />
-    <GlobalAlertDialog ref="alert-dialog" />
-
-    <nav class="bg-[#0B132B] text-white flex items-center px-6 py-3 shadow-md fixed top-0 left-0 w-full z-50">
-      <RouterLink to="/" class="flex items-center space-x-2">
-        <img src="@/assets/smart-traffic-logo.png" alt="Logo" class="w-8 h-8" />
-      </RouterLink>
-
-      <div class="flex space-x-8 ml-12">
-        <RouterLink
-          to="/"
-          class="text-white hover:text-green-400 transition"
-          active-class="font-bold"
-        >
-          Início
-        </RouterLink>
-        <RouterLink
-          to="/tables"
-          class="text-white hover:text-green-400 transition"
-          active-class="font-bold"
-        >
-          Gráficos
-        </RouterLink>
-        <RouterLink
-          to="/locations"
-          class="text-white hover:text-green-400 transition"
-          active-class="font-bold"
-        >
-          Localizações
-        </RouterLink>
-      </div>
-
-
-      <div class="ml-auto flex items-center space-x-4">
-        <span class="hidden sm:block text-sm">{{ storeAuth.userFirstLastName }}</span>
-        <img
-          v-if="storeAuth.user"
-          class="w-10 h-10 rounded-full object-cover"
-          :src="storeAuth.userPhotoUrl"
-          alt="Avatar"
-        />
-        <button
-          v-show="storeAuth.user"
-          @click="logout"
-          class="bg-gray-600 hover:bg-gray-500 text-white px-4 py-1 rounded-full text-sm"
-        >
-          Logout
-        </button>
-      </div>
-    </nav>
-
-    <div class="p-6 max-w-6xl mx-auto pt-20">
-      <RouterView />
+  <Toaster />
+  <GlobalAlertDialog ref="alert-dialog"></GlobalAlertDialog>
+  <div class="p-8 mx-auto max-w-3xl">
+    <div class="flex justify-between">
+      <img v-if="storeAuth.user" class="w-14 h-14 rounded-full" :src="storeAuth.userPhotoUrl" alt="Rounded avatar">
     </div>
+        <nav style="background-color: #0B132B"
+      class="bg-[#0B132B] text-white flex items-center px-2 py-1 shadow-md fixed top-0 left-0 w-full z-50 space-x-4">
+      <RouterLink to="/" class="flex items-center space-x-2">
+        <div class="logo-container">
+          <img src="@/assets/smart-traffic-logo.png" alt="Logo"
+            class="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 object-contain" />
+        </div>
+      </RouterLink>
+      <RouterLink :to="{ name: 'tasks' }" class="text-white hover:text-green-400 transition" active-class="font-bold">
+        Inicio
+      </RouterLink>
+      <RouterLink :to="{ name: 'projects' }" class="text-white hover:text-green-400 transition" active-class="font-bold">
+        Gráficos
+      </RouterLink>
+      <RouterLink :to="{ name: 'projects' }" class="text-white hover:text-green-400 transition" active-class="font-bold">
+        Localizações
+      </RouterLink>
+      <span class="grow"></span>
+      <RouterLink v-show="!storeAuth.user" :to="{ name: 'login' }" class="text-white hover:text-green-400 transition"
+        active-class="font-bold">
+        Login
+      </RouterLink>
+      <button v-show="storeAuth.user" @click="logout" class="text-white hover:text-green-400 transition"
+        active-class="font-bold">
+        Logout
+      </button>
+    </nav>
+    <RouterView></RouterView>
   </div>
 </template>

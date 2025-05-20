@@ -4,7 +4,6 @@ import axios from "axios";
 import { useErrorStore } from "@/stores/error";
 import { useRouter } from "vue-router";
 import avatarNoneAssetURL from "@/assets/avatar-none.png";
-
 export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
   const storeError = useErrorStore();
@@ -15,8 +14,6 @@ export const useAuthStore = defineStore("auth", () => {
   });
 
   const canUpdateDeleteProject = (project) => { return project && user.value && (userType.value === 'A' || user.value.id === project.created_by_id) }
-  axios.defaults.baseURL = 'http://localhost:8000';
-  axios.defaults.withCredentials = true; // para enviar cookies, se precisares
 
   const userFirstLastName = computed(() => {
     const names = userName.value.trim().split(" ");
@@ -50,43 +47,15 @@ export const useAuthStore = defineStore("auth", () => {
     localStorage.removeItem('token')
     axios.defaults.headers.common.Authorization = ''
   };
+
   const login = async (credentials) => {
     storeError.resetMessages();
     try {
-      const responseLogin = await axios.post("/api/auth/login", credentials);
+      const responseLogin = await axios.post("auth/login", credentials);
       token.value = responseLogin.data.token;
       localStorage.setItem('token', token.value);
       axios.defaults.headers.common.Authorization = "Bearer " + token.value;
-      const responseUser = await axios.get("/api/users/me");
-      user.value = responseUser.data.data;
-      repeatRefreshToken();
-      router.push({ name: "tasks" });
-      return user.value;
-    } catch (e) {
-      clearUser();
-      
-      // Improved error handling
-      const errorMessage = e.response?.data?.message || "Network error or server unavailable";
-      const errors = e.response?.data?.errors || [];
-      const status = e.response?.status || 500;
-      
-      storeError.setErrorMessages(
-        errorMessage,
-        errors,
-        status,
-        "Authentication Error!"
-      );
-      return false;
-    }
-  };
-  const login2 = async (credentials) => {
-    storeError.resetMessages();
-    try {
-      const responseLogin = await axios.post("/api/auth/login", credentials);
-      token.value = responseLogin.data.token;
-      localStorage.setItem('token', token.value);
-      axios.defaults.headers.common.Authorization = "Bearer " + token.value;
-      const responseUser = await axios.get("/api/users/me");
+      const responseUser = await axios.get("users/me");
       user.value = responseUser.data.data;
       repeatRefreshToken();
       router.push({ name: "tasks" });

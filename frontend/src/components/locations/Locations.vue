@@ -3,31 +3,15 @@
 import { ref, onMounted } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import axios from 'axios';
-import { embedDashboard } from '@superset-ui/embedded-sdk';
+import LocationsGraficos from './LocationsGraficos.vue'; 
+
 
 const locationName = ref(''); // Campo para o nome da nova localização
 const direction = ref(''); // Campo para a direção da câmera
 const locationStore = useLocationStore(); // Acessar o store de localização
 const theme = ref(1); // Tema inicial
 
-const createLocation = async () => {
-  try {
-    // Verifica se os campos estão preenchidos
-    if (!locationName.value || !direction.value) {
-      alert('Por favor, preencha todos os campos.');
-      return;
-    }
 
-    // Atualiza o store com a nova localização
-    locationStore.addLocation(locationName.value, direction.value);
-
-    // Limpa os campos após a criação
-    locationName.value = '';
-    direction.value = '';
-  } catch (error) {
-    console.error('Erro ao criar localização:', error);
-  }
-};
 
 const changeTheme = (selectedTheme) => {
   theme.value = selectedTheme;
@@ -35,27 +19,27 @@ const changeTheme = (selectedTheme) => {
 
 onMounted(async () => {
   locationStore.fetchLocations();
-  await embedDashboard({
-    id: "12", // ID do dashboard no Superset
-    supersetDomain: "http://localhost:8088", // onde o Superset está a correr
-    mountPoint: document.getElementById("superset-container"), // div onde vai ser injetado
-    fetchGuestToken: () =>
-      fetch("http://localhost:8000/api/superset-token").then(res => res.text()),
-    dashboardUiConfig: {
-      hideTitle: true,
-      hideChartControls: true,
-      hideTabBar: true,
-    }
-  });
 });
 </script>
 <template>
-  <div style="width: 98vw; margin: 0 auto; padding: 0 10px;">
-    <h1>O meu dashboard:</h1>
-    <div style="background-color: #D9D9D9; padding: 25px; border-radius: 10px; margin-top: 10px; width: 100%; max-width: none;">
+  <div style="display: flex; justify-content: center; padding: 70px 10px 0;">
+    <div
+      style="
+        background-color: #D9D9D9;
+        padding: 25px;
+        border-radius: 10px;
+        margin-top: 10px;
+        width: 100%;
+        max-width: 90%;
+      "
+    >
       <div>
-        <button v-for="location in locationStore.locations" :key="location.id" @click="handleLocationClick(location)"
-          style="margin: 5px; padding: 10px; border: 1px solid #ccc; background-color: #f0f0f0; cursor: pointer;">
+        <button
+          v-for="location in locationStore.locations"
+          :key="location.id"
+          @click="handleLocationClick(location)"
+          style="margin: 5px; padding: 10px; border: 1px solid #ccc; background-color: #f0f0f0; cursor: pointer;"
+        >
           {{ location.location_id }}: {{ location.location }} - {{ location.direction }}
         </button>
       </div>
@@ -114,6 +98,9 @@ onMounted(async () => {
       <div v-if="theme === 3"><h2>Mensal</h2><p>Resumo mensal de dados.</p></div>
       <div v-if="theme === 4"><h2>Anual</h2><p>Resumo anual de dados.</p></div>
     </div>
+
+    <LocationsGraficos v-if="theme === 1" :selectedDate="selectedDate" :location="selectedLocation" />
+
   </div>
 </template>
 

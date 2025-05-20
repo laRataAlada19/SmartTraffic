@@ -1,19 +1,22 @@
-import { createApp } from 'vue';
-import { createPinia } from 'pinia';
-import axios from 'axios';
-import App from './App.vue';
-import './assets/main.css';
-import router from './router'; 
+import './assets/main.css'
 
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import axios from 'axios'
 
-const app = createApp(App);
+import App from './App.vue'
+import router from './router'
 
-const pinia = createPinia();
+import ErrorMessage from './components/common/ErrorMessage.vue'
 
-app.use(pinia);
+const app = createApp(App)
 
-app.use(router); // Use o router aqui
+app.use(createPinia())
+app.use(router)
 
-axios.defaults.baseURL = 'http://localhost:8000'; // Defina a URL base para suas requisições
+// Default Axios configuration
+axios.defaults.baseURL = 'http://localhost:8000/api'
 
-app.mount('#app');
+app.component('ErrorMessage', ErrorMessage)
+
+app.mount('#app')

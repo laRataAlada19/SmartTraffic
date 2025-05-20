@@ -1,34 +1,62 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth' 
-import LocationList from '@/components/locations/LocationsList.vue';
-import TablesList from '@/components/tables/TablesList.vue';
+import Tasks from '@/components/tasks/Tasks.vue'
+import TaskUpdate from '@/components/tasks/TaskUpdate.vue'
+import ProjectUpdate from '@/components/projects/ProjectUpdate.vue'
+import ProjectCreate from '@/components/projects/ProjectCreate.vue'
+import Projects from '@/components/projects/Projects.vue'
 import Login from '@/components/auth/Login.vue'
-import Home from '@/components/Home.vue';
+import Locations from '@/components/locations/Locations.vue'
 
 let handlingFirstRoute = true
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes:[
+  routes: [
+    {
+      path: '/',
+      name: 'tasks',
+      component: Locations
+    },
     {
       path: '/login',
       name: 'login',
       component: Login
     },
     {
-      path: '/locations',
-      name: 'locations',
-      component: LocationList
+      path: '/tasks',
+      redirect: { name: 'tasks' }
     },
     {
-      path: '/tables',
-      name: 'Tables',
-      component: TablesList
+      path: '/tasks/:id',
+      name: 'updateTask',
+      component: TaskUpdate,
+      props: route => ({ id: parseInt(route.params.id) })
+    },
+    {
+      path: '/projects',
+      name: 'projects',
+      component: Projects
+    },
+    {
+      path: '/projects/:id',
+      name: 'updateProject',
+      component: ProjectUpdate,
+      props: route => ({ id: parseInt(route.params.id) })
     },    
-   {
-    path: '/',
-    name: 'Home',
-    component: Home,
-  },
+    {
+      path: '/projects/new',
+      name: 'createProject',
+      component: ProjectCreate,
+    },    
+    {
+      path: '/about',
+      name: 'about',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/AboutView.vue')
+    }
   ]
 })
 
@@ -45,4 +73,4 @@ router.beforeEach(async (to, from, next) => {
   next()
 })
 
-export default router;
+export default router
