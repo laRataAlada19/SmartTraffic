@@ -1,12 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth' 
-import Tasks from '@/components/tasks/Tasks.vue'
 import TaskUpdate from '@/components/tasks/TaskUpdate.vue'
 import ProjectUpdate from '@/components/projects/ProjectUpdate.vue'
 import ProjectCreate from '@/components/projects/ProjectCreate.vue'
 import Projects from '@/components/projects/Projects.vue'
+
 import Login from '@/components/auth/Login.vue'
+import Main from '@/components/Main.vue'
 import Locations from '@/components/locations/Locations.vue'
+import Tables from '@/components/tables/Tables.vue'
 
 let handlingFirstRoute = true
 
@@ -14,14 +16,24 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'tasks',
-      component: Locations
-    },
-    {
       path: '/login',
       name: 'login',
       component: Login
+    },
+    {
+      path: '/',
+      name: 'main',
+      component: Main
+    },
+    {
+      path: '/locations',
+      name: 'Locations',
+      component: Locations
+    },
+    {
+      path: '/tables',
+      name: 'Tables',
+      component: Tables
     },
     {
       path: '/tasks',
@@ -48,14 +60,6 @@ const router = createRouter({
       path: '/projects/new',
       name: 'createProject',
       component: ProjectCreate,
-    },    
-    {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
     }
   ]
 })

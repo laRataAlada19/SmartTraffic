@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
@@ -13,6 +13,10 @@ export const useLocationStore = defineStore('location', () => {
       console.error('Erro ao buscar locais:', error);
     }
   };
+
+  const totalLocations = computed(() => {
+    return locations.value ? locations.value.length : 0
+  })
 
   const addLocation = async (location, direction) => {
     try {
@@ -57,6 +61,7 @@ export const useLocationStore = defineStore('location', () => {
     fetchLocations,
     addLocation,
     deleteLocation,
-    updateLocation
+    updateLocation,
+    totalLocations,
   };
 });

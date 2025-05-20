@@ -36,7 +36,7 @@ const logout = () => {
     <div class="flex justify-between">
       <img v-if="storeAuth.user" class="w-14 h-14 rounded-full" :src="storeAuth.userPhotoUrl" alt="Rounded avatar">
     </div>
-        <nav style="background-color: #0B132B"
+    <nav style="background-color: #0B132B"
       class="bg-[#0B132B] text-white flex items-center px-2 py-1 shadow-md fixed top-0 left-0 w-full z-50 space-x-4">
       <RouterLink to="/" class="flex items-center space-x-2">
         <div class="logo-container">
@@ -44,13 +44,15 @@ const logout = () => {
             class="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 object-contain" />
         </div>
       </RouterLink>
-      <RouterLink :to="{ name: 'tasks' }" class="text-white hover:text-green-400 transition" active-class="font-bold">
+      <RouterLink :to="{ name: 'main' }" class="text-white hover:text-green-400 transition" active-class="font-bold">
         Inicio
       </RouterLink>
-      <RouterLink :to="{ name: 'projects' }" class="text-white hover:text-green-400 transition" active-class="font-bold">
+      <RouterLink :to="{ name: 'projects' }" class="text-white hover:text-green-400 transition"
+        active-class="font-bold">
         Gráficos
       </RouterLink>
-      <RouterLink :to="{ name: 'projects' }" class="text-white hover:text-green-400 transition" active-class="font-bold">
+      <RouterLink :to="{ name: 'Locations' }" class="text-white hover:text-green-400 transition"
+        active-class="font-bold">
         Localizações
       </RouterLink>
       <span class="grow"></span>
