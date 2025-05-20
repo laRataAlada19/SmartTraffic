@@ -4,21 +4,42 @@ import { ref, onMounted } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import axios from 'axios';
 import LocationsGraficos from './LocationsGraficos.vue'; 
+import { useFactVehicleStore } from '@/stores/factvehicle';
 
 
 const locationName = ref(''); // Campo para o nome da nova localização
 const direction = ref(''); // Campo para a direção da câmera
 const locationStore = useLocationStore(); // Acessar o store de localização
 const theme = ref(1); // Tema inicial
+const factVehicleStore = useFactVehicleStore();
 
-
+const totalVehicles = ref(0);
+const totalCars = ref(0);
+const totalBikes = ref(0);
+const totalTrucks = ref(0);
+const totalBuses = ref(0);
+const totalMotorcycles = ref(0);
+const mostMovimentedStrests = ref([]);
+const lessMovimentedStrests = ref([]);
 
 const changeTheme = (selectedTheme) => {
   theme.value = selectedTheme;
 };
+const getTotalVehicles = async () => {
+    totalVehicles.value = await factVehicleStore.fetchTotalVehicles();
+    totalCars.value = await factVehicleStore.fetchTotalCars();
+    totalBikes.value = await factVehicleStore.fetchTotalBikes();
+    totalTrucks.value = await factVehicleStore.fetchTotalTrucks();
+    totalBuses.value = await factVehicleStore.fetchTotalBuses();
+    totalMotorcycles.value = await factVehicleStore.fetchTotalMotorcycles();
+    mostMovimentedStrests.value = await factVehicleStore.fetchMostMovimentedStress();
+    lessMovimentedStrests.value = await factVehicleStore.fetchLessMovimentedStress();
+};
 
 onMounted(async () => {
   locationStore.fetchLocations();
+  await getTotalVehicles();
+
 });
 </script>
 <template>
@@ -63,17 +84,19 @@ onMounted(async () => {
           <div style="background-color: #FFFFFF; padding: 25px; border-radius: 10px; display: flex; width: 100%; gap: 30px;">
 
             <div style="flex: 1;">
-              <h3 style="margin: 12px 0; font-size: 1.1rem;">Total de veículos: </h3>
-              <h3 style="margin: 12px 0; font-size: 1.1rem;">Total de veículos ligeiros:</h3>
-              <h3 style="margin: 12px 0; font-size: 1.1rem;">Total de motas:</h3>
-              <h3 style="margin: 12px 0; font-size: 1.1rem;">Total de camiões:</h3>
-              <h3 style="margin: 12px 0; font-size: 1.1rem;">Total de autocarros:</h3>
-              <h3 style="margin: 12px 0; font-size: 1.1rem;">Total de bicicletas:</h3>
+              <h3 style="margin: 12px 0; font-size: 1.1rem;">Total de veículos: {{ totalVehicles }}  </h3>
+              <h3 style="margin: 12px 0; font-size: 1.1rem;">Total de veículos ligeiros: {{ totalCars }} </h3>
+              <h3 style="margin: 12px 0; font-size: 1.1rem;">Total de motas: {{ totalMotorcycles }} </h3>
+              <h3 style="margin: 12px 0; font-size: 1.1rem;">Total de camiões: {{ totalTrucks }} </h3>
+              <h3 style="margin: 12px 0; font-size: 1.1rem;">Total de autocarros: {{ totalBuses }} </h3>
+              <h3 style="margin: 12px 0; font-size: 1.1rem;">Total de bicicletas: {{ totalBikes }} </h3>
             </div>
 
             <div style="flex: 1; padding-left: 30px; border-left: 1px solid #eee;">
-              <h3 style="margin: 12px 0; font-size: 1.1rem;">Localização mais movimentada: Rua </h3>
-              <h3 style="margin: 12px 0; font-size: 1.1rem;">Localização menos movimentada: Rua </h3>
+              <h3 style="margin: 12px 0; font-size: 1.1rem;">
+                Localização mais movimentada: {{ mostMovimentedStrests[0]?.location_name || 'N/A' }}
+              </h3>
+              <h3 style="margin: 12px 0; font-size: 1.1rem;">Localização menos movimentada: {{ lessMovimentedStrests[0]?.location_name || 'N/A' }} </h3>
               <h3 style="margin: 12px 0; font-size: 1.1rem;">Veículos em excesso de velocidade: 11</h3>
               <h3 style="margin: 12px 0; font-size: 1.1rem;">Hora com mais tráfego: 18-19</h3>
               <h3 style="margin: 12px 0; font-size: 1.1rem;">Hora com menos tráfego: 02-03</h3>
