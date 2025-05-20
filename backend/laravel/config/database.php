@@ -97,6 +97,22 @@ return [
             'schema' => 'vehicle_detection',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
         ],
+        'dw_pgsql' => [
+            'driver' => 'pgsql',
+            'url' => env('DB_URL'),
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5433'),
+            'database' => env('DB_DATABASE', 'laravel'),
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'schema' => 'warehouse_vehicle_count_db',
+            'sslmode' => env('DB_SSLMODE', 'prefer'),
+        ],
+
 
         'sqlsrv' => [
             'driver' => 'sqlsrv',

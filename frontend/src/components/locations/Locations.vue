@@ -23,6 +23,7 @@ onMounted(async () => {
 </script>
 <template>
   <div style="display: flex; justify-content: center; padding: 70px 10px 0;">
+    <h1 style="margin-bottom: 20px;">O meu dashboard:</h1>
     <div
       style="
         background-color: #D9D9D9;
@@ -31,21 +32,10 @@ onMounted(async () => {
         margin-top: 10px;
         width: 100%;
         max-width: 90%;
+        margin-left: auto;
+        margin-right: auto;
       "
     >
-      <div>
-        <button
-          v-for="location in locationStore.locations"
-          :key="location.id"
-          @click="handleLocationClick(location)"
-          style="margin: 5px; padding: 10px; border: 1px solid #ccc; background-color: #f0f0f0; cursor: pointer;"
-        >
-          {{ location.location_id }}: {{ location.location }} - {{ location.direction }}
-        </button>
-      </div>
-      <div v-if="locationStore.locations.length === 0">
-        No locations available.
-      </div>
       <h1>Resumo:</h1>
       <div class="theme-buttons">
         <button @click="changeTheme(1)" :class="{ 'active': theme === 1 }">

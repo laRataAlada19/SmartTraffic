@@ -6,6 +6,7 @@ use App\Http\Controllers\SupersetController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController; 
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\FactVehicleCountController;
 
 Route::get('/locations', [LocationController::class, 'index']);
 Route::post('/locations', [LocationController::class, 'store']);
@@ -24,3 +25,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/refreshtoken', [AuthController::class, 'refreshToken']);
     Route::get('/users/me', [UserController::class, 'showMe']); // Ensure the UserController class has a 'showMe' method
 });
+
+
+Route::get('/fact-vehicle-counts', [FactVehicleCountController::class, 'index']);
