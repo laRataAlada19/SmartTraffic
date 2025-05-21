@@ -15,7 +15,7 @@ const newLocation = reactive({
 const locations = reactive([
   { name: 'Norte', id: '1' },
   { name: 'Sul', id: '2' },
-  { name: 'Leste', id: '3' },
+  { name: 'Este', id: '3' },
   { name: 'Oeste', id: '4' },
   { name: 'Noroeste', id: '5' },
   { name: 'Sudeste', id: '6' },

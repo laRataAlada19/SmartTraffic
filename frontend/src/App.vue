@@ -47,7 +47,7 @@ const logout = () => {
       <RouterLink :to="{ name: 'main' }" class="text-white hover:text-green-400 transition" active-class="font-bold">
         Inicio
       </RouterLink>
-      <RouterLink :to="{ name: 'Tables' }" class="text-white hover:text-green-400 transition"
+      <RouterLink :to="{ name: 'selecionarGraficos' }" class="text-white hover:text-green-400 transition"
         active-class="font-bold">
         Gráficos
       </RouterLink>

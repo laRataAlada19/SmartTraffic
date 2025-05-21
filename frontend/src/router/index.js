@@ -10,6 +10,7 @@ import Main from '@/components/Main.vue'
 import Locations from '@/components/locations/Locations.vue'
 import Location from '@/components/locations/Location.vue'
 import Tables from '@/components/tables/Tables.vue'
+import ChartSelectionPage from '@/components/charts/ChartSelectionPage.vue'
 
 let handlingFirstRoute = true
 
@@ -41,6 +42,11 @@ const router = createRouter({
       path: '/tables',
       name: 'Tables',
       component: Tables
+    },
+    {
+      path: '/selecionarGraficos',
+      name: 'selecionarGraficos',
+      component: ChartSelectionPage
     },
     {
       path: '/tasks',

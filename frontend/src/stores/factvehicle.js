@@ -7,6 +7,16 @@ export const useFactVehicleStore = defineStore('factvehicle', () => {
     const factvehicles = ref([]);
     const factvehicle = ref(null);
 
+    const fetchData = async () => {
+        try {
+            const response = await axios.get('/fact-vehicle-counts');
+            factvehicles.value = response.data.data;
+            console.log('Dados recebidos:', factvehicles.value);
+            return factvehicles.value;
+        } catch (error) {
+            console.error('Erro ao buscar dados:', error);
+        }
+    }
     const fetchTotalVehicles = async () => {
         try {
             const response = await axios.get('/fact-vehicle-counts/total');
@@ -92,6 +102,7 @@ export const useFactVehicleStore = defineStore('factvehicle', () => {
     return {
         factvehicles,
         factvehicle,
+        fetchData,
         fetchTotalVehicles,
         fetchTotalCars,
         fetchTotalMotorcycles,

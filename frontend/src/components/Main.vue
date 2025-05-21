@@ -2,8 +2,9 @@
 // Importações necessárias
 import { ref, onMounted } from 'vue';
 import { useLocationStore } from '@/stores/location';
+import { useRoute } from 'vue-router';
 import axios from 'axios';
-import Tables from '@/components/tables/Tables.vue';
+import ChartDisplay from '@/components/charts/ChartDisplay.vue';
 import { useFactVehicleStore } from '@/stores/factvehicle';
 
 const locationName = ref(''); // Campo para o nome da nova localização
@@ -11,8 +12,8 @@ const direction = ref(''); // Campo para a direção da câmera
 const locationStore = useLocationStore(); // Acessar o store de localização
 const theme = ref(1); // Tema inicial
 const factVehicleStore = useFactVehicleStore();
-
-
+const route = useRoute();
+const selectedCharts = ref(route.query.charts ? route.query.charts.split(',') : []);
 const totalVehicles = ref(0);
 const totalCars = ref(0);
 const totalBikes = ref(0);
@@ -44,7 +45,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div style="display: flex; justify-content: center; padding: 70px 10px 0;">
+  <div style="display: column; justify-content: center; padding: 70px 10px 0;">
     <h1 style="margin-bottom: 20px;">O meu dashboard:</h1>
     <div style="
           background-color: #D9D9D9;
@@ -122,7 +123,8 @@ onMounted(async () => {
       </div>
     </div>
 
-    <Tables v-if="theme === 1" :selectedDate="selectedDate" :location="selectedLocation" />
+    <ChartDisplay :selectedCharts="selectedCharts" />
+
 
   </div>
 </template>
