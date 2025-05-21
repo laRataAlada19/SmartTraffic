@@ -8,6 +8,7 @@ import Projects from '@/components/projects/Projects.vue'
 import Login from '@/components/auth/Login.vue'
 import Main from '@/components/Main.vue'
 import Locations from '@/components/locations/Locations.vue'
+import Location from '@/components/locations/Location.vue'
 import Tables from '@/components/tables/Tables.vue'
 
 let handlingFirstRoute = true
@@ -29,6 +30,12 @@ const router = createRouter({
       path: '/locations',
       name: 'Locations',
       component: Locations
+    },
+    {
+      path: '/locations/:id',
+      name: 'Location',
+      component: Location,
+      props: route => ({ id: parseInt(route.params.id) })
     },
     {
       path: '/tables',

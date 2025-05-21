@@ -5,6 +5,10 @@ import axios from 'axios';
 export const useLocationStore = defineStore('location', () => {
   const locations = ref([]);
 
+  const totalLocations = computed(() => {
+    return locations.value ? locations.value.length : 0
+  })
+
   const fetchLocations = async () => {
     try {
       const response = await axios.get('/locations');
@@ -14,9 +18,15 @@ export const useLocationStore = defineStore('location', () => {
     }
   };
 
-  const totalLocations = computed(() => {
-    return locations.value ? locations.value.length : 0
-  })
+  const fetchLocationById = async (locationId) => {
+    try {
+      const response = await axios.get(`/locations/${locationId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar localização:', error);
+      throw error;
+    }
+  };
 
   const addLocation = async (location, direction) => {
     try {
@@ -56,14 +66,13 @@ export const useLocationStore = defineStore('location', () => {
     }
   }
 
-  
-
   return {
     locations,
     fetchLocations,
     addLocation,
     deleteLocation,
     updateLocation,
+    fetchLocationById,
     totalLocations,
   };
 });

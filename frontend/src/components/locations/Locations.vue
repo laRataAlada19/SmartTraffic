@@ -9,11 +9,6 @@ import LocationCreate from './LocationCreate.vue';
 const locationName = ref('');
 const direction = ref('');
 const locationStore = useLocationStore();
-const granularity = ref(1); //default diario
-
-const changeGranularity = (selectedGranularity) => {
-    granularity.value = selectedGranularity;
-};
 
 onMounted(async () => {
   locationStore.fetchLocations();

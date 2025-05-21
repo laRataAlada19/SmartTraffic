@@ -1,21 +1,26 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useLocationStore } from '@/stores/location';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 
+const router = useRouter();
 const props = defineProps({
   locations: Array
 })
 
 function viewLocation(location) {
-  //
+  router.push({
+    name: 'Location',
+    params: { id: location.location_id }
+  });
 }
 
 function editLocation(location) {
   //
 }
 
-function deleteLocation(index) {
+function deleteLocation(id) {
   //
 }
 
@@ -37,13 +42,13 @@ function deleteLocation(index) {
           <td class="border border-gray-300 px-4 py-2">{{ location.direction }}</td>
           <td class="border border-gray-300 px-4 py-2 flex justify-center space-x-2">
             <button @click="viewLocation(location)">
-              👁️
+              <img src="../icons/eye.svg" alt="eye" class="w-6 h-6">
             </button>
             <button @click="editLocation(location)">
-              ✏️
+              <img src="../icons/pencil.svg" alt="pencil" class="w-6 h-6">
             </button>
-            <button @click="deleteLocation(index)">
-              🗑️
+            <button @click="deleteLocation(location.location_id)">
+              <img src="../icons/trash.svg" alt="trash" class="w-6 h-6">
             </button>
           </td>
         </tr>
