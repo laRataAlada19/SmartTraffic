@@ -10,7 +10,11 @@ const router = useRouter()
 const componentsMap = {
   LineChart: defineAsyncComponent(() => import('./types/LineChart.vue')),
   BarChart: defineAsyncComponent(() => import('./types/Barchart.vue')),
-  PieChart: defineAsyncComponent(() => import('./types/PieChart.vue'))
+  PieChart: defineAsyncComponent(() => import('./types/PieChart.vue')),
+  TypeVei: defineAsyncComponent(() => import('./types/TypeVei.vue')),
+  Direction: defineAsyncComponent(() => import('./types/Direction.vue')),
+  HeatMap: defineAsyncComponent(() => import('./types/HeatMap.vue')),
+  Geografic: defineAsyncComponent(() => import('./types/Geografic.vue')),
 }
 
 function toggle(chartComponentName) {
