@@ -24,6 +24,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::post('/auth/refreshtoken', [AuthController::class, 'refreshToken']);
     Route::get('/users/me', [UserController::class, 'showMe']); // Ensure the UserController class has a 'showMe' method
+    Route::get('/users', [UserController::class, 'index']);
+    Route::post('/users', [UserController::class, 'store']);
+    Route::get('/users/me/table', [UserController::class, 'getUserTables']);
+    Route::post('/users/me/add-table', [UserController::class, 'addTable']);
 });
 
 
