@@ -5,12 +5,13 @@ import { useLocationStore } from '@/stores/location';
 import ChartDisplay from '@/components/charts/ChartDisplay.vue';
 import Location from '../locations/Location.vue';
 import LocationList from '../locations/LocationList.vue';
+import { useAuthStore } from '@/stores/auth';
 
 
 const locationName = ref('');
 const direction = ref('');
 const locationStore = useLocationStore();
-
+const storeAuth = useAuthStore();
 
 onMounted(async () => {
     locationStore.fetchLocations();
@@ -18,6 +19,12 @@ onMounted(async () => {
 </script>
 
 <template>
+    <div v-if="!storeAuth.user" class="dashboard-wrapper">
+        <h1 style="text-align: center; margin-top: 20px;">Aceda ao dashboard</h1>
+        <p style="text-align: center; margin-bottom: 20px;">Por favor, faça login para aceder ao dashboard.</p>
+    </div>
+    <div v-else>
+
     <div class="dashboard-container">
         <div v-if="locationStore.totalLocations > 0" class="flex flex-col items-center">
             <LocationList :locations="locationStore.locations" />
@@ -28,6 +35,8 @@ onMounted(async () => {
 
         <ChartDisplay :selectedCharts="selectedCharts" />
     </div>
+            
+</div>
 </template>
 <style scoped>
 .dashboard-container {

@@ -3,9 +3,11 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import charts from './chartsConfig'
 import { defineAsyncComponent } from 'vue'
+import { useAuthStore } from '@/stores/auth';
 
 const selectedCharts = ref([])
 const router = useRouter()
+const storeAuth = useAuthStore()
 
 const componentsMap = {
   LineChart: defineAsyncComponent(() => import('./types/LineChart.vue')),
@@ -36,7 +38,11 @@ function confirmarSelecao() {
 </script>
 
 <template>
-  <div>
+  <div v-if="!storeAuth.user" class="dashboard-wrapper">
+    <h1 style="text-align: center; margin-top: 20px;">Aceda ao dashboard</h1>
+    <p style="text-align: center; margin-bottom: 20px;">Por favor, faça login para aceder ao dashboard.</p>
+  </div>
+  <div v-else class="dashboard-wrapper">
     <h1>Selecionar Gráficos</h1>
 
     <div
@@ -61,4 +67,5 @@ function confirmarSelecao() {
 
     <button @click="confirmarSelecao" style="margin-top: 20px;">Confirmar Seleção</button>
   </div>
+
 </template>
