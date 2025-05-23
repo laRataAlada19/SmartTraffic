@@ -140,6 +140,29 @@ export const useAuthStore = defineStore("auth", () => {
     }
     return false;
   };
+  const getTables = async function () {
+    try {
+      const response = await axios.get('users/me/table');
+      user.value = response.data.data;
+      return user.value;
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
+    }
+  };
+  const addTable = async function (table) {
+    try {
+      const response = await axios.post('/api/users/me/add-table', { table });
+
+      console.log('Tabela adicionada com sucesso:', response.data.message);
+  
+      return response.data.message;
+    } catch (error) {
+
+      console.error('Erro ao adicionar tabela:', error.response?.data?.message || error.message);
+
+      throw error;
+    }
+  };
   return {
     user,
     userName,
@@ -152,5 +175,7 @@ export const useAuthStore = defineStore("auth", () => {
     canUpdateDeleteProject,
     login,
     logout,
+    getTables,
+    addTable,
   };
 });
