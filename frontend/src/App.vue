@@ -55,6 +55,10 @@ const logout = () => {
         active-class="font-bold">
         Localizações
       </RouterLink>
+      <RouterLink :to="{ name: 'dashboard' }" class="text-white hover:text-green-400 transition"
+        active-class="font-bold">
+        Dashboard
+      </RouterLink>
       <span class="grow"></span>
       <RouterLink v-show="!storeAuth.user" :to="{ name: 'login' }" class="text-white hover:text-green-400 transition"
         active-class="font-bold">

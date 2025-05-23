@@ -47,7 +47,7 @@ export const useAuthStore = defineStore("auth", () => {
     localStorage.removeItem('token')
     axios.defaults.headers.common.Authorization = ''
   };
-
+  
   const login = async (credentials) => {
     storeError.resetMessages();
     try {
@@ -58,7 +58,7 @@ export const useAuthStore = defineStore("auth", () => {
       const responseUser = await axios.get("users/me");
       user.value = responseUser.data.data;
       repeatRefreshToken();
-      router.push({ name: "tasks" });
+      router.push({ name: "main" });
       return user.value;
     } catch (e) {
       clearUser();

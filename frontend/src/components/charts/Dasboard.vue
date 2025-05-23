@@ -1,0 +1,48 @@
+<script setup>
+// Importações necessárias
+import { ref, onMounted } from 'vue';
+import { useLocationStore } from '@/stores/location';
+import ChartDisplay from '@/components/charts/ChartDisplay.vue';
+import Location from '../locations/Location.vue';
+import LocationList from '../locations/LocationList.vue';
+import { useAuthStore } from '@/stores/auth';
+
+
+const locationName = ref('');
+const direction = ref('');
+const locationStore = useLocationStore();
+const storeAuth = useAuthStore();
+
+onMounted(async () => {
+    locationStore.fetchLocations();
+});
+</script>
+
+<template>
+    <div v-if="!storeAuth.user" class="dashboard-wrapper">
+        <h1 style="text-align: center; margin-top: 20px;">Aceda ao dashboard</h1>
+        <p style="text-align: center; margin-bottom: 20px;">Por favor, faça login para aceder ao dashboard.</p>
+    </div>
+    <div v-else>
+
+    <div class="dashboard-container">
+        <div v-if="locationStore.totalLocations > 0" class="flex flex-col items-center">
+            <LocationList :locations="locationStore.locations" />
+        </div>
+        <div v-else class="flex flex-col items-center">
+            <h1 class="text-2xl font-bold mb-4">Nenhuma localização encontrada</h1>
+        </div>
+
+        <ChartDisplay :selectedCharts="selectedCharts" />
+    </div>
+            
+</div>
+</template>
+<style scoped>
+.dashboard-container {
+    margin-top: 80px;
+    /* Ajuste o valor conforme necessário */
+    padding: 20px;
+    /* Opcional: Adiciona espaçamento interno */
+}
+</style>

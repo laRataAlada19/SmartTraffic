@@ -20,6 +20,13 @@ const store = useFactVehicleStore()
 const locationFilter = ref('Todos')
 const timeInterval = ref('dia')
 const data1 = ref([])
+const getVehicleDataByType = (type) => {
+  const locationsSet = [...new Set(data1.value.map(d => d.location || 'Desconhecido'))]
+  return locationsSet.map(loc => {
+    const locEntries = data1.value.filter(d => d.location === loc)
+    return locEntries.reduce((sum, entry) => sum + (entry[type] || 0), 0)
+  })
+}
 
 onMounted(async () => {
   if (!Array.isArray(data1.value) || data1.value.length === 0) {
@@ -87,30 +94,46 @@ const filteredData = computed(() => {
     </div>
 
     <Bar
-      v-if="filteredData.length"
-      :data="{
-        labels: filteredData.map(d => d[0]),
-        datasets: [{
-          label: 'Total de Veículos',
-          data: filteredData.map(d => d[1]),
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
-          borderColor: 'rgb(75, 192, 192)',
-          borderWidth: 1
-        }]
-      }"
-      :options="{
-        responsive: true,
-        plugins: {
-          legend: { display: true },
-          title: { display: true, text: 'Contagem de Veículos' }
-        },
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }"
-    />
+  v-if="data1.length"
+  :data="{
+    labels: [...new Set(data1.map(d => d.location || 'Desconhecido'))],
+    datasets: [
+      {
+        label: 'Carros',
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        data: getVehicleDataByType('car')
+      },
+      {
+        label: 'Motas',
+        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+        data: getVehicleDataByType('motorcycle')
+      },
+      {
+        label: 'Camiões',
+        backgroundColor: 'rgba(153, 102, 255, 0.6)',
+        data: getVehicleDataByType('truck')
+      },
+      {
+        label: 'Autocarros',
+        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+        data: getVehicleDataByType('bus')
+      }
+    ]
+  }"
+  :options="{
+    responsive: true,
+    plugins: {
+      legend: { display: true },
+      title: { display: true, text: 'Tipos de Veículo por Localidade' }
+    },
+    scales: {
+      y: { beginAtZero: true },
+      x: { stacked: true },
+      yAxes: [{ stacked: true }]
+    }
+  }"
+/>
+
     <p v-else>Nenhum dado disponível.</p>
   </div>
 </template>

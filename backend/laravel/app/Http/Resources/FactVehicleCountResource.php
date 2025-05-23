@@ -23,6 +23,8 @@ class FactVehicleCountResource extends JsonResource
             'location_old' => $this->location->location_old ?? null,
             'direction' => $this->location->direction ?? null,
             'direction_old' => $this->location->direction_old ?? null,
+            'latitude' => $this->location->latitude ?? null,
+            'longitude' => $this->location->longitude ?? null,
             'car' => $this->car,
             'motorcycle' => $this->motorcycle,
             'bike' => $this->bike,

@@ -11,6 +11,7 @@ import Locations from '@/components/locations/Locations.vue'
 import Location from '@/components/locations/Location.vue'
 import Tables from '@/components/tables/Tables.vue'
 import ChartSelectionPage from '@/components/charts/ChartSelectionPage.vue'
+import Dasboard from '@/components/charts/Dasboard.vue'
 
 let handlingFirstRoute = true
 
@@ -47,6 +48,11 @@ const router = createRouter({
       path: '/selecionarGraficos',
       name: 'selecionarGraficos',
       component: ChartSelectionPage
+    },
+    {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: Dasboard
     },
     {
       path: '/tasks',
