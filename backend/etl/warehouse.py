@@ -3,9 +3,44 @@ from config import DB_CONFIG_neon_tech, DATABASE_SCHEMA, WAREHOUSE_SCHEMA
 from sqlalchemy import create_engine, text
 import psycopg2
 import os
+import re
 
 #pip install sqlalchemy
 #pip install pandas
+
+def dms_to_decimal(coord_str):
+    if not isinstance(coord_str, str):
+        return None
+
+    # Clean up weird characters to standard DMS symbols
+    coord_str = (
+        coord_str.strip()
+        .replace("º", "°")
+        .replace("’", "'")
+        .replace("′", "'")
+        .replace("″", '"')
+    )
+
+    # Match DMS pattern with optional symbols
+    dms_pattern = r"(\d+)[°\s]+(\d+)?['\s]*([\d\.]+)?[\"\s]*([NSEW])"
+    match = re.match(dms_pattern, coord_str, re.IGNORECASE)
+
+    if match:
+        degrees = float(match.group(1))
+        minutes = float(match.group(2) or 0)
+        seconds = float(match.group(3) or 0)
+        direction = match.group(4).upper()
+
+        decimal = degrees + minutes / 60 + seconds / 3600
+        if direction in ['S', 'W']:
+            decimal *= -1
+        return decimal
+
+    # Try to parse directly as float if already in decimal
+    try:
+        return float(coord_str)
+    except ValueError:
+        return None
 
 class Warehouse:
     def __init__(self):
@@ -115,7 +150,7 @@ class Warehouse:
             vehicle_location_ids_str = ','.join(map(str, vehicle_location_ids)) or "NULL"
 
             query_loc = f"""
-                SELECT location_id, location, direction, updated_at
+                SELECT location_id, location, direction, updated_at, latitude, longitude
                 FROM {DATABASE_SCHEMA}.locations
                 WHERE updated_at > '{last_updated}'
                 OR location_id IN ({vehicle_location_ids_str})
@@ -189,7 +224,13 @@ class Warehouse:
                     "UNKNOWN"
                 )
 
+                # Transform location latitude and longitude to decimal degrees, example: 40.7128, -74.0060
+                df["latitude"] = df["latitude"].apply(dms_to_decimal)
+                df["longitude"] = df["longitude"].apply(dms_to_decimal)
+
+
             if self.location_df is not None and not self.location_df.empty:
+                # Transform camera direction in the direction column from loacation table from DB
                 self.location_df["direction"] = self.location_df["direction"].astype(str).str.strip().str.upper()
                 self.location_df["direction"] = self.location_df["direction"].replace({
                     "NORTE": "N", "NORTH": "N", "N": "N",
@@ -205,6 +246,11 @@ class Warehouse:
                     self.location_df["direction"].isin(["N", "S", "E", "W", "NE", "NW", "SE", "SW"]),
                     "UNKNOWN"
                 )
+
+                # Transform location latitude and longitude to decimal degrees, example: 40.7128, -74.0060
+                df["latitude"] = df["latitude"].apply(dms_to_decimal)
+                df["longitude"] = df["longitude"].apply(dms_to_decimal)
+
 
             print("CUSTOM: Data transformed successfully")
             print(f"CUSTOM: Vehicle rows: {len(df)}, Location rows: {len(self.location_df) if self.location_df is not None else 0}")
@@ -280,7 +326,7 @@ class Warehouse:
                 
                 # Get existing locations from dimension table
                 query = f"""
-                    SELECT location_id, location, direction
+                    SELECT location_id, location, direction, latitude, longitude
                     FROM {WAREHOUSE_SCHEMA}.dim_location
                     WHERE location_id IN %(location_ids)s
                 """
@@ -294,7 +340,9 @@ class Warehouse:
                 existing_dict = {
                     row["location_id"]: {
                         "location": row["location"],
-                        "direction": row["direction"]
+                        "direction": row["direction"],
+                        "latitude": row["latitude"],
+                        "longitude": row["longitude"]
                     }
                     for _, row in existing.iterrows()
                 }
@@ -307,18 +355,22 @@ class Warehouse:
                         location_id = int(row["location_id"])
                         location = row["location"]
                         direction = row["direction"]
+                        latitude = row["latitude"]
+                        longitude = row["longitude"]
 
                         if location_id not in existing_dict:
                             # Insert new location
                             conn.execute(
                                 text(f"""
-                                    INSERT INTO {WAREHOUSE_SCHEMA}.dim_location (location_id, location, direction)
-                                    VALUES (:location_id, :location, :direction)
+                                    INSERT INTO {WAREHOUSE_SCHEMA}.dim_location (location_id, location, direction, latitude, longitude)
+                                    VALUES (:location_id, :location, :direction, :latitude, :longitude)
                                 """),
                                 {
                                     "location_id": location_id,
                                     "location": location,
-                                    "direction": direction
+                                    "direction": direction,
+                                    "latitude": latitude,
+                                    "longitude": longitude
                                 }
                             )
                             new_rows += 1

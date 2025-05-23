@@ -80,7 +80,7 @@ class Database:
                     timestamp, location_id
                 ) VALUES (%s, %s, %s, %s, %s,
                     %s, %s, %s, %s, %s, %s, %s, %s,
-                    %s, 1)
+                    %s, 3)
             """
 
             params = (

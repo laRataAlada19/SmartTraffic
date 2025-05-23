@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import {useRouter} from 'vue-router'
 import ProjectForm from './ProjectForm.vue'
-import { useProjectStore } from '@/stores/project'
+//import { useProjectStore } from '@/stores/project'
 import { useErrorStore } from '@/stores/error'
 
 const storeProject = useProjectStore()

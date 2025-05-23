@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, useTemplateRef } from 'vue'
-import { useProjectStore } from '@/stores/project'
-import { useTaskStore } from '@/stores/task'
+//import { useProjectStore } from '@/stores/project'
+//import { useTaskStore } from '@/stores/task'
 import { useErrorStore } from '@/stores/error'
 
 const storeProject = useProjectStore()

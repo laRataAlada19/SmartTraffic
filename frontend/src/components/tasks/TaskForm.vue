@@ -1,5 +1,5 @@
 <script setup>
-import { useProjectStore } from '@/stores/project'
+//import { useProjectStore } from '@/stores/project'
 import { useErrorStore } from '@/stores/error'
 
 const storeProject = useProjectStore()

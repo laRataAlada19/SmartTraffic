@@ -8,7 +8,7 @@ def main():
     model = load_model()
     clean_file("results.txt")
    
-    time_of_start = datetime.strptime("2025-05-20 16:35:40", "%Y-%m-%d %H:%M:%S")
+    time_of_start = datetime.strptime("2025-05-21 19:17:40", "%Y-%m-%d %H:%M:%S")
     for video in video_files:
         print(f"Processing: {video}")
         process_video(video, model, ground_truth, total_class_counter,time_of_start,camera)

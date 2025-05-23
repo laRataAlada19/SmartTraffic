@@ -1,25 +1,78 @@
 
-==== RESULTS FOR /Users/nazariy/projects/projeto_informatico/backend/VehicleDetection/videos/cam1/3.mp4 ====
-Total Unique Detections: 31
+==== RESULTS FOR /Users/nazariy/projects/projeto_informatico/backend/VehicleDetection/videos/cam1/1.mp4 ====
+Total Unique Detections: 48
 
 Vehicle Type Summary
-Class: car, Count: 23
-Class: motorcycle, Count: 4
-Class: truck, Count: 4
+Class: car, Count: 38
+Class: bus, Count: 4
+Class: truck, Count: 5
+Class: motorcycle, Count: 1
 
 Direction Summary:
 N: 0
-S: 5
-E: 1
-W: 24
+S: 38
+E: 8
+W: 0
 NE: 0
 NW: 0
 SE: 0
 SW: 0
 
 Speed Summary:
-car: 111.22 Km/h
-truck: 175.89 Km/h
-bus: 177.49 Km/h
-motorcycle: 358.90 Km/h
+car: 108.05 Km/h
+truck: 89.56 Km/h
+bus: 55.86 Km/h
+motorcycle: 163.75 Km/h
+=========================
+
+==== RESULTS FOR /Users/nazariy/projects/projeto_informatico/backend/VehicleDetection/videos/cam1/2.mp4 ====
+Total Unique Detections: 227
+
+Vehicle Type Summary
+Class: car, Count: 180
+Class: bus, Count: 13
+Class: truck, Count: 27
+Class: motorcycle, Count: 7
+
+Direction Summary:
+N: 91
+S: 44
+E: 84
+W: 2
+NE: 0
+NW: 0
+SE: 0
+SW: 0
+
+Speed Summary:
+car: 257.82 Km/h
+truck: 224.63 Km/h
+bus: 132.99 Km/h
+motorcycle: 253.63 Km/h
+=========================
+
+==== RESULTS FOR /Users/nazariy/projects/projeto_informatico/backend/VehicleDetection/videos/cam1/3.mp4 ====
+Total Unique Detections: 254
+
+Vehicle Type Summary
+Class: car, Count: 201
+Class: bus, Count: 13
+Class: truck, Count: 29
+Class: motorcycle, Count: 11
+
+Direction Summary:
+N: 95
+S: 44
+E: 104
+W: 3
+NE: 0
+NW: 0
+SE: 0
+SW: 0
+
+Speed Summary:
+car: 246.58 Km/h
+truck: 217.49 Km/h
+bus: 134.00 Km/h
+motorcycle: 292.56 Km/h
 =========================

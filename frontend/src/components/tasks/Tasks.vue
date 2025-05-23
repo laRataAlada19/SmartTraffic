@@ -3,7 +3,7 @@ import { onMounted } from 'vue'
 import TaskList from './TaskList.vue'
 import NewTask from './NewTask.vue'
 import FilterTasksForm from './TasksFilterForm.vue'
-import { useTaskStore } from '@/stores/task'
+//import { useTaskStore } from '@/stores/task'
 import { useErrorStore } from '@/stores/error'
 import { useAuthStore } from '@/stores/auth'; 
 

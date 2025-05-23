@@ -1,14 +1,14 @@
 <script setup>
 import { onMounted, useTemplateRef, provide } from 'vue'
 import { RouterView } from 'vue-router'
-import { useProjectStore } from '@/stores/project'
-import { useTaskStore } from '@/stores/task'
+//import { useProjectStore } from '@/stores/project'
+//import { useTaskStore } from '@/stores/task'
 import { useAuthStore } from '@/stores/auth'
 import Toaster from '@/components/ui/toast/Toaster.vue'
 import GlobalAlertDialog from '@/components/common/GlobalAlertDialog.vue'
 
-const storeProject = useProjectStore()
-const storeTask = useTaskStore()
+//const storeProject = useProjectStore()
+//const storeTask = useTaskStore()
 const storeAuth = useAuthStore()
 
 onMounted(() => {

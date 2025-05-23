@@ -1,1 +1,5 @@
-
+vehicle_count_id,car,motorcycle,bike,truck,bus,n,s,e,w,ne,nw,se,sw,timestamp,location_id,location,direction,latitude,longitude
+11,23,4,0,4,0,0,0,24,1,4,1,0,0,2025-05-21 19:20:00,3,Rua XPTO,Norte,48° 51′ 30.24″ N,2° 17′ 40.2″ E
+12,38,1,0,5,4,0,1,8,0,0,0,37,0,2025-05-21 19:23:00,3,Rua XPTO,Norte,48° 51′ 30.24″ N,2° 17′ 40.2″ E
+13,180,7,0,27,13,1,1,84,2,0,90,43,0,2025-05-21 19:30:00,3,Rua XPTO,Norte,48° 51′ 30.24″ N,2° 17′ 40.2″ E
+14,201,11,0,29,13,1,1,104,3,3,91,43,0,2025-05-21 20:20:00,3,Rua XPTO,Norte,48° 51′ 30.24″ N,2° 17′ 40.2″ E

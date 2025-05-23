@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import axios from 'axios';
+import LocationUpdate from './LocationUpdate.vue';
 
 const locationStore = useLocationStore();
 const props = defineProps({
@@ -10,11 +11,24 @@ const props = defineProps({
 const locationId = ref(props.id);
 const locationDetails = ref(null);
 const granularity = ref(3); //default diario
+const showUpdateForm = ref(false);
 const startDate = ref('2025-05-01');
 const endDate = ref('2025-05-08');
 
 const changeGranularity = (selectedGranularity) => {
     granularity.value = selectedGranularity;
+};
+
+function deleteLocation(id) {
+    //
+};
+
+const toggleUpdateForm = () => {
+    showUpdateForm.value = !showUpdateForm.value;
+};
+
+const cancelUpdate = (canceledForm) => {
+    showUpdateForm.value = canceledForm.value;
 };
 
 onMounted(async () => {
@@ -33,18 +47,23 @@ onMounted(async () => {
     <br>
 
     <div v-if="locationDetails" class="bg-white rounded-lg shadow p-4">
-        <header>
-            <h2>Informação da Localização</h2>
-            <p><strong>Localização:</strong> {{ locationDetails.location }}</p>
-            <p><strong>Coordenadas geográficas:</strong></p>
-            <p class="latitude">Latitude: </p>
-            <p class="longitude">Longitude: </p>
-            <p><strong>Direção da câmara:</strong> {{ locationDetails.direction }}</p>
-            <div class="btn-actions">
-                <button class="btn-edit">Editar</button>
-                <button class="btn-delete">Eliminar</button>
-            </div>
-        </header>
+        <div v-if="showUpdateForm">
+            <LocationUpdate :location="locationDetails" @cancelUpdate="cancelUpdate"/>
+        </div>
+        <div v-else>
+            <header>
+                <h2>Informação da Localização</h2>
+                <p><strong>Localização:</strong> {{ locationDetails.location }}</p>
+                <p><strong>Coordenadas geográficas:</strong></p>
+                <p class="latitude">Latitude: {{ locationDetails.latitude }}</p>
+                <p class="longitude">Longitude: {{ locationDetails.longitude }}</p>
+                <p><strong>Direção da câmara:</strong> {{ locationDetails.direction }}</p>
+                <div class="btn-actions">
+                    <button class="btn-edit" @click="toggleUpdateForm">Editar</button>
+                    <button class="btn-delete" @onclick="deleteLocation(locationDetails.location_id)">Eliminar</button>
+                </div>
+            </header>
+        </div>
 
         <section class="statistics">
             <h2>Estatísticas</h2>

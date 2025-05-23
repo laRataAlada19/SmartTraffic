@@ -86,7 +86,7 @@ def get_camera_direction(camera_name):
         cursor = connection.cursor()
  
         # Query para buscar a direção da câmera
-        query = f"SELECT direction FROM {DATABASE_SCHEMA}.locations WHERE location_id = 1"
+        query = f"SELECT direction FROM {DATABASE_SCHEMA}.locations WHERE location_id = 3"
         cursor.execute(query, (camera_name,))
         result = cursor.fetchone()
 

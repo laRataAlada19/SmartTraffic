@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted } from 'vue'
 import ProjectList from './ProjectList.vue'
-import { useProjectStore } from '@/stores/project'
+//import { useProjectStore } from '@/stores/project'
 import { useErrorStore } from '@/stores/error'
 import { useAuthStore } from '@/stores/auth'
 
