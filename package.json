@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "chartjs-chart-geo": "^4.3.4",
+    "chartjs-chart-matrix": "^3.0.0"
+  }
+}

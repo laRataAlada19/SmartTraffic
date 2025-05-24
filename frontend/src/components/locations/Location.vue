@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import axios from 'axios';
 import LocationUpdate from './LocationUpdate.vue';
@@ -14,6 +14,79 @@ const granularity = ref(3); //default diario
 const showUpdateForm = ref(false);
 const startDate = ref('2025-05-01');
 const endDate = ref('2025-05-08');
+
+function dmsToDecimal(coordStr) {
+  if (typeof coordStr !== 'string') {
+    return null;
+  }
+
+  coordStr = coordStr
+    .trim()
+    .replace(/º/g, '°')
+    .replace(/[’′]/g, "'")
+    .replace(/″/g, '"');
+
+  const dmsPattern = /(\d+)[°\s]+(\d+)?['\s]*([\d.]+)?["\s]*([NSEW])/i;
+  const match = coordStr.match(dmsPattern);
+
+  if (match) {
+    const degrees = parseFloat(match[1]);
+    const minutes = parseFloat(match[2] || 0);
+    const seconds = parseFloat(match[3] || 0);
+    const direction = match[4].toUpperCase();
+
+    let decimal = degrees + minutes / 60 + seconds / 3600;
+    if (direction === 'S' || direction === 'W') {
+      decimal *= -1;
+    }
+    return decimal;
+  }
+
+  const num = parseFloat(coordStr);
+  return isNaN(num) ? null : num;
+}
+
+const loadGoogleMaps = () => {
+    return new Promise((resolve) => {
+        if (window.google && window.google.maps) {
+            resolve(window.google.maps);
+        } else {
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAcCakaJA9IdVRuRa8xaHEJdhpp75qkOwU`;
+            script.async = true;
+            script.defer = true;
+            script.onload = () => {
+                resolve(window.google.maps);
+            };
+            document.head.appendChild(script);
+        }
+    });
+};
+
+const initMap = async () => {
+    const googleMaps = await loadGoogleMaps();
+
+    const map = new googleMaps.Map(document.getElementById('map'), {
+        center: {
+            lat: dmsToDecimal(locationDetails.value.latitude),
+            lng: dmsToDecimal(locationDetails.value.longitude),
+        },
+        zoom: 15,
+    });
+
+    // Import the marker library for AdvancedMarkerElement
+    const { AdvancedMarkerElement } = await google.maps.importLibrary('marker');
+
+    // Use the new marker class
+    new AdvancedMarkerElement({
+        map: map,
+        position: {
+            lat: dmsToDecimal(locationDetails.value.latitude),
+            lng: dmsToDecimal(locationDetails.value.longitude),
+        },
+        title: locationDetails.value.location,
+    });
+};
 
 const changeGranularity = (selectedGranularity) => {
     granularity.value = selectedGranularity;
@@ -30,6 +103,12 @@ const toggleUpdateForm = () => {
 const cancelUpdate = (canceledForm) => {
     showUpdateForm.value = canceledForm.value;
 };
+
+watch(locationDetails, (newVal) => {
+    if (newVal) {
+        initMap();
+    }
+});
 
 onMounted(async () => {
     try {
@@ -57,6 +136,7 @@ onMounted(async () => {
                 <p><strong>Coordenadas geográficas:</strong></p>
                 <p class="latitude">Latitude: {{ locationDetails.latitude }}</p>
                 <p class="longitude">Longitude: {{ locationDetails.longitude }}</p>
+                <div id="map" style="height: 400px; width: 100%; margin-top: 20px;"></div>
                 <p><strong>Direção da câmara:</strong> {{ locationDetails.direction }}</p>
                 <div class="btn-actions">
                     <button class="btn-edit" @click="toggleUpdateForm">Editar</button>
