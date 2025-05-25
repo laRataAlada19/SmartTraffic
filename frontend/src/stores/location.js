@@ -28,12 +28,14 @@ export const useLocationStore = defineStore('location', () => {
     }
   };
 
-  const addLocation = async (location, direction) => {
+  const addLocation = async (location, direction, latitude, longitude) => {
     try {
       const response = await axios.post('/locations', null, {
         params: {
           location: location,
           direction: direction,
+          latitude: latitude,
+          longitude: longitude,
         },
       });
       locations.value.push(response.data); 
@@ -55,7 +57,7 @@ export const useLocationStore = defineStore('location', () => {
 
   const updateLocation = async (locationId, updatedLocation) => {
     try {
-      const response = await axios.put(`/locations/${locationId}`, updatedLocation);
+      const response = await axios.patch(`/locations/${locationId}`, updatedLocation);
       const index = locations.value.findIndex(location => location.id === locationId);
       if (index !== -1) {
         locations.value[index] = response.data;

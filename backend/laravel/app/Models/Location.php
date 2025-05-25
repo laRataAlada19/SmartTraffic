@@ -10,7 +10,9 @@ class Location extends Model
 
     protected $fillable = [
         'location', 
-        'direction'
+        'direction',
+        'latitude',
+        'longitude'
     ];
 
     protected $table = 'vehicle_detection.locations';

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores/auth' 
+import { useAuthStore } from '@/stores/auth'
 import TaskUpdate from '@/components/tasks/TaskUpdate.vue'
 import ProjectUpdate from '@/components/projects/ProjectUpdate.vue'
 import ProjectCreate from '@/components/projects/ProjectCreate.vue'
@@ -34,10 +34,13 @@ const router = createRouter({
       component: Locations
     },
     {
-      path: '/locations/:id',
+      path: '/locations/:id/:action?',
       name: 'Location',
       component: Location,
-      props: route => ({ id: parseInt(route.params.id) })
+      props: route => ({
+        id: parseInt(route.params.id),
+        edit: route.params.action === 'edit' // true if action param is 'edit'
+      })
     },
     {
       path: '/tables',
@@ -74,7 +77,7 @@ const router = createRouter({
       name: 'updateProject',
       component: ProjectUpdate,
       props: route => ({ id: parseInt(route.params.id) })
-    },    
+    },
     {
       path: '/projects/new',
       name: 'createProject',
@@ -85,12 +88,12 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const storeAuth = useAuthStore()
-  if (handlingFirstRoute) { 
+  if (handlingFirstRoute) {
     handlingFirstRoute = false
-    await storeAuth.restoreToken() 
-  } 
+    await storeAuth.restoreToken()
+  }
   if (((to.name == 'updateTask') || (to.name == 'updateProject')) && (!storeAuth.user)) {
-    next({ name: 'login' }) 
+    next({ name: 'login' })
     return
   }
   next()

@@ -14,8 +14,10 @@ class UpdateLocationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'location' => 'nullable|required|string|max:100',
-            'direction' => 'nullable|required|string|max:50',
+            'location' => 'nullable|string|max:100',
+            'direction' => 'nullable|string|max:50',
+            'latitude' => 'nullable|string|max:50',
+            'longitude' => 'nullable|string|max:50',
         ];
     }
 }

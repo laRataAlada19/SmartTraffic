@@ -12,12 +12,20 @@ const props = defineProps({
 function viewLocation(location) {
   router.push({
     name: 'Location',
-    params: { id: location.location_id }
+    params: { 
+      id: location.location_id
+    }
   });
 }
 
 function editLocation(location) {
-  //
+  router.push({
+    name: 'Location',
+    params: { 
+      id: location.location_id,
+      action: 'edit' 
+    }
+  });
 }
 
 function deleteLocation(id) {

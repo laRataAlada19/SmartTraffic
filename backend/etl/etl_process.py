@@ -19,24 +19,24 @@ class ExtractTask(luigi.Task):
             return False
         file_age = datetime.now() - datetime.fromtimestamp(os.path.getmtime(self.output().path))
 
-        print(f"CUSTOM: file location: {os.path.abspath(self.output().path)}")
+        print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: file location: {os.path.abspath(self.output().path)}\033[0m")
         return file_age.total_seconds() < 60  # Consider stale after 1 minute
 
     def run(self):
         os.makedirs(os.path.dirname(self.output().path), exist_ok=True)
 
-        print("CUSTOM: Starting extraction...")
+        print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Starting extraction...\033[0m")
         dw.connect_db()
         data, updates = dw.extract_data(path)
         dw.close_db()
 
         if data is not None and not data.empty:
             data.to_csv(self.output().path, index=False, encoding='utf-8')
-            print("CUSTOM: Extracted data written successfully")
-            print(f"CUSTOM: Updated records: {updates}")
+            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Extracted data written successfully\033[0m")
+            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Updated records: {updates}\033[0m")
         else:
-            print("CUSTOM: No new data(inserts) to extract. Task will complete with empty output. But if applicable, will still update the dimensions.")
-            print(f"CUSTOM: Updated records: {updates}")
+            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: No new data(inserts) to extract. Task will complete with empty output. But if applicable, will still update the dimensions.\033[0m")
+            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Updated records: {updates}\033[0m")
             # Still touch the output to signal task completion
             pd.DataFrame().to_csv(self.output().path, index=False)
 
@@ -56,12 +56,12 @@ class TransformTask(luigi.Task):
         return output_mtime > input_mtime
 
     def run(self):
-        print("CUSTOM: Starting transformation...")
+        print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Starting transformation...\033[0m")
         try:
             with self.input().open('r') as f:
                 extracted_data = pd.read_csv(f)
         except pd.errors.EmptyDataError:
-            print("CUSTOM: Extracted file is empty.")
+            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Extracted file is empty.\033[0m")
             extracted_data = pd.DataFrame()
 
         # Always run transform_data() even if extracted_data is empty, because self.location_df might not be
@@ -69,16 +69,16 @@ class TransformTask(luigi.Task):
 
         if not transformed_data.empty:
             transformed_data.to_csv(self.output().path, index=False, encoding='utf-8')
-            print("CUSTOM: Transformed data written successfully.")
+            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Transformed data written successfully.\033[0m")
         else:
             transformed_data.to_csv(self.output().path, index=False, encoding='utf-8')
-            print("CUSTOM: No data to transform, empty transformed data file written.")
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: No data to transform, empty transformed data file written.\033[0m")
             
         if not transformed_locations.empty:
             transformed_locations.to_csv(path + 'transformed_locations.csv', index=False, encoding='utf-8')
-            print("CUSTOM: Transformed locations written successfully")
+            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Transformed locations written successfully\033[0m")
         else:
-            print("CUSTOM: No new location data to transform.")
+            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: No new location data to transform.\033[0m")
 
 class LoadTask(luigi.Task):
     def requires(self):
@@ -88,14 +88,14 @@ class LoadTask(luigi.Task):
         return False  # Always run
 
     def run(self):
-        print("CUSTOM: Starting load process...")
+        print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Starting load process...\033[0m")
         dw.connect_dw()
         
         try:
             with self.input().open('r') as f:
                 transformed_data = pd.read_csv(f)
         except pd.errors.EmptyDataError:
-            print("CUSTOM: transformed_to_fact_table file is empty. Will only load updated locations if available.")
+            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: transformed_to_fact_table file is empty. Will only load updated locations if available.\033[0m")
             transformed_data = pd.DataFrame()
 
         # Always attempt to load updated dimensions
@@ -104,9 +104,9 @@ class LoadTask(luigi.Task):
             dw.load_dim_date(transformed_data)
             dw.load_dim_time(transformed_data)
             dw.load_fact_vehicle_count(transformed_data)
-            print("CUSTOM: All data loaded successfully")
+            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: All data loaded successfully\033[0m")
         else:
-            print("CUSTOM: No vehicle count data to load. Only dimension 'location' was updated.")
+            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: No vehicle count data to load. Only dimension 'location' was updated.\033[0m")
 
         dw.close_dw()
 

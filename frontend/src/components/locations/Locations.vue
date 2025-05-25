@@ -10,10 +10,10 @@ const locationName = ref('');
 const direction = ref('');
 const locationStore = useLocationStore();
 const storeAuth = useAuthStore();
+
 onMounted(async () => {
     locationStore.fetchLocations();
 });
-
 </script>
 
 <template>

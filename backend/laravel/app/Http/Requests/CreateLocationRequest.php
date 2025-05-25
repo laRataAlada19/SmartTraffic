@@ -16,6 +16,8 @@ class CreateLocationRequest extends FormRequest
         return [
             'location' => 'required|string|max:100',
             'direction' => 'required|string|max:50',
+            'latitude' => 'required|string',
+            'longitude' => 'required|string',
         ];
     }
 }

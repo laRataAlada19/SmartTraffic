@@ -70,7 +70,7 @@ class LocationController extends Controller
     {
         try {
             $location = Location::find($id);
-            $location->update($request->validate());
+            $location->update($request->validated());
             return response()->json($location, 200);
         } catch (\Exception $e) {
             Log::error('Error updating location: ' . $e->getMessage());

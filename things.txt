@@ -123,6 +123,8 @@ postgresql+psycopg2://user:123@host.docker.internal/warehouse_vehicle_count_db -
 docker compose down -v
 docker compose up -> para projeto_informatico
 
+docker compose up --build -> para ver as alterações no container
+
 docker compose -f docker-compose-image-tag.yml up -> para superset
 
 
@@ -149,3 +151,6 @@ mudar a linha que diz listen_addresses para #listen_addresses = '*'
 
 nano "pg_hba.conf"
 adicionar no final isto -> host    all             all             192.168.65.0/24         md5
+
+
+npm install chartjs-chart-geo

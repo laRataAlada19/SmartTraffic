@@ -6,7 +6,8 @@ import LocationUpdate from './LocationUpdate.vue';
 
 const locationStore = useLocationStore();
 const props = defineProps({
-    id: Number
+    id: Number,
+    edit: Boolean
 });
 const locationId = ref(props.id);
 const locationDetails = ref(null);
@@ -104,15 +105,19 @@ const cancelUpdate = (canceledForm) => {
     showUpdateForm.value = canceledForm.value;
 };
 
-watch(locationDetails, (newVal) => {
-    if (newVal) {
-        initMap();
-    }
+watch([locationDetails, showUpdateForm], ([newLocation, newShowUpdate]) => { //carregar o mapa quando a localização ou o estado do formulário de atualização mudar
+  if (newLocation && !newShowUpdate) {
+    initMap();
+  }
 });
 
 onMounted(async () => {
     try {
         locationDetails.value = await locationStore.fetchLocationById(locationId.value);
+        
+        if (props.edit === true) {
+            showUpdateForm.value = true;
+        }
     } catch (error) {
         console.error('Error fetching location details:', error);
     }
@@ -136,8 +141,8 @@ onMounted(async () => {
                 <p><strong>Coordenadas geográficas:</strong></p>
                 <p class="latitude">Latitude: {{ locationDetails.latitude }}</p>
                 <p class="longitude">Longitude: {{ locationDetails.longitude }}</p>
-                <div id="map" style="height: 400px; width: 100%; margin-top: 20px;"></div>
                 <p><strong>Direção da câmara:</strong> {{ locationDetails.direction }}</p>
+                <div id="map" style="height: 400px; width: 100%; margin-top: 20px;"></div>
                 <div class="btn-actions">
                     <button class="btn-edit" @click="toggleUpdateForm">Editar</button>
                     <button class="btn-delete" @onclick="deleteLocation(locationDetails.location_id)">Eliminar</button>
@@ -175,6 +180,9 @@ onMounted(async () => {
             </div>
         </section>
     </div>
+    <div v-else>
+        <p>A carregar os detalhes da localização...</p>
+    </div>
 </template>
 
 <style scoped>
@@ -200,7 +208,7 @@ header .latitude,
 
 .btn-actions {
     margin-top: 10px;
-    margin-left: 400px;
+    margin-left: 300px;
 }
 
 .btn-edit {

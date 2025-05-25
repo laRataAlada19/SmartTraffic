@@ -2,6 +2,7 @@
 import { ref, onMounted, reactive } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
 
 const locationStore = useLocationStore();
 const props = defineProps({
@@ -9,6 +10,7 @@ const props = defineProps({
 });
 const emit = defineEmits(['cancelUpdate']);
 const showUpdateForm = ref(true);
+const router = useRouter();
 
 let updatedLocation = reactive({
     location: props.location.location,
@@ -17,14 +19,30 @@ let updatedLocation = reactive({
     longitude: props.location.longitude
 });
 
+const directions = reactive([
+  { name: 'Norte', id: '1' },
+  { name: 'Sul', id: '2' },
+  { name: 'Este', id: '3' },
+  { name: 'Oeste', id: '4' },
+  { name: 'Noroeste', id: '5' },
+  { name: 'Sudeste', id: '6' },
+]);
+
 function updateLocation(location) {
-    console.log('Updating location:', location);
+    locationStore.updateLocation(props.location.location_id, location)
+    .then(() => {
+        alert('Localização atualizada com sucesso!');
+        cancelUpdate();//voltar atras
+    })
+    .catch(error => {
+        console.error('Erro ao atualizar localização:', error);
+        alert('Ocorreu um erro ao atualizar a localização. Tente novamente.');
+    });
 }
 
 function cancelUpdate() {
     emit('cancelUpdate', !showUpdateForm.value);
 }
-
 </script>
 
 <template>
@@ -34,9 +52,17 @@ function cancelUpdate() {
         <p><strong>Coordenadas geográficas:</strong></p>
         <p class="latitude">Latitude: <input v-model="updatedLocation.latitude"/></p>
         <p class="longitude">Longitude: <input v-model="updatedLocation.longitude"/></p>
-        <p><strong>Direção da câmara:</strong> <input v-model="updatedLocation.direction"/></p>
+        <div>
+                <label class="block mb-1">Direção:</label>
+                <select v-model="updatedLocation.direction" class="w-full border rounded px-3 py-2">
+                    <option disabled value="">Selecione a direção</option>
+                    <option v-for="direction in directions" :key="direction.id" :value="direction.name">
+                        {{ direction.name }}
+                    </option>
+                </select>
+            </div>
         <div class="btn-actions">
-            <button class="btn-edit" @click="updateLocation(location)">Guardar</button>
+            <button class="btn-edit" @click="updateLocation(updatedLocation)">Guardar</button>
             <button class="btn-delete" @click="cancelUpdate()">Cancelar</button>
         </div>
     </header>
