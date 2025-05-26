@@ -1,13 +1,13 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import charts from './chartsConfig'
-import { defineAsyncComponent } from 'vue'
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import charts from './chartsConfig';
+import { defineAsyncComponent } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 
-const selectedCharts = ref([])
-const router = useRouter()
-const storeAuth = useAuthStore()
+const selectedCharts = ref([]);
+const router = useRouter();
+const storeAuth = useAuthStore();
 
 const componentsMap = {
   LineChart: defineAsyncComponent(() => import('./types/LineChart.vue')),
@@ -17,23 +17,36 @@ const componentsMap = {
   Direction: defineAsyncComponent(() => import('./types/Direction.vue')),
   HeatMap: defineAsyncComponent(() => import('./types/HeatMap.vue')),
   Geografic: defineAsyncComponent(() => import('./types/Geografic.vue')),
-}
+};
 
 function toggle(chartComponentName) {
   if (selectedCharts.value.includes(chartComponentName)) {
-    selectedCharts.value = selectedCharts.value.filter(c => c !== chartComponentName)
+    selectedCharts.value = selectedCharts.value.filter((c) => c !== chartComponentName);
   } else {
-    selectedCharts.value.push(chartComponentName)
+    selectedCharts.value.push(chartComponentName);
   }
 }
 
-function confirmarSelecao() {
-  router.push({
-    name: 'main',
-    query: {
-      charts: selectedCharts.value.join(',')
-    }
-  })
+async function confirmarSelecao() {
+  try {
+    // Formatar os gráficos selecionados no formato esperado
+    const formattedTable = `Dashboard:${selectedCharts.value.join(',')}`;
+
+    // Fazer o request para salvar na base de dados
+    await storeAuth.addTable(formattedTable);
+
+    console.log('Gráficos selecionados salvos com sucesso!');
+
+    // Redirecionar para a página principal
+    router.push({
+      name: 'main',
+      query: {
+        charts: selectedCharts.value.join(','),
+      },
+    });
+  } catch (error) {
+    console.error('Erro ao salvar os gráficos selecionados:', error);
+  }
 }
 </script>
 
@@ -62,10 +75,8 @@ function confirmarSelecao() {
 
       <!-- Componente do gráfico sempre visível -->
       <component :is="componentsMap[chart.component]" />
-      
     </div>
 
     <button @click="confirmarSelecao" style="margin-top: 20px;">Confirmar Seleção</button>
   </div>
-
 </template>

@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController; 
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\FactVehicleCountController;
+use Illuminate\Container\Attributes\Auth;
 
 Route::get('/locations', [LocationController::class, 'index']);
 Route::post('/locations', [LocationController::class, 'store']);
@@ -27,7 +28,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users', [UserController::class, 'index']);
     Route::post('/users', [UserController::class, 'store']);
     Route::get('/users/me/table', [UserController::class, 'getUserTables']);
-    Route::post('/users/me/add-table', [UserController::class, 'addTable']);
+    Route::post('/users/me/add-table', [AuthController::class, 'addTable']);
 });
 
 

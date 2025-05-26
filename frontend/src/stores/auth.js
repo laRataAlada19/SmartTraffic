@@ -142,16 +142,20 @@ export const useAuthStore = defineStore("auth", () => {
   };
   const getTables = async function () {
     try {
-      const response = await axios.get('users/me/table');
-      user.value = response.data.data;
-      return user.value;
+      const response = await axios.get('users/me/table', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`, 
+        },
+      });
+      return response.data;
     } catch (error) {
-      console.error('Erro ao buscar dados:', error);
+      console.error('Erro ao buscar tabelas:', error.response?.data?.message || error.message);
+      throw error; 
     }
   };
   const addTable = async function (table) {
     try {
-      const response = await axios.post('/api/users/me/add-table', { table });
+      const response = await axios.post('users/me/add-table', { table });
 
       console.log('Tabela adicionada com sucesso:', response.data.message);
   

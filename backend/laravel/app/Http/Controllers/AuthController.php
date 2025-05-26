@@ -70,12 +70,12 @@ class AuthController extends Controller
 
         return response()->json(['tables' => $tables]);
     }
+
     public function addTable(Request $request)
     {
         $this->purgeExpiredTokens();
         $user = $request->user();
     
-
         $newTable = $request->input('table'); 
         $tablesString = $user->tables ?? '';
         $tablesArray = [];
@@ -88,7 +88,7 @@ class AuthController extends Controller
                 }
             }
         }
-
+    
         [$newKey, $newValue] = explode(':', $newTable) + [null, null];
         if ($newKey !== null && $newValue !== null) {
             $tablesArray[$newKey] = $newValue;
@@ -99,10 +99,8 @@ class AuthController extends Controller
             array_keys($tablesArray),
             $tablesArray
         ));
-
-        DB::table('users')
-            ->where('id', $user->id)
-            ->update(['tables' => $updatedTablesString]);
+    
+        $user->update(['tables' => $updatedTablesString]);
     
         return response()->json(['message' => 'Table added successfully']);
     }
