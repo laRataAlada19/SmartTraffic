@@ -5,6 +5,7 @@ import charts from './chartsConfig';
 import { defineAsyncComponent } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 
+
 const selectedDestinations = ref({});
 const router = useRouter();
 const storeAuth = useAuthStore();
@@ -53,7 +54,7 @@ async function confirmarSelecao() {
 
     const formattedTable = parts.join(';');
     console.log('Gráficos selecionados:', formattedTable);
-    //await storeAuth.addTable(formattedTable);
+    await storeAuth.addTable(formattedTable);
 
     router.push({
       name: 'main',
@@ -68,24 +69,29 @@ async function confirmarSelecao() {
 
 onMounted(() => {
   storeAuth.getTables().then((tables) => {
-    const dashboardCharts = [];
-    const locationCharts = [];
 
-    if (tables.data) {
-      const entries = tables.data.split(';');
-      entries.forEach((entry) => {
-        const [key, value] = entry.split(':');
-        if (value) {
-          const chartList = value.split(',');
-          if (key === 'Dashboard') {
-            dashboardCharts.push(...chartList);
-          } else if (key === 'Location') {
-            locationCharts.push(...chartList);
-          }
-        }
-      });
+    console.log('Tabelas do user:', tables);
+
+    console.log('Tabelas do user data:', tables.tables.Dashboard);
+
+    if (tables.tables) {
+      const dashboardCharts = tables.tables.Dashboard;
+      const locationCharts = tables.tables.Location;
+      if (dashboardCharts) {
+        dashboardCharts.forEach((chart) => {
+          dashboardCharts.push(chart);
+        });
+      }
+      console.log('Dashboard Charts:', dashboardCharts);
+      console.log('Location Charts:', locationCharts);
+      if (locationCharts) {
+        locationCharts.forEach((chart) => {
+          locationCharts.push(chart);
+        });
+      }
 
       // Build initial selectedDestinations map
+      if(dashboardCharts && locationCharts){
       const combinedCharts = new Set([...dashboardCharts, ...locationCharts]);
       combinedCharts.forEach(chart => {
         const destinations = [];
@@ -93,6 +99,23 @@ onMounted(() => {
         if (locationCharts.includes(chart)) destinations.push('Location');
         selectedDestinations.value[chart] = destinations;
       });
+      }else if(dashboardCharts){
+        const combinedCharts = new Set([...dashboardCharts,]);
+        combinedCharts.forEach(chart => {
+        const destinations = [];
+        if (dashboardCharts.includes(chart)) destinations.push('Dashboard');
+        selectedDestinations.value[chart] = destinations;
+      });
+    }
+    } else if (locationCharts) {
+      const combinedCharts = new Set([...locationCharts]);
+      combinedCharts.forEach(chart => {
+        const destinations = [];
+        if (locationCharts.includes(chart)) destinations.push('Location');
+        selectedDestinations.value[chart] = destinations;
+      });
+    } else {
+      console.warn('Nenhuma tabela encontrada para o user.');
     }
   }).catch((error) => {
     console.error('Erro ao buscar tabelas do user:', error);

@@ -27,7 +27,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users', [UserController::class, 'index']);
     Route::post('/users', [UserController::class, 'store']);
     Route::get('/users/me/table', [UserController::class, 'getUserTables']);
-    Route::post('/users/me/add-table', [AuthController::class, 'addTable']);
+    Route::post('/users/me/add-table', [AuthController::class, 'updateTable']);
+
 });
 
 
