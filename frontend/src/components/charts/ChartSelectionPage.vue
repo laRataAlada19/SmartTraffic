@@ -102,34 +102,34 @@ onMounted(() => {
 
 
 <template>
-<div v-if="!storeAuth.user" class="dashboard-wrapper">
+  <div v-if="!storeAuth.user" class="dashboard-wrapper">
     <h1 style="text-align: center; margin-top: 20px;">Aceda ao dashboard</h1>
     <p style="text-align: center; margin-bottom: 20px;">Por favor, faça login para aceder ao dashboard.</p>
   </div>
   <div v-else class="dashboard-wrapper">
-  <br><br><br><br>
-  <h1>Selecionar Gráficos</h1>
+    <br><br><br><br>
+    <h1>Selecionar Gráficos</h1>
 
-  <div v-for="chart in charts" :key="chart.component" class="chart-box"
-    style="border: 1px solid #ccc; margin: 1rem 0; padding: 1rem; border-radius: 10px;">
-    <div class="destination-options">
-      <h2>Destino do Gráfico</h2>
-      <label>
-        <input type="checkbox" :checked="selectedDestinations[chart.component]?.includes('Dashboard')"
-          @change="toggle(chart.component, 'Dashboard')" />
-        Dashboard
-      </label>
-      <label>
-        <input type="checkbox" :checked="selectedDestinations[chart.component]?.includes('Location')"
-          @change="toggle(chart.component, 'Location')" />
-        Localização
-      </label>
+    <div v-for="chart in charts" :key="chart.component" class="chart-box"
+      style="border: 1px solid #ccc; margin: 1rem 0; padding: 1rem; border-radius: 10px;">
+      <div class="destination-options">
+        <h2>Destino do Gráfico</h2>
+        <label>
+          <input type="checkbox" :checked="selectedDestinations[chart.component]?.includes('Dashboard')"
+            @change="toggle(chart.component, 'Dashboard')" />
+          Dashboard
+        </label>
+        <label>
+          <input type="checkbox" :checked="selectedDestinations[chart.component]?.includes('Location')"
+            @change="toggle(chart.component, 'Location')" />
+          Localização
+        </label>
+      </div>
+      {{ chart.name }}
+      <component :is="componentsMap[chart.component]" />
     </div>
-    {{ chart.name }}
-    <component :is="componentsMap[chart.component]" />
-  </div>
 
-  <button class="btn-confirm" @click="confirmarSelecao">Confirmar Seleção</button>
+    <button class="btn-confirm" @click="confirmarSelecao">Confirmar Seleção</button>
   </div>
 </template>
 
