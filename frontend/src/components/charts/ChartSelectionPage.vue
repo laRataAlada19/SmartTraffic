@@ -102,11 +102,11 @@ onMounted(() => {
 
 
 <template>
-  <!--<div v-if="!storeAuth.user" class="dashboard-wrapper">
+<div v-if="!storeAuth.user" class="dashboard-wrapper">
     <h1 style="text-align: center; margin-top: 20px;">Aceda ao dashboard</h1>
     <p style="text-align: center; margin-bottom: 20px;">Por favor, faça login para aceder ao dashboard.</p>
   </div>
-  <div v-else class="dashboard-wrapper">-->
+  <div v-else class="dashboard-wrapper">
   <br><br><br><br>
   <h1>Selecionar Gráficos</h1>
 
@@ -130,7 +130,7 @@ onMounted(() => {
   </div>
 
   <button class="btn-confirm" @click="confirmarSelecao">Confirmar Seleção</button>
-  <!--</div>-->
+  </div>
 </template>
 
 <style scoped>
