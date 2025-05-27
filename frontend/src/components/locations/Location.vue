@@ -3,8 +3,10 @@ import { ref, onMounted, watch } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import axios from 'axios';
 import LocationUpdate from './LocationUpdate.vue';
+import { useAuthStore } from '@/stores/auth';
 
 const locationStore = useLocationStore();
+const storeAuth = useAuthStore();
 const props = defineProps({
     id: Number,
     edit: Boolean
@@ -16,35 +18,37 @@ const showUpdateForm = ref(false);
 const startDate = ref('2025-05-01');
 const endDate = ref('2025-05-08');
 
+const selectedCharts = ref([]);
+
 function dmsToDecimal(coordStr) {
-  if (typeof coordStr !== 'string') {
-    return null;
-  }
-
-  coordStr = coordStr
-    .trim()
-    .replace(/º/g, '°')
-    .replace(/[’′]/g, "'")
-    .replace(/″/g, '"');
-
-  const dmsPattern = /(\d+)[°\s]+(\d+)?['\s]*([\d.]+)?["\s]*([NSEW])/i;
-  const match = coordStr.match(dmsPattern);
-
-  if (match) {
-    const degrees = parseFloat(match[1]);
-    const minutes = parseFloat(match[2] || 0);
-    const seconds = parseFloat(match[3] || 0);
-    const direction = match[4].toUpperCase();
-
-    let decimal = degrees + minutes / 60 + seconds / 3600;
-    if (direction === 'S' || direction === 'W') {
-      decimal *= -1;
+    if (typeof coordStr !== 'string') {
+        return null;
     }
-    return decimal;
-  }
 
-  const num = parseFloat(coordStr);
-  return isNaN(num) ? null : num;
+    coordStr = coordStr
+        .trim()
+        .replace(/º/g, '°')
+        .replace(/[’′]/g, "'")
+        .replace(/″/g, '"');
+
+    const dmsPattern = /(\d+)[°\s]+(\d+)?['\s]*([\d.]+)?["\s]*([NSEW])/i;
+    const match = coordStr.match(dmsPattern);
+
+    if (match) {
+        const degrees = parseFloat(match[1]);
+        const minutes = parseFloat(match[2] || 0);
+        const seconds = parseFloat(match[3] || 0);
+        const direction = match[4].toUpperCase();
+
+        let decimal = degrees + minutes / 60 + seconds / 3600;
+        if (direction === 'S' || direction === 'W') {
+            decimal *= -1;
+        }
+        return decimal;
+    }
+
+    const num = parseFloat(coordStr);
+    return isNaN(num) ? null : num;
 }
 
 const loadGoogleMaps = () => {
@@ -106,17 +110,33 @@ const cancelUpdate = (canceledForm) => {
 };
 
 watch([locationDetails, showUpdateForm], ([newLocation, newShowUpdate]) => { //carregar o mapa quando a localização ou o estado do formulário de atualização mudar
-  if (newLocation && !newShowUpdate) {
-    initMap();
-  }
+    if (newLocation && !newShowUpdate) {
+        initMap();
+    }
 });
 
 onMounted(async () => {
     try {
         locationDetails.value = await locationStore.fetchLocationById(locationId.value);
-        
+
         if (props.edit === true) {
             showUpdateForm.value = true;
+        }
+
+        const tables = await storeAuth.getTables();
+        console.log('Tables fetched:', tables);
+
+        if (tables.data) {
+            const entries = tables.data.split(';');
+            entries.forEach((entry) => {
+                const [key, value] = entry.split(':');
+                if (value) {
+                    const chartList = value.split(',');
+                    if (key === 'Location') {
+                        selectedCharts.push(...chartList);
+                    }
+                }
+            });
         }
     } catch (error) {
         console.error('Error fetching location details:', error);
@@ -132,7 +152,7 @@ onMounted(async () => {
 
     <div v-if="locationDetails" class="bg-white rounded-lg shadow p-4">
         <div v-if="showUpdateForm">
-            <LocationUpdate :location="locationDetails" @cancelUpdate="cancelUpdate"/>
+            <LocationUpdate :location="locationDetails" @cancelUpdate="cancelUpdate" />
         </div>
         <div v-else>
             <header>
@@ -177,6 +197,13 @@ onMounted(async () => {
                     <input type="radio" value="4" v-model="granularity" @change="changeGranularity(4)" />
                     Por hora
                 </label>
+            </div>
+            <div v-if="selectedCharts.length > 0" class="charts-wrapper">
+                <h2>Gráficos Selecionados</h2>
+                <ChartDisplay :selectedCharts="selectedCharts" />
+            </div>
+            <div v-else>
+                <p>Nenhum gráfico selecionado.</p>
             </div>
         </section>
     </div>

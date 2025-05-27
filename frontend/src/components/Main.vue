@@ -47,11 +47,12 @@ onMounted(async () => {
 </script>
 
 <template>
+  <!--
   <div v-if="!storeAuth.user" class="dashboard-wrapper">
     <h1 style="text-align: center; margin-top: 20px;">Aceda ao dashboard</h1>
     <p style="text-align: center; margin-bottom: 20px;">Por favor, faça login para aceder ao dashboard.</p>
   </div>
-  <div v-else class="dashboard-wrapper">
+  <div v-else class="dashboard-wrapper">-->
     <div style="display: column; justify-content: center; padding: 70px 10px 0;">
       <h1 style="margin-bottom: 20px;">O meu dashboard:</h1>
       <div style="
@@ -134,7 +135,7 @@ onMounted(async () => {
 
 
     </div>
-  </div>
+  <!--</div>-->
 </template>
 
 <style scoped>

@@ -15,20 +15,20 @@ const storeAuth = useAuthStore();
 const selectedCharts = ref([]);
 
 onMounted(async () => {
-  try {
-    locationStore.fetchLocations();
-    console.log('Locations fetched:', locationStore.locations);
+    try {
+        locationStore.fetchLocations();
+        console.log('Locations fetched:', locationStore.locations);
 
-    const tables = await storeAuth.getTables();
-    console.log('Tables fetched:', tables);
+        const tables = await storeAuth.getTables();
+        console.log('Tables fetched:', tables);
 
-    if (tables && tables.tables && tables.tables.Dashboard) {
-      selectedCharts.value = tables.tables.Dashboard; 
+        if (tables && tables.tables && tables.tables.Dashboard) {
+            selectedCharts.value = tables.tables.Dashboard;
+        }
+    } catch (error) {
+        console.error('Erro ao buscar tabelas ou gráficos:', error.message);
+        router.push({ name: 'login' });
     }
-  } catch (error) {
-    console.error('Erro ao buscar tabelas ou gráficos:', error.message);
-    router.push({ name: 'login' }); 
-  }
 });
 </script>
 
@@ -38,6 +38,10 @@ onMounted(async () => {
         <p style="text-align: center; margin-bottom: 20px;">Por favor, faça login para aceder ao dashboard.</p>
     </div>
     <div v-else>
+        <br>
+        <br>
+        <br>
+        <br>
         <div class="dashboard-container">
             <div v-if="locationStore.totalLocations > 0" class="flex flex-col items-center">
                 <LocationList :locations="locationStore.locations" />
@@ -62,6 +66,7 @@ onMounted(async () => {
     margin-top: 20px;
     padding: 20px;
 }
+
 .charts-wrapper {
     margin-top: 20px;
 }

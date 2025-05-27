@@ -4,16 +4,16 @@ import axios from "axios";
 import { useErrorStore } from "@/stores/error";
 import { useRouter } from "vue-router";
 import avatarNoneAssetURL from "@/assets/avatar-none.png";
+
 export const useAuthStore = defineStore("auth", () => {
   const router = useRouter();
   const storeError = useErrorStore();
   const user = ref(null);
   const token = ref("");
+
   const userName = computed(() => {
     return user.value ? user.value.name : "";
   });
-
-  const canUpdateDeleteProject = (project) => { return project && user.value && (userType.value === 'A' || user.value.id === project.created_by_id) }
 
   const userFirstLastName = computed(() => {
     const names = userName.value.trim().split(" ");
@@ -21,14 +21,9 @@ export const useAuthStore = defineStore("auth", () => {
     const lastName = names.length > 1 ? names[names.length - 1] : "";
     return (firstName + " " + lastName).trim();
   });
+
   const userEmail = computed(() => {
     return user.value ? user.value.email : "";
-  });
-  const userType = computed(() => {
-    return user.value ? user.value.type : "";
-  });
-  const userGender = computed(() => {
-    return user.value ? user.value.gender : "";
   });
 
   const userPhotoUrl = computed(() => {
@@ -47,7 +42,7 @@ export const useAuthStore = defineStore("auth", () => {
     localStorage.removeItem('token')
     axios.defaults.headers.common.Authorization = ''
   };
-  
+
   const login = async (credentials) => {
     storeError.resetMessages();
     try {
@@ -140,25 +135,27 @@ export const useAuthStore = defineStore("auth", () => {
     }
     return false;
   };
+
   const getTables = async function () {
     try {
       const response = await axios.get('users/me/table', {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`, 
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
       return response.data;
     } catch (error) {
       console.error('Erro ao buscar tabelas:', error.response?.data?.message || error.message);
-      throw error; 
+      throw error;
     }
   };
+
   const addTable = async function (table) {
     try {
       const response = await axios.post('users/me/add-table', { table });
 
       console.log('Tabela adicionada com sucesso:', response.data.message);
-  
+
       return response.data.message;
     } catch (error) {
 
@@ -167,16 +164,13 @@ export const useAuthStore = defineStore("auth", () => {
       throw error;
     }
   };
+  
   return {
     user,
     userName,
     userEmail,
-    userType,
-    userGender,
     userPhotoUrl,
-    userFirstLastName,
     restoreToken,
-    canUpdateDeleteProject,
     login,
     logout,
     getTables,
