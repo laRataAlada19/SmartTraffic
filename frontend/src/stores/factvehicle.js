@@ -2,7 +2,6 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
-
 export const useFactVehicleStore = defineStore('factvehicle', () => {
     const factvehicles = ref([]);
     const factvehicle = ref(null);
@@ -11,93 +10,65 @@ export const useFactVehicleStore = defineStore('factvehicle', () => {
         try {
             const response = await axios.get('/fact-vehicle-counts');
             factvehicles.value = response.data.data;
-            console.log('Dados recebidos:', factvehicles.value);
             return factvehicles.value;
         } catch (error) {
             console.error('Erro ao buscar dados:', error);
         }
-    }
-    const fetchTotalVehicles = async () => {
+    };
+
+    const fetchTotalVehicles = async ({ date, theme }) => {
         try {
-            const response = await axios.get('/fact-vehicle-counts/total');
-            const totalVehicles = response.data.total_vehicle_count;
-            return totalVehicles;
+            const response = await axios.get('/fact-vehicle-counts/total', {
+                params: { date, theme }
+            });
+            return response.data.total_vehicle_count;
         } catch (error) {
             console.error('Erro ao buscar veículos:', error);
             return null;
         }
     };
-    const fetchTotalCars = async () => {
-        try {
-            const response = await axios.get('/fact-vehicle-counts/total/car');
-            const totalCars = response.data.total_car_count;
-            return totalCars;
-        } catch (error) {
-            console.error('Erro ao buscar carros:', error);
-            return null;
-        }
-    };
-    const fetchTotalMotorcycles = async () => {
-        try {
-            const response = await axios.get('/fact-vehicle-counts/total/motorcycle');
-            const totalMotorcycles = response.data.total_motorcycle_count;
-            return totalMotorcycles;
-        } catch (error) {
-            console.error('Erro ao buscar motocicletas:', error);
-            return null;
-        }
-    }
 
-    const fetchTotalTrucks = async () => {
+    const fetchTotalByType = async (type, { date, theme }) => {
         try {
-            const response = await axios.get('/fact-vehicle-counts/total/truck');
-            const totalTrucks = response.data.total_truck_count;
-            return totalTrucks;
+            const response = await axios.get(`/fact-vehicle-counts/total/${type}`, {
+                params: { date, theme }
+            });
+            return response.data[`total_${type}_count`];
         } catch (error) {
-            console.error('Erro ao buscar caminhões:', error);
+            console.error(`Erro ao buscar ${type}:`, error);
             return null;
         }
     };
-    const fetchTotalBikes = async () => {
+
+    const fetchTotalCars = (payload) => fetchTotalByType('car', payload);
+    const fetchTotalMotorcycles = (payload) => fetchTotalByType('motorcycle', payload);
+    const fetchTotalTrucks = (payload) => fetchTotalByType('truck', payload);
+    const fetchTotalBikes = (payload) => fetchTotalByType('bike', payload);
+    const fetchTotalBuses = (payload) => fetchTotalByType('bus', payload);
+
+    const fetchMostMovimentedStress = async ({ date, theme }) => {
         try {
-            const response = await axios.get('/fact-vehicle-counts/total/bike');
-            const totalBikes = response.data.total_bike_count;
-            return totalBikes;
-        } catch (error) {
-            console.error('Erro ao buscar motos:', error);
-            return null;
-        }
-    };
-    const fetchTotalBuses = async () => {
-        try {
-            const response = await axios.get('/fact-vehicle-counts/total/bus');
-            const totalBuses = response.data.total_bus_count;
-            return totalBuses;
-        } catch (error) {
-            console.error('Erro ao buscar ônibus:', error);
-            return null;
-        }
-    };
-    const fetchMostMovimentedStress = async () => {
-        try {
-            const response = await axios.get('/fact-vehicle-counts/must-movimented-streets');
-            const mostMovimentedStress = response.data.most_movimented_stress;
-            return mostMovimentedStress;
+            const response = await axios.get('/fact-vehicle-counts/must-movimented-streets', {
+                params: { date, theme }
+            });
+            return response.data.most_movimented_stress;
         } catch (error) {
             console.error('Erro ao buscar mais movimentados:', error);
             return null;
         }
-    }
-    const fetchLessMovimentedStress = async () => {
+    };
+
+    const fetchLessMovimentedStress = async ({ date, theme }) => {
         try {
-            const response = await axios.get('/fact-vehicle-counts/less-movimented-streets');
-            const lessMovimentedStress = response.data.less_movimented_stress;
-            return lessMovimentedStress;
+            const response = await axios.get('/fact-vehicle-counts/less-movimented-streets', {
+                params: { date, theme }
+            });
+            return response.data.less_movimented_stress;
         } catch (error) {
             console.error('Erro ao buscar menos movimentados:', error);
             return null;
         }
-    }
+    };
 
     return {
         factvehicles,
@@ -112,5 +83,4 @@ export const useFactVehicleStore = defineStore('factvehicle', () => {
         fetchMostMovimentedStress,
         fetchLessMovimentedStress,
     };
-}
-);
+});

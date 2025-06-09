@@ -1,29 +1,49 @@
 <script setup>
+import { ref, computed, onMounted } from 'vue';
+import { Bar } from 'vue-chartjs'; // Importa o componente Bar
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale
+} from 'chart.js';
+import { useFactVehicleStore } from '@/stores/factvehicle';
+import dayjs from 'dayjs';
 
-const hourFilter = ref('Todos')
+// Registra os componentes necessários do Chart.js
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+
+const store = useFactVehicleStore();
+const locationFilter = ref('Todos');
+const timeInterval = ref('dia');
+const data1 = ref([]);
+const hourFilter = ref('Todos');
 const availableHours = computed(() => {
-  if (!Array.isArray(data1.value)) return ['Todos']
-  const hours = [...new Set(data1.value.map(entry => entry.hour))]
-  return ['Todos', ...hours.sort((a, b) => a - b)]
-})
+  if (!Array.isArray(data1.value)) return ['Todos'];
+  const hours = [...new Set(data1.value.map(entry => entry.hour))];
+  return ['Todos', ...hours.sort((a, b) => a - b)];
+});
 
 const peakHourData = computed(() => {
-  if (!Array.isArray(data1.value)) return []
+  if (!Array.isArray(data1.value)) return [];
 
-  let data = [...data1.value]
+  let data = [...data1.value];
 
   if (locationFilter.value !== 'Todos') {
-    data = data.filter(d => d.location === locationFilter.value)
+    data = data.filter(d => d.location === locationFilter.value);
   }
 
   if (hourFilter.value !== 'Todos') {
-    data = data.filter(d => d.hour === parseInt(hourFilter.value))
+    data = data.filter(d => d.hour === parseInt(hourFilter.value));
   }
 
-  const groupedByHour = {}
+  const groupedByHour = {};
 
   data.forEach(entry => {
-    const hour = entry.hour
+    const hour = entry.hour;
     if (!groupedByHour[hour]) {
       groupedByHour[hour] = {
         total: 0,
@@ -32,20 +52,26 @@ const peakHourData = computed(() => {
         bike: 0,
         truck: 0,
         bus: 0
-      }
+      };
     }
 
-    const total = entry.car + entry.motorcycle + entry.bike + entry.truck + entry.bus
-    groupedByHour[hour].total += total
-    groupedByHour[hour].car += entry.car
-    groupedByHour[hour].motorcycle += entry.motorcycle
-    groupedByHour[hour].bike += entry.bike
-    groupedByHour[hour].truck += entry.truck
-    groupedByHour[hour].bus += entry.bus
-  })
+    const total = entry.car + entry.motorcycle + entry.bike + entry.truck + entry.bus;
+    groupedByHour[hour].total += total;
+    groupedByHour[hour].car += entry.car;
+    groupedByHour[hour].motorcycle += entry.motorcycle;
+    groupedByHour[hour].bike += entry.bike;
+    groupedByHour[hour].truck += entry.truck;
+    groupedByHour[hour].bus += entry.bus;
+  });
 
-  return Object.entries(groupedByHour).sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
-})
+  return Object.entries(groupedByHour).sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+});
+onMounted(async () => {
+  if (!Array.isArray(data1.value) || data1.value.length === 0) {
+    data1.value = await store.fetchData();
+    console.log('Dados carregados:', data1.value);
+  }
+});
 </script>
 
 <template>
