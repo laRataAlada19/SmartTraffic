@@ -1,11 +1,15 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, inject } from 'vue';
 import { useLocationStore } from '@/stores/location';
-import axios from 'axios';
+import { toast } from '@/components/ui/toast';
 import LocationUpdate from './LocationUpdate.vue';
 import { useAuthStore } from '@/stores/auth';
+import router from '@/router';
+import { useErrorStore } from '@/stores/error';
 
 const locationStore = useLocationStore();
+const storeError = useErrorStore();
+const alertDialog = inject('alertDialog')
 const storeAuth = useAuthStore();
 const props = defineProps({
     id: Number,
@@ -97,9 +101,26 @@ const changeGranularity = (selectedGranularity) => {
     granularity.value = selectedGranularity;
 };
 
-function deleteLocation(id) {
-    //
-};
+function deleteConfirmed(id) {
+    storeError.resetMessages()
+    locationStore.deleteLocation(id)
+        .then(() => {
+            //redirect to a diferente page after deletion
+            router.push({ name: 'Locations' });
+            toast({
+                title: 'Sucesso',
+                description: 'Localização apagada com sucesso!',
+            });
+        })
+        .catch((error) => {
+            storeError.setError(error)
+        })
+}
+
+function deleteLocation(id, name) {
+    alertDialog.value.open(() => deleteConfirmed(id), 'Tem a certeza?', 'Cancelar', `Sim, apagar a localização ${name}`,
+        `Ao apagar este localização, seram apagdos todos os dados realtivos a mesma.`)
+}
 
 const toggleUpdateForm = () => {
     showUpdateForm.value = !showUpdateForm.value;
@@ -124,7 +145,6 @@ onMounted(async () => {
         }
 
         const tables = await storeAuth.getTables();
-        console.log('Tables fetched:', tables);
 
         if (tables.data) {
             const entries = tables.data.split(';');
@@ -140,6 +160,11 @@ onMounted(async () => {
         }
     } catch (error) {
         console.error('Error fetching location details:', error);
+        toast({
+            title: 'Erro',
+            description: 'Ocorreu um erro ao carregar os detalhes da localização.',
+            variant: 'destructive',
+        });
     }
 });
 </script>
@@ -165,7 +190,8 @@ onMounted(async () => {
                 <div id="map" style="height: 400px; width: 100%; margin-top: 20px;"></div>
                 <div class="btn-actions">
                     <button class="btn-edit" @click="toggleUpdateForm">Editar</button>
-                    <button class="btn-delete" @onclick="deleteLocation(locationDetails.location_id)">Eliminar</button>
+                    <button class="btn-delete"
+                        @click="deleteLocation(locationDetails.location_id, locationDetails.location)">Eliminar</button>
                 </div>
             </header>
         </div>

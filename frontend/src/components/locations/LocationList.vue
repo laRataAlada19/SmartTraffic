@@ -1,10 +1,13 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 import { useLocationStore } from '@/stores/location';
+import { useErrorStore } from '@/stores/error';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
 
 const router = useRouter();
+const locationStore = useLocationStore();
+const alertDialog = inject('alertDialog')
+const storeError = useErrorStore();
 const props = defineProps({
   locations: Array
 })
@@ -12,7 +15,7 @@ const props = defineProps({
 function viewLocation(location) {
   router.push({
     name: 'Location',
-    params: { 
+    params: {
       id: location.location_id
     }
   });
@@ -21,15 +24,27 @@ function viewLocation(location) {
 function editLocation(location) {
   router.push({
     name: 'Location',
-    params: { 
+    params: {
       id: location.location_id,
-      action: 'edit' 
+      action: 'edit'
     }
   });
 }
 
-function deleteLocation(id) {
-  //
+function deleteConfirmed(id) {
+  storeError.resetMessages()
+  locationStore.deleteLocation(id)
+    .then(() => {
+      locationStore.fetchLocations()
+    })
+    .catch((error) => {
+      storeError.setError(error)
+    })
+}
+
+function deleteLocation(id, name) {
+  alertDialog.value.open(() => deleteConfirmed(id), 'Tem a certeza?', 'Cancelar', `Sim, apagar a localização ${name}`,
+    `Ao apagar este localização, seram apagdos todos os dados realtivos a mesma.`)
 }
 
 </script>
@@ -55,7 +70,7 @@ function deleteLocation(id) {
             <button @click="editLocation(location)">
               <img src="../icons/pencil.svg" alt="pencil" class="w-6 h-6">
             </button>
-            <button @click="deleteLocation(location.location_id)">
+            <button @click="deleteLocation(location.location_id, location.location)">
               <img src="../icons/trash.svg" alt="trash" class="w-6 h-6">
             </button>
           </td>

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue';
 import { useLocationStore } from '@/stores/location';
-import axios from 'axios';
+import { toast } from '@/components/ui/toast';
 import { useRouter } from 'vue-router';
 
 const locationStore = useLocationStore();
@@ -11,7 +11,6 @@ const props = defineProps({
 const emit = defineEmits(['cancelUpdate']);
 const showUpdateForm = ref(true);
 const router = useRouter();
-
 let updatedLocation = reactive({
     location: props.location.location,
     direction: props.location.direction,
@@ -31,12 +30,19 @@ const directions = reactive([
 function updateLocation(location) {
     locationStore.updateLocation(props.location.location_id, location)
     .then(() => {
-        alert('Localização atualizada com sucesso!');
+        toast({
+            title: 'Sucesso',
+            description: `Localização ${location.location} atualizada com sucesso!`,
+        });
         cancelUpdate();//voltar atras
     })
     .catch(error => {
         console.error('Erro ao atualizar localização:', error);
-        alert('Ocorreu um erro ao atualizar a localização. Tente novamente.');
+        toast({
+            title: 'Erro',
+            description: 'Ocorreu um erro ao atualizar a localização. Tente novamente.',
+            variant: 'destructive',
+        });
     });
 }
 

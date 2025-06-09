@@ -1,42 +1,51 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue';
 import { useLocationStore } from '@/stores/location';
-import axios from 'axios';
+import { toast } from '@/components/ui/toast';
 
 const locationStore = useLocationStore();
 
 const newLocation = reactive({
-  location: '',
-  direction: '',
-  latitude: '',
-  longitude: '',
+    location: '',
+    direction: '',
+    latitude: '',
+    longitude: '',
 });
 
 const directions = reactive([
-  { name: 'Norte', id: '1' },
-  { name: 'Sul', id: '2' },
-  { name: 'Este', id: '3' },
-  { name: 'Oeste', id: '4' },
-  { name: 'Noroeste', id: '5' },
-  { name: 'Sudeste', id: '6' },
+    { name: 'Norte', id: '1' },
+    { name: 'Sul', id: '2' },
+    { name: 'Este', id: '3' },
+    { name: 'Oeste', id: '4' },
+    { name: 'Noroeste', id: '5' },
+    { name: 'Sudeste', id: '6' },
 ]);
 
 function createLocation() {
     if (!newLocation.location || !newLocation.direction || !newLocation.latitude || !newLocation.longitude) {
-        alert('Por preencher: '. concat(
-            !newLocation.location ? 'Local, ' : '',
-            !newLocation.direction ? 'Direção, ' : '',
-            !newLocation.latitude ? 'Latitude, ' : '',
+        const missingFields = [
+            !newLocation.location ? 'Local' : '',
+            !newLocation.direction ? 'Direção' : '',
+            !newLocation.latitude ? 'Latitude' : '',
             !newLocation.longitude ? 'Longitude' : ''
-        ));
+        ].filter(Boolean).join(', ');
+
+        toast({
+            title: 'Campos obrigatórios vazios.',
+            description: `Por preencher: ${missingFields}`,
+            variant: 'destructive',
+        });
         return;
     }
 
     console.log('Criando localização:', newLocation);
-    
+
     locationStore.addLocation(newLocation.location, newLocation.direction, newLocation.latitude, newLocation.longitude)
         .then(() => {
-            alert('Localização criada com sucesso!');
+            toast({
+                title: 'Sucesso',
+                description: `Localização ${newLocation.location} criada com sucesso!`,
+            });
             newLocation.location = '';
             newLocation.direction = '';
             newLocation.latitude = '';
@@ -44,7 +53,11 @@ function createLocation() {
         })
         .catch(error => {
             console.error('Erro ao criar localização:', error);
-            alert('Ocorreu um erro ao criar a localização. Tente novamente.');
+            toast({
+                title: 'Erro',
+                description: 'Ocorreu um erro ao criar a localização. Tente novamente.',
+                variant: 'destructive',
+            });
         });
 }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Location;
+use App\Models\VehicleCounts;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\CreateLocationRequest;
 use App\Http\Requests\IndexLocationRequest;
@@ -82,6 +83,10 @@ class LocationController extends Controller
     {
         try {
             $location = Location::find($id);
+            $vehicleCountsLocation = VehicleCounts::where('location_id', $id)->first();
+            if ($vehicleCountsLocation) {
+                VehicleCounts::where('location_id', $id)->delete();
+            }
             $location->delete();
             return response()->json(['message' => 'Location deleted successfully'], 204);
         } catch (\Exception $e) {
