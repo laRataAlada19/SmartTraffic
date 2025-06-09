@@ -6,6 +6,7 @@ import LocationUpdate from './LocationUpdate.vue';
 import { useAuthStore } from '@/stores/auth';
 import router from '@/router';
 import { useErrorStore } from '@/stores/error';
+import ChartDisplay from '@/components/charts/ChartDisplay.vue';
 
 const locationStore = useLocationStore();
 const storeError = useErrorStore();
@@ -145,18 +146,8 @@ onMounted(async () => {
         }
 
         const tables = await storeAuth.getTables();
-
-        if (tables.data) {
-            const entries = tables.data.split(';');
-            entries.forEach((entry) => {
-                const [key, value] = entry.split(':');
-                if (value) {
-                    const chartList = value.split(',');
-                    if (key === 'Location') {
-                        selectedCharts.push(...chartList);
-                    }
-                }
-            });
+        if (tables && tables.tables && tables.tables.Location) {
+            selectedCharts.value = tables.tables.Location;
         }
     } catch (error) {
         console.error('Error fetching location details:', error);
