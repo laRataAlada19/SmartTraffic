@@ -115,3 +115,4 @@ const filteredData = computed(() => {
     <p v-else>Nenhum dado disponível.</p>
   </div>
 </template>
+

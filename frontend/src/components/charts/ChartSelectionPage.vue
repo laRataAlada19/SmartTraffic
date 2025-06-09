@@ -4,6 +4,10 @@ import { useRouter } from 'vue-router';
 import charts from './chartsConfig';
 import { defineAsyncComponent } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import HourPic from './types/HourPic.vue';
+import ComparePeriods from './types/ComparePeriods.vue';
+import GrowthRate from './types/GrowthRate.vue';
+import TrafficDensity from './types/TrafficDensity.vue';
 
 
 const selectedDestinations = ref({});
@@ -18,6 +22,15 @@ const componentsMap = {
   Direction: defineAsyncComponent(() => import('./types/Direction.vue')),
   HeatMap: defineAsyncComponent(() => import('./types/HeatMap.vue')),
   Geografic: defineAsyncComponent(() => import('./types/Geografic.vue')),
+  HourPic: defineAsyncComponent(() => import('./types/HourPic.vue')),
+  ComparePeriods: defineAsyncComponent(() => import('./types/ComparePeriods.vue')),
+  GrowthRate : defineAsyncComponent(() => import('./types/GrowthRate.vue')),
+  TrafficDensity: defineAsyncComponent(() => import('./types/TrafficDensity.vue')),
+  Trend: defineAsyncComponent(() => import('./types/Trend.vue')),
+  DirectionRadar: defineAsyncComponent(() => import('./types/DirectionRadar.vue')),
+  Anomalies: defineAsyncComponent(() => import('./types/Anomalies.vue')),
+  ODMatrix  : defineAsyncComponent(() => import('./types/ODMatrix.vue')),
+  TimeMap: defineAsyncComponent(() => import('./types/TimeMap.vue'))
 };
 
 function toggle(chartComponentName, destination) {
@@ -90,7 +103,6 @@ onMounted(() => {
         });
       }
 
-      // Build initial selectedDestinations map
       if(dashboardCharts && locationCharts){
       const combinedCharts = new Set([...dashboardCharts, ...locationCharts]);
       combinedCharts.forEach(chart => {
@@ -130,48 +142,94 @@ onMounted(() => {
     <p style="text-align: center; margin-bottom: 20px;">Por favor, faça login para aceder ao dashboard.</p>
   </div>
   <div v-else class="dashboard-wrapper">
-    <br><br><br><br>
-    <h1>Selecionar Gráficos</h1>
+    <h1 class="dashboard-title">Selecionar Gráficos:</h1>
 
-    <div v-for="chart in charts" :key="chart.component" class="chart-box"
-      style="border: 1px solid #ccc; margin: 1rem 0; padding: 1rem; border-radius: 10px;">
-      <div class="destination-options">
-        <h2>Destino do Gráfico</h2>
-        <label>
-          <input type="checkbox" :checked="selectedDestinations[chart.component]?.includes('Dashboard')"
-            @change="toggle(chart.component, 'Dashboard')" />
-          Dashboard
-        </label>
-        <label>
-          <input type="checkbox" :checked="selectedDestinations[chart.component]?.includes('Location')"
-            @change="toggle(chart.component, 'Location')" />
-          Localização
-        </label>
+    <div class="chart-grid">
+      <div v-for="chart in charts" :key="chart.component" class="chart-box">
+        <div class="destination-options">
+          <h2 class="destination-title">Destino do Gráfico:</h2>
+          <label>
+            <input type="checkbox" :checked="selectedDestinations[chart.component]?.includes('Dashboard')"
+              @change="toggle(chart.component, 'Dashboard')" />
+            Dashboard
+          </label>
+          <label>
+            <input type="checkbox" :checked="selectedDestinations[chart.component]?.includes('Location')"
+              @change="toggle(chart.component, 'Location')" />
+            Localização
+          </label>
+        </div>
+        <strong>{{ chart.name }}</strong>
+        <p class="chart-description">{{ chart.description }}</p>
+        <component :is="componentsMap[chart.component]" />
       </div>
-      {{ chart.name }}
-      <component :is="componentsMap[chart.component]" />
     </div>
 
     <button class="btn-confirm" @click="confirmarSelecao">Confirmar Seleção</button>
   </div>
 </template>
 
+
 <style scoped>
+.dashboard-wrapper {
+  padding: 2rem;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+
+.dashboard-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.chart-box {
+  border: 1px solid #ccc;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+.chart-box:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.chart-description {
+  font-size: 0.9rem;
+  color: #555;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+.destination-options {
+  margin-bottom: 0.75rem;
+}
+.destination-title {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+.destination-options label {
+  margin-right: 20px;
+  font-size: 0.95rem;
+}
 .btn-confirm {
   background-color: #4CAF50;
   color: white;
-  padding: 6px 12px;
-  margin-right: 10px;
+  padding: 10px 16px;
+  margin-top: 1.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
-
-.destination-options {
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-.destination-options label {
-  margin-right: 20px;
+.btn-confirm:hover {
+  background-color: #45a049;
 }
 </style>

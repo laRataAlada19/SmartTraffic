@@ -4,6 +4,7 @@ import { RouterView } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import Toaster from '@/components/ui/toast/Toaster.vue'
 import GlobalAlertDialog from '@/components/common/GlobalAlertDialog.vue'
+import 'leaflet/dist/leaflet.css'
 
 const storeAuth = useAuthStore()
 
@@ -30,7 +31,6 @@ const logout = () => {
   <GlobalAlertDialog ref="alert-dialog"></GlobalAlertDialog>
   <div class="p-8 mx-auto max-w-3xl">
     <div class="flex justify-between">
-      <img v-if="storeAuth.user" class="w-14 h-14 rounded-full" :src="storeAuth.userPhotoUrl" alt="Rounded avatar">
     </div>
     <nav style="background-color: #0B132B"
       class="bg-[#0B132B] text-white flex items-center px-2 py-1 shadow-md fixed top-0 left-0 w-full z-50 space-x-4">
