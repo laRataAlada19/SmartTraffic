@@ -29,7 +29,7 @@ const logout = () => {
 <template>
   <Toaster />
   <GlobalAlertDialog ref="alert-dialog"></GlobalAlertDialog>
-  <div class="p-8 mx-auto max-w-3xl">
+  <div class="min-h-screen bg-[#0B132B] text-white">
     <div class="flex justify-between">
     </div>
     <nav style="background-color: #0B132B"
@@ -40,20 +40,21 @@ const logout = () => {
             class="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 object-contain" />
         </div>
       </RouterLink>
+      <!-- 
       <RouterLink :to="{ name: 'main' }" class="text-white hover:text-green-400 transition" active-class="font-bold">
         Inicio
-      </RouterLink>
-      <RouterLink :to="{ name: 'selecionarGraficos' }" class="text-white hover:text-green-400 transition"
+      </RouterLink>-->
+      <RouterLink :to="{ name: 'dashboard' }" class="text-white hover:text-green-400 transition"
         active-class="font-bold">
-        Gráficos
+        Dashboard
       </RouterLink>
       <RouterLink :to="{ name: 'Locations' }" class="text-white hover:text-green-400 transition"
         active-class="font-bold">
         Localizações
       </RouterLink>
-      <RouterLink :to="{ name: 'dashboard' }" class="text-white hover:text-green-400 transition"
+      <RouterLink :to="{ name: 'selecionarGraficos' }" class="text-white hover:text-green-400 transition"
         active-class="font-bold">
-        Dashboard
+        Configuração
       </RouterLink>
       <span class="grow"></span>
       <RouterLink v-show="!storeAuth.user" :to="{ name: 'login' }" class="text-white hover:text-green-400 transition"
