@@ -15,6 +15,49 @@ import TimeMap from './types/TimeMap.vue'
 const props = defineProps({
   selectedCharts: Array
 })
+async function exportChartData(chartName) {
+  const chartData = {
+    LineChart: 'line_chart_data.csv',
+    BarChart: 'bar_chart_data.csv',
+    PieChart: 'pie_chart_data.csv',
+    TypeVei: 'type_vei_data.csv',
+    Direction: 'direction_data.csv',
+    HeatMap: 'heat_map_data.csv',
+    Geografic: 'geografic_data.csv',
+    HourPic: 'hour_pic_data.csv',
+    ComparePeriods: 'compare_periods_data.csv',
+    GrowthRate: 'growth_rate_data.csv',
+    TrafficDensity: 'traffic_density_data.csv',
+    Trend: 'trend_data.csv',
+    DirectionRadar: 'direction_radar_data.csv',
+    Anomalies: 'anomalies_data.csv',
+    ODMatrix: 'od_matrix_data.csv',
+    TimeMap: 'time_map_data.csv'
+  };
+
+  const fileName = chartData[chartName];
+  if (!fileName) {
+    console.error(`Não há dados para exportar do gráfico: ${chartName}`);
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/export/${fileName}`);
+    if (!response.ok) throw new Error(`Erro ao exportar dados (${response.status})`);
+
+    const blob = await response.blob();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    console.log(`Exportado: ${fileName}`);
+  } catch (err) {
+    console.error('Erro ao exportar gráfico:', err);
+  }
+}
+
 
 const componentsMap = {
   LineChart: defineAsyncComponent(() => import('./types/LineChart.vue')),
@@ -47,9 +90,11 @@ const validCharts = computed(() => {
 
 <template>
   <div>
-    <h2>Gráficos Selecionados</h2>
-    <div v-for="chart in validCharts" :key="chart.name">
-      <component :is="chart.component" />
+    <div v-for="chart in selectedCharts" :key="chart">
+      <component :is="componentsMap[chart]" />
+      <button @click="exportChartData(chart)" style="margin-top: 10px;">
+        Exportar como CSV
+      </button>
     </div>
   </div>
 </template>
