@@ -91,9 +91,7 @@ onMounted(async () => {
             <h3>Comparação com há 7 dias: +2%</h3>
           </div>
         </div>
-
-        <p style="margin-top: 20px;">Resumo {{ theme === 1 ? 'diário' : theme === 2 ? 'semanal' : theme === 3 ? 'mensal' : 'anual' }} de dados.</p>
-      </div>
+        </div>
 
       <ChartDisplay :selectedCharts="selectedCharts" />
     </div>
@@ -105,7 +103,9 @@ onMounted(async () => {
 .dashboard-wrapper {
   padding: 20px;
 }
-
+.dashboard-wrapper h1 {
+  color: #0A1425;
+}
 .dashboard-container {
   background-color: #D9D9D9;
   padding: 20px;
@@ -183,6 +183,9 @@ onMounted(async () => {
   flex-direction: row;
   flex-wrap: wrap;
   gap: 20px;
+}
+.gray-box h3 {
+  color: #0A1425;
 }
 
 .stats-left,

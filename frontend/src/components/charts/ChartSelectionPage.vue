@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref , computed} from 'vue';
 import { useRouter } from 'vue-router';
 import charts from './chartsConfig';
 import { defineAsyncComponent } from 'vue';
@@ -8,6 +8,16 @@ import HourPic from './types/HourPic.vue';
 import ComparePeriods from './types/ComparePeriods.vue';
 import GrowthRate from './types/GrowthRate.vue';
 import TrafficDensity from './types/TrafficDensity.vue';
+
+const groupedCharts = computed(() => {
+  const groups = {};
+  charts.forEach(chart => {
+    const type = chart.type || 'outros';
+    if (!groups[type]) groups[type] = [];
+    groups[type].push(chart);
+  });
+  return groups;
+});
 
 
 const selectedDestinations = ref({});
@@ -144,26 +154,30 @@ onMounted(() => {
   <div v-else class="dashboard-wrapper">
     <h1 class="dashboard-title">Selecionar Gráficos:</h1>
 
-    <div class="chart-grid">
-      <div v-for="chart in charts" :key="chart.component" class="chart-box">
-        <div class="destination-options">
-          <h2 class="destination-title">Destino do Gráfico:</h2>
-          <label>
-            <input type="checkbox" :checked="selectedDestinations[chart.component]?.includes('Dashboard')"
-              @change="toggle(chart.component, 'Dashboard')" />
-            Dashboard
-          </label>
-          <label>
-            <input type="checkbox" :checked="selectedDestinations[chart.component]?.includes('Location')"
-              @change="toggle(chart.component, 'Location')" />
-            Localização
-          </label>
-        </div>
-        <strong>{{ chart.name }}</strong>
-        <p class="chart-description">{{ chart.description }}</p>
-        <component :is="componentsMap[chart.component]" />
+    <div class="chart-group" v-for="(charts, type) in groupedCharts" :key="type">
+  <h2 class="chart-type-title">{{ type.toUpperCase() }}</h2>
+  <div class="chart-grid">
+    <div v-for="chart in charts" :key="chart.component" class="chart-box">
+      <div class="destination-options">
+        <h3 class="destination-title">Destino do Gráfico:</h3>
+        <label>
+          <input type="checkbox" :checked="selectedDestinations[chart.component]?.includes('Dashboard')"
+            @change="toggle(chart.component, 'Dashboard')" />
+          Dashboard
+        </label>
+        <label>
+          <input type="checkbox" :checked="selectedDestinations[chart.component]?.includes('Location')"
+            @change="toggle(chart.component, 'Location')" />
+          Localização
+        </label>
       </div>
+      <strong>{{ chart.name }}</strong>
+      <p class="chart-description">{{ chart.description }}</p>
+      <component :is="componentsMap[chart.component]" />
     </div>
+  </div>
+</div>
+
 
     <button class="btn-confirm" @click="confirmarSelecao">Confirmar Seleção</button>
   </div>
@@ -171,6 +185,15 @@ onMounted(() => {
 
 
 <style scoped>
+.chart-group {
+  margin-bottom: 2rem;
+}
+.chart-group h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #ccc;
+}
 .dashboard-wrapper {
   padding: 2rem;
   max-width: 100%;
@@ -192,8 +215,10 @@ onMounted(() => {
 .chart-box {
   border: 1px solid #ccc;
   padding: 0.75rem;
-  border-radius: 10px;
-  background-color: #fff;
+  border: none;
+  background-color: #1C2541;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(91, 192, 190, 0.1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.3s ease;
 }
@@ -202,7 +227,7 @@ onMounted(() => {
 }
 .chart-description {
   font-size: 0.9rem;
-  color: #555;
+  color: #ccc;
   font-style: italic;
   margin-top: 0.5rem;
 }

@@ -90,7 +90,7 @@ const vehicleTypeData = computed(() => {
               borderWidth: 1
             },
             {
-              label: 'Motocicletas',
+              label: 'Motociclo',
               data: vehicleTypeData.map(d => d[1].motorcycle),
               backgroundColor: 'rgba(255, 99, 132, 0.5)',
               borderColor: 'rgba(255, 99, 132, 1)',
@@ -104,14 +104,14 @@ const vehicleTypeData = computed(() => {
               borderWidth: 1
             },
             {
-              label: 'Caminhões',
+              label: 'Camiões',
               data: vehicleTypeData.map(d => d[1].truck),
               backgroundColor: 'rgba(255, 206, 86, 0.5)',
               borderColor: 'rgba(255, 206, 86, 1)',
               borderWidth: 1
             },
             {
-              label: 'Ônibus',
+              label: 'Autocarro',
               data: vehicleTypeData.map(d => d[1].bus),
               backgroundColor: 'rgba(153, 102, 255, 0.5)',
               borderColor: 'rgba(153, 102, 255, 1)',
