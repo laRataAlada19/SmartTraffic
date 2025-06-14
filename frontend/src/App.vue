@@ -29,7 +29,7 @@ const logout = () => {
       <RouterLink to="/" class="logo-link">
         <img src="@/assets/smart-traffic-logo.png" alt="Logo" class="logo-img" />
       </RouterLink>
-      <RouterLink :to="{ name: 'dashboard' }" class="nav-link" active-class="active-link">
+      <RouterLink to="/" class="nav-link" active-class="active-link">
         Dashboard
       </RouterLink>
       <RouterLink :to="{ name: 'Locations' }" class="nav-link" active-class="active-link">

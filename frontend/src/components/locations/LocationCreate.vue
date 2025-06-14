@@ -63,8 +63,8 @@ function createLocation() {
 </script>
 
 <template>
+    <h1 class="dashboard-title">Criar Localização</h1>
     <div class="create-location">
-        <h3 class="form-title">Criar Localização</h3>
         <div class="form-group">
             <div class="form-field">
                 <label>Local:</label>
@@ -111,9 +111,9 @@ function createLocation() {
     color: white;
 }
 
-.form-title {
-    font-size: 1.25rem;
-    font-weight: 600;
+.dashboard-title {
+    font-size: 1.75rem;
+    font-weight: bold;
     color: #5BC0BE;
     margin-bottom: 1.5rem;
     border-bottom: 1px solid #5BC0BE;
