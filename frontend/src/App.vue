@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, useTemplateRef, provide } from 'vue'
+import { useTemplateRef, provide } from 'vue'
 import { RouterView } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import Toaster from '@/components/ui/toast/Toaster.vue'
@@ -7,18 +7,12 @@ import GlobalAlertDialog from '@/components/common/GlobalAlertDialog.vue'
 import 'leaflet/dist/leaflet.css'
 
 const storeAuth = useAuthStore()
-
-onMounted(() => {
-
-})
-
 const alertDialog = useTemplateRef('alert-dialog')
 provide('alertDialog', alertDialog)
 
 const logoutConfirmed = () => {
   storeAuth.logout()
 }
-
 
 const logout = () => {
   alertDialog.value.open(logoutConfirmed, 'Logout confirmation?', 'Cancel', `Yes, I want to log out`,
@@ -28,44 +22,100 @@ const logout = () => {
 
 <template>
   <Toaster />
-  <GlobalAlertDialog ref="alert-dialog"></GlobalAlertDialog>
-  <div class="min-h-screen bg-[#0B132B] text-white">
-    <div class="flex justify-between">
-    </div>
-    <nav style="background-color: #0B132B"
-      class="bg-[#0B132B] text-white flex items-center px-2 py-1 shadow-md fixed top-0 left-0 w-full z-50 space-x-4">
-      <RouterLink to="/" class="flex items-center space-x-2">
-        <div class="logo-container">
-          <img src="@/assets/smart-traffic-logo.png" alt="Logo"
-            class="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 object-contain" />
-        </div>
+  <GlobalAlertDialog ref="alert-dialog" />
+  <div class="app-container">
+    <!-- Navigation -->
+    <nav class="navbar">
+      <RouterLink to="/" class="logo-link">
+        <img src="@/assets/smart-traffic-logo.png" alt="Logo" class="logo-img" />
       </RouterLink>
-      <!-- 
-      <RouterLink :to="{ name: 'main' }" class="text-white hover:text-green-400 transition" active-class="font-bold">
-        Inicio
-      </RouterLink>-->
-      <RouterLink :to="{ name: 'dashboard' }" class="text-white hover:text-green-400 transition"
-        active-class="font-bold">
+      <RouterLink :to="{ name: 'dashboard' }" class="nav-link" active-class="active-link">
         Dashboard
       </RouterLink>
-      <RouterLink :to="{ name: 'Locations' }" class="text-white hover:text-green-400 transition"
-        active-class="font-bold">
+      <RouterLink :to="{ name: 'Locations' }" class="nav-link" active-class="active-link">
         Localizações
       </RouterLink>
-      <RouterLink :to="{ name: 'selecionarGraficos' }" class="text-white hover:text-green-400 transition"
-        active-class="font-bold">
+      <RouterLink :to="{ name: 'selecionarGraficos' }" class="nav-link" active-class="active-link">
         Configuração
       </RouterLink>
-      <span class="grow"></span>
-      <RouterLink v-show="!storeAuth.user" :to="{ name: 'login' }" class="text-white hover:text-green-400 transition"
-        active-class="font-bold">
+      <span class="spacer"></span>
+      <RouterLink v-show="!storeAuth.user" :to="{ name: 'login' }" class="nav-link" active-class="active-link">
         Login
       </RouterLink>
-      <button v-show="storeAuth.user" @click="logout" class="text-white hover:text-green-400 transition"
-        active-class="font-bold">
+      <button v-show="storeAuth.user" @click="logout" class="nav-link logout-btn">
         Logout
       </button>
     </nav>
-    <RouterView></RouterView>
+    <!-- Main Content -->
+    <main class="main-content">
+      <RouterView />
+    </main>
   </div>
 </template>
+
+<style scoped>
+.app-container {
+  background-color: #0B132B;
+  color: white;
+  min-height: 100vh;
+}
+
+.navbar {
+  background-color: #0B132B;
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  margin-right: 1rem;
+}
+
+.logo-img {
+  width: 50px;
+  height: 50px;
+}
+
+.nav-link {
+  margin-right: 1rem;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #479291;
+}
+
+.active-link {
+  font-weight: bold;
+  color: #5BC0BE;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+.main-content {
+  padding-top: 5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+</style>

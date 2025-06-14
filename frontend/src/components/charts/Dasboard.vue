@@ -3,18 +3,14 @@
 import { ref, onMounted } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import ChartDisplay from '@/components/charts/ChartDisplay.vue';
-import Location from '../locations/Location.vue';
 import LocationList from '../locations/LocationList.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useFactVehicleStore } from '@/stores/factvehicle';
-import router from '@/router';
+import { toast } from '../ui/toast';
 
-const locationName = ref('');
-const direction = ref('');
 const locationStore = useLocationStore();
 const factVehicleStore = useFactVehicleStore();
 const storeAuth = useAuthStore();
-
 const totalVehicles = ref(0);
 const totalCars = ref(0);
 const totalBikes = ref(0);
@@ -23,7 +19,6 @@ const totalBuses = ref(0);
 const totalMotorcycles = ref(0);
 const mostMovimentedStrests = ref([]);
 const lessMovimentedStrests = ref([]);
-
 const selectedCharts = ref([]);
 const theme = ref(1);
 const selectedDate = ref(new Date().toISOString().split('T')[0]); // Data atual no formato YYYY-MM-DD
@@ -35,31 +30,34 @@ const changeTheme = (selectedTheme) => {
 };
 
 const fetchSummary = async () => {
-    const payload = {
-        date: selectedDate.value,
-        theme: theme.value,
-    };
-
-    totalVehicles.value = await factVehicleStore.fetchTotalVehicles(payload);
-    totalCars.value = await factVehicleStore.fetchTotalCars(payload);
-    totalBikes.value = await factVehicleStore.fetchTotalBikes(payload);
-    totalTrucks.value = await factVehicleStore.fetchTotalTrucks(payload);
-    totalBuses.value = await factVehicleStore.fetchTotalBuses(payload);
-    totalMotorcycles.value = await factVehicleStore.fetchTotalMotorcycles(payload);
-    mostMovimentedStrests.value = await factVehicleStore.fetchMostMovimentedStress(payload);
-    lessMovimentedStrests.value = await factVehicleStore.fetchLessMovimentedStress(payload);
+    try {
+        const payload = {
+            date: selectedDate.value,
+            theme: theme.value,
+        };
+        totalVehicles.value = await factVehicleStore.fetchTotalVehicles(payload);
+        totalCars.value = await factVehicleStore.fetchTotalCars(payload);
+        totalBikes.value = await factVehicleStore.fetchTotalBikes(payload);
+        totalTrucks.value = await factVehicleStore.fetchTotalTrucks(payload);
+        totalBuses.value = await factVehicleStore.fetchTotalBuses(payload);
+        totalMotorcycles.value = await factVehicleStore.fetchTotalMotorcycles(payload);
+        mostMovimentedStrests.value = await factVehicleStore.fetchMostMovimentedStress(payload);
+        lessMovimentedStrests.value = await factVehicleStore.fetchLessMovimentedStress(payload);
+    } catch (error) {
+        console.error('Erro ao buscar dados estatisticos:', error);
+        toast({
+            title: 'Erro',
+            description: 'Não foi possível buscar os dados estatisticos. Tente novamente mais tarde.',
+            type: 'error',
+        });
+    }
 };
 
 onMounted(async () => {
     try {
         locationStore.fetchLocations();
-        console.log('Locations fetched:', locationStore.locations);
-
         await fetchSummary();
-
         const tables = await storeAuth.getTables();
-        console.log('Tables fetched:', tables);
-
         const now = new Date()
         refreshTime.value = now.toLocaleString()
 
@@ -68,6 +66,11 @@ onMounted(async () => {
         }
     } catch (error) {
         console.error('Erro ao buscar tabelas ou gráficos:', error.message);
+        toast({
+            title: 'Erro',
+            description: 'Ocorreu um erro ao buscar as tabelas ou gráficos. Por favor, tente novamente.',
+            type: 'error',
+        });
         //router.push({ name: 'login' });
     }
 });
@@ -80,11 +83,10 @@ onMounted(async () => {
         <p style="text-align: center; margin-bottom: 20px;">Por favor, faça login para aceder ao dashboard.</p>
     </div>
     <div v-else>-->
-
+    <h1 class="dashboard-title">Dashboard</h1>
     <div class="dashboard-container">
         <!-- LOCATIONS & STATS SECTION -->
         <div class="top-section">
-
             <!-- SUMMARY SECTION -->
             <div class="summary-column">
                 <div class="theme-buttons">
@@ -93,12 +95,10 @@ onMounted(async () => {
                     <button @click="changeTheme(3)" :class="{ 'active': theme === 3 }">Mensal</button>
                     <button @click="changeTheme(4)" :class="{ 'active': theme === 4 }">Anual</button>
                 </div>
-
                 <div class="date-picker">
                     <label for="date">Data base:</label>
                     <input id="date" type="date" v-model="selectedDate" />
                 </div>
-
                 <div class="stats-grid">
                     <div class="stat-card">Total de veículos: {{ totalVehicles }}</div>
                     <div class="stat-card">Total de ligeiros: {{ totalCars }}</div>
@@ -106,7 +106,6 @@ onMounted(async () => {
                     <div class="stat-card">Total de camiões: {{ totalTrucks }}</div>
                     <div class="stat-card">Total de autocarros: {{ totalBuses }}</div>
                     <div class="stat-card">Total de bicicletas: {{ totalBikes }}</div>
-
                     <div class="stat-card">Mais movimentada: {{ mostMovimentedStrests[0]?.location_name || 'N/A' }}
                     </div>
                     <div class="stat-card">Menos movimentada: {{ lessMovimentedStrests[0]?.location_name || 'N/A' }}
@@ -116,9 +115,7 @@ onMounted(async () => {
                     <div class="stat-card">Hora com menos tráfego: 02-03</div>
                     <div class="stat-card">Comparação com há 7 dias: +2%</div>
                 </div>
-
             </div>
-
             <!-- LOCATIONS SECTION -->
             <div class="locations-column">
                 <p>Localizações existentes</p>
@@ -130,7 +127,6 @@ onMounted(async () => {
                 </div>
             </div>
         </div>
-
         <!-- CHARTS SECTION -->
         <div v-if="selectedCharts.length > 0" class="charts-wrapper">
             <h2>Gráficos Selecionados</h2>
@@ -139,7 +135,6 @@ onMounted(async () => {
         <div v-else>
             <p>Nenhum gráfico selecionado.</p>
         </div>
-
         <!-- LAST UPDATED -->
         <p class="updated-date">Atualizado em: {{ refreshTime }}</p>
     </div>
@@ -152,6 +147,15 @@ onMounted(async () => {
     background-color: #0B132B;
     color: white;
     min-height: 100vh;
+}
+
+.dashboard-title {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #5BC0BE;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #5BC0BE;
+    padding-bottom: 0.5rem;
 }
 
 .theme-buttons {

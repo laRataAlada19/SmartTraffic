@@ -1,0 +1,86 @@
+// _dashboard.scss
+
+$dashboard-bg: #1C2541;
+$dashboard-accent: #5BC0BE;
+$dashboard-text: #FAFAFA;
+$dashboard-muted: #B0BEC5;
+
+.dashboard-title {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: $dashboard-accent;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid $dashboard-accent;
+  padding-bottom: 0.5rem;
+}
+
+.chart-type-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: $dashboard-muted;
+  margin-bottom: 1rem;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1.5rem;
+}
+
+.chart-box {
+  background-color: $dashboard-bg;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  color: $dashboard-text;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.destination-options {
+  margin-bottom: 1rem;
+
+  label {
+    margin-right: 1.5rem;
+    font-size: 0.95rem;
+    color: #E0E0E0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+}
+
+.destination-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: $dashboard-accent;
+}
+
+.chart-description {
+  font-size: 0.875rem;
+  font-style: italic;
+  color: $dashboard-muted;
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.btn-confirm {
+  background-color: $dashboard-accent;
+  color: $dashboard-bg;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  margin-top: 2rem;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #3A506B;
+  }
+}

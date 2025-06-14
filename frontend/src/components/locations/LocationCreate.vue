@@ -60,42 +60,130 @@ function createLocation() {
             });
         });
 }
-
 </script>
 
 <template>
-    <div class="mt-10 bg-white p-4 rounded-lg shadow">
-        <h3 class="text-lg font-medium mb-4">Criar Localização</h3>
-        <div class="space-y-4">
-            <div>
-                <label class="block mb-1">Local:</label>
-                <input v-model="newLocation.location" class="w-full border rounded px-3 py-2" />
+    <div class="create-location">
+        <h3 class="form-title">Criar Localização</h3>
+        <div class="form-group">
+            <div class="form-field">
+                <label>Local:</label>
+                <input v-model="newLocation.location" />
             </div>
-            <div>
-                <label class="block mb-1">Direção:</label>
-                <select v-model="newLocation.direction" class="w-full border rounded px-3 py-2">
+
+            <div class="form-field">
+                <label>Direção:</label>
+                <select v-model="newLocation.direction">
                     <option disabled value="">Selecione a direção</option>
                     <option v-for="direction in directions" :key="direction.id" :value="direction.name">
                         {{ direction.name }}
                     </option>
                 </select>
             </div>
-            <div class="flex gap-4">
-                <div class="flex-1">
-                    <label class="block mb-1">Latitude*:</label>
-                    <input v-model="newLocation.latitude" class="w-full border rounded px-3 py-2" />
+
+            <div class="form-row">
+                <div class="form-field">
+                    <label>Latitude*:</label>
+                    <input v-model="newLocation.latitude" />
                 </div>
-                <div class="flex-1">
-                    <label class="block mb-1">Longitude*:</label>
-                    <input v-model="newLocation.longitude" class="w-full border rounded px-3 py-2" />
+                <div class="form-field">
+                    <label>Longitude*:</label>
+                    <input v-model="newLocation.longitude" />
                 </div>
             </div>
-            <h3>* em formato DD ou DMS</h3>
-            <div class="flex justify-end">
-                <button @click="createLocation" class="mt-2 bg-green-500 text-white px-4 py-2 rounded">
-                    Criar
-                </button>
+
+            <p class="hint-text">* em formato DD ou DMS</p>
+
+            <div class="form-actions">
+                <button @click="createLocation">Criar</button>
             </div>
         </div>
     </div>
 </template>
+
+<style scoped>
+.create-location {
+    margin-top: 2.5rem;
+    padding: 1.5rem;
+    background-color: #1C2541;
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    color: white;
+}
+
+.form-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #5BC0BE;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #5BC0BE;
+    padding-bottom: 0.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .form-row {
+        flex-direction: row;
+    }
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #B0BEC5;
+    font-size: 0.875rem;
+}
+
+.form-field input,
+.form-field select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #5BC0BE;
+    background-color: #0B132B;
+    color: white;
+    font-size: 0.875rem;
+}
+
+.form-field select option {
+    background-color: #1C2541;
+    color: white;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.form-actions button {
+    background-color: #5BC0BE;
+    color: #0B132B;
+    font-weight: 600;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.form-actions button:hover {
+    background-color: #3A506B;
+}
+
+.hint-text {
+    font-size: 0.875rem;
+    color: #B0BEC5;
+    font-style: italic;
+}
+</style>

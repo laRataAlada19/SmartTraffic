@@ -24,23 +24,29 @@ onMounted(async () => {
     </div>
     <div v-else>
         -->
-        <br />
-        <br />
-        <br />
-        <br />
+    <h1 class="dashboard-title">Localizações</h1>
 
-        <div v-if="locationStore.totalLocations > 0" class="flex flex-col items-center">
-            <LocationsList :locations="locationStore.locations" />
-        </div>
-        <div v-else class="flex flex-col items-center">
-            <h1 class="text-2xl font-bold mb-4">Nenhuma localização encontrada</h1>
-        </div>
+    <div v-if="locationStore.totalLocations > 0" class="flex flex-col items-center">
+        <LocationsList :locations="locationStore.locations" />
+    </div>
+    <div v-else class="flex flex-col items-center">
+        <h1 class="text-2xl font-bold mb-4">Nenhuma localização encontrada</h1>
+    </div>
+    
+    <br />
+    <br />
 
-        <br />
-        <br />
-        <br />
-        <br />
-
-        <LocationCreate />
+    <LocationCreate />
     <!--</div>-->
 </template>
+
+<style scoped>
+.dashboard-title {
+    font-size: 1.75rem;
+    font-weight: bold;
+    color: #5BC0BE;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #5BC0BE;
+    padding-bottom: 0.5rem;
+}
+</style>
