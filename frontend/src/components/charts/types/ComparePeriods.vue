@@ -4,6 +4,7 @@ import { Bar } from 'vue-chartjs'
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js'
 import { useFactVehicleStore } from '@/stores/factvehicle'
 import dayjs from 'dayjs'
+import { useSharedData } from '@/components/charts/useSharedData';
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend)
 
@@ -11,10 +12,12 @@ const store = useFactVehicleStore()
 const data = ref([])
 const start1 = ref('2025-05-21')
 const start2 = ref('2025-05-20')
+const { sharedData } = useSharedData();
+
 
 onMounted(async () => {
     console.log("Fetching data for ComparePeriods chart")
-  data.value = await store.fetchData()
+  data.value = sharedData.value;
 })
 
 function getTotalsByDate(date) {

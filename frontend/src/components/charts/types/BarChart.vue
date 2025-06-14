@@ -13,6 +13,7 @@ import {
 } from 'chart.js';
 import { useFactVehicleStore } from '@/stores/factvehicle';
 import dayjs from 'dayjs';
+import { useSharedData } from '@/components/charts/useSharedData';
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement);
 
@@ -20,6 +21,9 @@ const store = useFactVehicleStore();
 const locationFilter = ref('Todos');
 const timeInterval = ref('dia');
 const data1 = ref([]);
+
+const { sharedData } = useSharedData();
+
 
 const getVehicleDataByType = (type) => {
   const locationsSet = [...new Set(data1.value.map(d => d.location || 'Desconhecido'))];
@@ -73,7 +77,8 @@ const chartOptions = {
 };
 
 onMounted(async () => {
-  data1.value = await store.fetchData();
+  data1.value= sharedData.value;
+  console.log("BarChart data fetched:", data1.value);
 });
 </script>
 

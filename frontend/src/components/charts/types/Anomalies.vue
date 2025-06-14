@@ -2,15 +2,18 @@
 import { ref, onMounted } from 'vue'
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, CategoryScale } from 'chart.js'
-import { useFactVehicleStore } from '@/stores/factvehicle'
+
+import { useSharedData } from '@/components/charts/useSharedData';
+
 
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale)
 
-const store = useFactVehicleStore()
+
 const data = ref([])
+const { sharedData } = useSharedData();
 
 onMounted(async () => {
-  data.value = await store.fetchData()
+  data.value = sharedData.value;
   console.log("Anomalies data fetched:", data.value)
 })
 

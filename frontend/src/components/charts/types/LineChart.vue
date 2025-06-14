@@ -13,6 +13,7 @@ import {
 } from 'chart.js'
 import { useFactVehicleStore  } from '@/stores/factvehicle'
 import dayjs from 'dayjs'
+import { useSharedData } from '@/components/charts/useSharedData';
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement)
 
@@ -20,11 +21,14 @@ const store = useFactVehicleStore()
 const locationFilter = ref('Todos')
 const timeInterval = ref('dia')
 const data1 = ref([])
+const { sharedData } = useSharedData();
+
+
 
 onMounted(async () => {
   if (!Array.isArray(data1.value) || data1.value.length === 0) {
-    data1.value=await store.fetchData()
-    console.log('Dados carregados:', data1.value)
+    data1.value= sharedData.value;
+    console.log('Dados carregados kbjhasvdjahvfsghvdsjcbdshkbcsdbc:', data1.value)
     
   }
 })

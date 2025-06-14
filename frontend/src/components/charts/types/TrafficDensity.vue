@@ -3,15 +3,18 @@ import { ref, onMounted } from 'vue'
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, CategoryScale } from 'chart.js'
 import { useFactVehicleStore } from '@/stores/factvehicle'
+import { useSharedData } from '@/components/charts/useSharedData';
 
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale)
 
 const store = useFactVehicleStore()
 const data = ref([])
+const { sharedData } = useSharedData();
+
 
 onMounted(async () => {
-  data.value = await store.fetchData()
-  console.log("Traffic Density data fetched:", data.value)
+  data.value = sharedData.value;
+    console.log("Direction Radar data fetched:", data.value)
 })
 
 const minutes = data.value.map(d => `${d.hour}:${String(d.minute).padStart(2, '0')}`)

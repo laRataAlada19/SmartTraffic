@@ -25,12 +25,17 @@
   import { ref, onMounted } from 'vue'
   import { useFactVehicleStore } from '@/stores/factvehicle'
   import { LMap, LTileLayer, LMarker } from '@vue-leaflet/vue-leaflet';
+  import { useSharedData } from '@/components/charts/useSharedData';
+
   const store = useFactVehicleStore()
   const data = ref([])
-  
-  onMounted(async () => {
-    data.value = await store.fetchData()
-  })
+  const { sharedData } = useSharedData();
+
+
+onMounted(async () => {
+  data.value = sharedData.value;
+    console.log("Direction Radar data fetched:", data.value)
+})
   
   // Assume que cada entrada tem: { location, destination }
   const locations = Array.from(new Set(data.value.flatMap(d => [d.location, d.destination])))

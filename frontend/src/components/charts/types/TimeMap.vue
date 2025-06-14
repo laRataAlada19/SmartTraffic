@@ -33,16 +33,20 @@
   import { ref, onMounted, computed } from 'vue'
   import { useFactVehicleStore } from '@/stores/factvehicle'
   import { LMap, LTileLayer, LCircleMarker, LPopup } from '@vue-leaflet/vue-leaflet'
+  import { useSharedData } from '@/components/charts/useSharedData';
 
   const center = ref([39.748, -8.807]) // Leiria como default
   const selectedHour = ref(12)
   const data = ref([])
   
   const store = useFactVehicleStore()
-  onMounted(async () => {
-    data.value = await store.fetchData()
-  })
-  
+  const { sharedData } = useSharedData();
+
+
+onMounted(async () => {
+  data.value = sharedData.value;
+    console.log("Direction Radar data fetched:", data.value)
+})
   const filteredData = computed(() =>
     data.value.filter(d => Number(d.hour) === selectedHour.value)
   )

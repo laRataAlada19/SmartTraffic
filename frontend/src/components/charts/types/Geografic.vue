@@ -9,6 +9,7 @@ import {
     LinearScale,
 } from 'chart.js'
 import { ChoroplethController, GeoFeature, ProjectionScale, ColorScale } from 'chartjs-chart-geo'
+import { useSharedData } from '@/components/charts/useSharedData';
 
 ChartJS.register(
     Tooltip,

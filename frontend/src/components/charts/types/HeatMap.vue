@@ -12,6 +12,7 @@ import {
 
 import 'chartjs-chart-matrix'
 import { MatrixController, MatrixElement } from 'chartjs-chart-matrix'
+import { useSharedData } from '@/components/charts/useSharedData';
 
 ChartJS.register(
     Tooltip,
@@ -23,13 +24,13 @@ ChartJS.register(
     MatrixElement
 )
 
-const data1 = ref([
-    { hour: 8, car: 40, motorcycle: 10, truck: 5, bus: 3 },
-    { hour: 9, car: 55, motorcycle: 12, truck: 4, bus: 2 },
-    { hour: 10, car: 20, motorcycle: 8, truck: 6, bus: 1 },
-    { hour: 17, car: 70, motorcycle: 20, truck: 10, bus: 5 },
-])
+const { sharedData } = useSharedData();
 
+
+onMounted(async () => {
+    data.value = sharedData.value;
+    console.log("Direction Radar data fetched:", data.value)
+})
 const heatmapData = computed(() => {
     const result = []
     const types = ['car', 'motorcycle', 'truck', 'bus']

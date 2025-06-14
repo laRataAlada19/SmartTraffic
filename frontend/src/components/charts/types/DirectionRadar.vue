@@ -3,14 +3,17 @@ import { ref, onMounted } from 'vue'
 import { Radar } from 'vue-chartjs'
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js'
 import { useFactVehicleStore } from '@/stores/factvehicle'
+import { useSharedData } from '@/components/charts/useSharedData';
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend)
 
 const store = useFactVehicleStore()
 const data = ref([])
+const { sharedData } = useSharedData();
+
 
 onMounted(async () => {
-  data.value = await store.fetchData()
+  data.value = sharedData.value;
     console.log("Direction Radar data fetched:", data.value)
 })
 

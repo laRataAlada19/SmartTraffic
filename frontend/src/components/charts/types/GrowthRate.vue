@@ -1,13 +1,16 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useFactVehicleStore } from '@/stores/factvehicle'
+import { useSharedData } from '@/components/charts/useSharedData';
 
 const store = useFactVehicleStore()
 const data = ref([])
+const { sharedData } = useSharedData();
+
 
 onMounted(async () => {
-  data.value = await store.fetchData()
-    console.log("Growth Rate data fetched:", data.value)
+  data.value = sharedData.value;
+    console.log("Direction Radar data fetched:", data.value)
 })
 
 function totalForDate(date) {

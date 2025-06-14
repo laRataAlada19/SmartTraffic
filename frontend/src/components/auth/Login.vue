@@ -36,7 +36,8 @@ const login = () => {
 </script>
 
 <template>
-  <Card class="w-[450px] mx-auto my-8 p-4 px-8 border-none shadow-none">
+  <Card class="w-[450px] mx-auto my-8 p-4 px-8 border-none shadow-none bg-[#1C2541]"
+    style="margin-top: 100px; border-radius: 12px; box-shadow: 0 0 10px rgba(91, 192, 190, 0.1);">
     <CardHeader>
       <div class="flex justify-center mb-4">
         <img :src="logo" alt="Smart Traffic Logo"
@@ -48,7 +49,7 @@ const login = () => {
         <div class="grid items-center w-full gap-4">
           <div class="flex flex-col space-y-1.5">
             <div class="flex items-center space-x-2">
-              <Label for="email">Email:</Label>
+              <Label for="email" style="color: white;">Email:</Label>
               <Input id="email" type="email" placeholder="User Email" v-model="credentials.email"
                 class="rounded-full bg-gray-200 px-4 py-2 flex-1 w-full" />
             </div>
@@ -57,7 +58,7 @@ const login = () => {
 
           <div class="flex flex-col space-y-1.5">
             <div class="flex items-center space-x-2">
-              <Label for="password">Password:</Label>
+              <Label for="password" style="color: white;">Password:</Label>
               <Input id="password" type="password" v-model="credentials.password"
                 class="rounded-full bg-gray-200 px-4 py-2 flex-1 w-full" />
             </div>
