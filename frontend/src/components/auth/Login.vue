@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label'
 import { useAuthStore } from '@/stores/auth'
 import { useErrorStore } from '@/stores/error'
 import logo from '@/assets/smart-traffic-logo.png'
-
+import { toast } from '../ui/toast'
 
 const router = useRouter()
 const storeAuth = useAuthStore()
@@ -31,7 +31,24 @@ const cancel = () => {
 }
 
 const login = () => {
+  storeError.clearErrors()
   storeAuth.login(credentials.value)
+    .then(() => {
+      toast({
+        title: 'Login Successful',
+        description: 'You have successfully logged in.',
+        variant: 'success',
+      })
+      router.push({ name: 'dashboard' })
+    })
+    .catch((error) => {
+      console.error('Login failed:', error)
+      toast({
+        title: 'Login Failed',
+        description: 'Please check your credentials and try again.',
+        variant: 'destructive',
+      })
+    })
 }
 </script>
 
@@ -39,11 +56,12 @@ const login = () => {
   <Card class="w-[450px] mx-auto my-8 p-4 px-8 border-none shadow-none bg-[#1C2541]"
     style="margin-top: 100px; border-radius: 12px; box-shadow: 0 0 10px rgba(91, 192, 190, 0.1);">
     <CardHeader>
-      <div class="flex justify-center mb-4">
+      <div class="flex justify-center mb-6">
         <img :src="logo" alt="Smart Traffic Logo"
           class="w-40 h-40 sm:w-48 sm:h-48 rounded-2xl object-contain bg-[#0B132B] p-4" />
       </div>
     </CardHeader>
+
     <CardContent>
       <form>
         <div class="grid items-center w-full gap-4">
@@ -67,13 +85,83 @@ const login = () => {
         </div>
       </form>
     </CardContent>
-    <CardFooter class="flex justify-end space-x-2 px-6 pb-6">
-      <Button variant="outline" @click="cancel" class="bg-green-400 text-white hover:bg-green-500">
+
+    <CardFooter class="flex justify-end gap-4 pt-4">
+      <Button variant="outline" @click="cancel" class="btn-outline">
         Criar Conta
       </Button>
-      <Button @click="login" class="bg-gray-200 hover:bg-gray-300 text-black">
+      <Button @click="login" class="btn-primary">
         Login
       </Button>
     </CardFooter>
   </Card>
 </template>
+
+<style scoped>
+.dark-card {
+  background-color: #1C2541;
+  border-radius: 12px;
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(91, 192, 190, 0.15);
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  color: #B0BEC5;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.form-input {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background-color: #0B132B;
+  border: 1px solid #5BC0BE;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.form-input::placeholder {
+  color: #B0BEC5;
+}
+
+.btn-outline {
+  background-color: #4CAF50;
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-outline:hover {
+  background-color: #45a049;
+}
+
+.btn-primary {
+  background-color: #f44336;
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: #e53935;
+}
+</style>

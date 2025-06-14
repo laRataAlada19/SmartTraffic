@@ -1,17 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import TaskUpdate from '@/components/tasks/TaskUpdate.vue'
-import ProjectUpdate from '@/components/projects/ProjectUpdate.vue'
-import ProjectCreate from '@/components/projects/ProjectCreate.vue'
-import Projects from '@/components/projects/Projects.vue'
-
 import Login from '@/components/auth/Login.vue'
-import Main from '@/components/Main.vue'
 import Locations from '@/components/locations/Locations.vue'
 import Location from '@/components/locations/Location.vue'
-import Tables from '@/components/tables/Tables.vue'
 import ChartSelectionPage from '@/components/charts/ChartSelectionPage.vue'
-import Dasboard from '@/components/charts/Dasboard.vue'
+import Dasboard from '@/components/Dasboard.vue'
 
 let handlingFirstRoute = true
 
@@ -22,11 +15,6 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: Login
-    },
-    {
-      path: '/',
-      name: 'main',
-      component: Main
     },
     {
       path: '/locations',
@@ -43,45 +31,14 @@ const router = createRouter({
       })
     },
     {
-      path: '/tables',
-      name: 'Tables',
-      component: Tables
-    },
-    {
       path: '/selecionarGraficos',
       name: 'selecionarGraficos',
       component: ChartSelectionPage
     },
     {
-      path: '/dashboard',
+      path: '/',
       name: 'dashboard',
       component: Dasboard
-    },
-    {
-      path: '/tasks',
-      redirect: { name: 'tasks' }
-    },
-    {
-      path: '/tasks/:id',
-      name: 'updateTask',
-      component: TaskUpdate,
-      props: route => ({ id: parseInt(route.params.id) })
-    },
-    {
-      path: '/projects',
-      name: 'projects',
-      component: Projects
-    },
-    {
-      path: '/projects/:id',
-      name: 'updateProject',
-      component: ProjectUpdate,
-      props: route => ({ id: parseInt(route.params.id) })
-    },
-    {
-      path: '/projects/new',
-      name: 'createProject',
-      component: ProjectCreate,
     }
   ]
 })

@@ -3,10 +3,10 @@
 import { ref, onMounted } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import ChartDisplay from '@/components/charts/ChartDisplay.vue';
-import LocationList from '../locations/LocationList.vue';
+import LocationList from '@/components/locations/LocationList.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useFactVehicleStore } from '@/stores/factvehicle';
-import { toast } from '../ui/toast';
+import { toast } from './ui/toast';
 
 const locationStore = useLocationStore();
 const factVehicleStore = useFactVehicleStore();

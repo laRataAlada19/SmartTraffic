@@ -32,7 +32,7 @@ onMounted(async () => {
     <div v-else class="flex flex-col items-center">
         <h1 class="text-2xl font-bold mb-4">Nenhuma localização encontrada</h1>
     </div>
-    
+
     <br />
     <br />
 

@@ -21,8 +21,8 @@ const locationId = ref(props.id);
 const locationDetails = ref(null);
 const granularity = ref(3); //default diario
 const showUpdateForm = ref(false);
-const startDate = ref('2025-05-01');
-const endDate = ref('2025-05-08');
+const startDate = ref(new Date().toISOString().split('T')[0]); // Data atual no formato YYYY-MM-DD
+const endDate = ref(new Date().toISOString().split('T')[0]); // Data atual no formato YYYY-MM-DD
 const selectedCharts = ref([]);
 const center = ref([])
 
@@ -134,17 +134,26 @@ onMounted(async () => {
 
 <template>
     <div v-if="locationDetails" class="location-container">
-        <h1 class="dashboard-title">Informação da Localização</h1>
-        <div v-if="showUpdateForm">
-            <LocationUpdate :location="locationDetails" @cancelUpdate="cancelUpdate" />
-        </div>
+        <LocationUpdate v-if="showUpdateForm" :location="locationDetails" @cancelUpdate="cancelUpdate" />
         <div v-else>
-            <header class="location-header">
-                <p><strong>Localização:</strong> {{ locationDetails.location }}</p>
-                <p><strong>Coordenadas geográficas:</strong></p>
-                <p class="coordinate">Latitude: {{ locationDetails.latitude }}</p>
-                <p class="coordinate">Longitude: {{ locationDetails.longitude }}</p>
-                <p><strong>Direção da câmara:</strong> {{ locationDetails.direction }}</p>
+            <h1 class="dashboard-title">Informação da Localização</h1>
+            <div class="info-card">
+                <div class="info-grid">
+                    <div>
+                        <h2>Localização</h2>
+                        <p>{{ locationDetails.location }}</p>
+                    </div>
+                    <div>
+                        <h2>Coordenadas</h2>
+                        <p>Latitude: {{ locationDetails.latitude }}</p>
+                        <p>Longitude: {{ locationDetails.longitude }}</p>
+                    </div>
+                    <div>
+                        <h2>Direção da Câmara</h2>
+                        <p>{{ locationDetails.direction }}</p>
+                    </div>
+                </div>
+
                 <div class="map-container">
                     <l-map ref="leafletMap" :zoom="14" :center="center" style="height: 100%;">
                         <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -159,6 +168,7 @@ onMounted(async () => {
                         </l-circle-marker>
                     </l-map>
                 </div>
+
                 <div class="btn-actions">
                     <button class="btn btn-edit" @click="toggleUpdateForm">Editar</button>
                     <button class="btn btn-delete"
@@ -166,32 +176,38 @@ onMounted(async () => {
                         Eliminar
                     </button>
                 </div>
-            </header>
+            </div>
         </div>
-        <section class="statistics">
-            <h2>Estatísticas</h2>
-            <p><strong>Granularidade temporal</strong></p>
-            <div class="controls">
-                <label>De:</label>
-                <input type="date" v-model="startDate" />
-                <label>Até:</label>
-                <input type="date" v-model="endDate" />
+
+        <h1 class="dashboard-title">Estatísticas</h1>
+
+        <section class="statistics-card">
+            <div class="statistics-header">
+                <h2>Granularidade Temporal</h2>
+                <div class="date-range">
+                    <div class="date-field">
+                        <label for="start">De</label>
+                        <input id="start" type="date" v-model="startDate" />
+                    </div>
+                    <div class="date-field">
+                        <label for="end">Até</label>
+                        <input id="end" type="date" v-model="endDate" />
+                    </div>
+                </div>
             </div>
-            <div class="granularity-options">
-                <label><input type="radio" value="1" v-model="granularity" @change="changeGranularity(1)" /> Por
-                    mês</label>
-                <label><input type="radio" value="2" v-model="granularity" @change="changeGranularity(2)" /> Por
-                    semana</label>
-                <label><input type="radio" value="3" v-model="granularity" @change="changeGranularity(3)" /> Por
-                    dia</label>
-                <label><input type="radio" value="4" v-model="granularity" @change="changeGranularity(4)" /> Por
-                    hora</label>
+
+            <div class="granularity-buttons">
+                <button @click="changeGranularity(1)" :class="{ active: granularity === 1 }">Horário</button>
+                <button @click="changeGranularity(2)" :class="{ active: granularity === 2 }">Diário</button>
+                <button @click="changeGranularity(3)" :class="{ active: granularity === 3 }">Semanal</button>
+                <button @click="changeGranularity(4)" :class="{ active: granularity === 4 }">Mensal</button>
             </div>
+
             <div v-if="selectedCharts.length > 0" class="charts-wrapper">
                 <h2>Gráficos Selecionados</h2>
                 <ChartDisplay :selectedCharts="selectedCharts" />
             </div>
-            <div v-else>
+            <div v-else class="no-charts">
                 <p>Nenhum gráfico selecionado.</p>
             </div>
         </section>
@@ -201,6 +217,7 @@ onMounted(async () => {
         <p>A carregar os detalhes da localização...</p>
     </div>
 </template>
+
 
 <style scoped>
 .dashboard-title {
@@ -212,6 +229,32 @@ onMounted(async () => {
     padding-bottom: 0.5rem;
 }
 
+.info-card {
+    background-color: #1C2541;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.info-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.info-grid>div {
+    flex: 1;
+    min-width: 200px;
+}
+
+.info-grid h2 {
+    font-size: 1.2rem;
+    color: #5BC0BE;
+    margin-bottom: 0.5rem;
+}
+
 .location-container {
     background-color: #0B132B;
     color: #ffffff;
@@ -220,31 +263,26 @@ onMounted(async () => {
     box-shadow: 0 0 10px rgba(91, 192, 190, 0.1);
 }
 
-.location-header {
-    background-color: #1C2541;
-    padding: 2rem;
-    border-radius: 12px;
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-.location-header h2 {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 1rem;
-}
-
-.coordinate {
-    margin-left: 1.5rem;
-    font-size: 1rem;
-}
-
 .map-container {
     height: 500px;
     margin-top: 1rem;
     border-radius: 12px;
     overflow: hidden;
+    z-index: 0;
+    /*para garantir que o mapa não se meta em cima da navbar e toast*/
+}
+
+.leaflet-container {
+    z-index: 0 !important;
+    /*para garantir que o mapa não se meta em cima da navbar e toast*/
+}
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-popup {
+    z-index: 0 !important;
+    /*para garantir que o mapa não se meta em cima da navbar e toast*/
 }
 
 .btn-actions {
@@ -287,43 +325,87 @@ onMounted(async () => {
     border-radius: 12px;
 }
 
-.statistics h2 {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 1rem;
-}
-
-.controls {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin: 1rem 0;
-    flex-wrap: wrap;
-}
-
-.controls input {
-    padding: 0.4rem 0.6rem;
-    border-radius: 6px;
-    border: none;
-}
-
-.granularity-options {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    margin: 1rem 0;
-}
-
-.granularity-options label {
-    font-size: 0.95rem;
-    cursor: pointer;
-}
-
 .charts-wrapper {
     margin-top: 2rem;
     padding: 1.5rem;
     background-color: #0F1A35;
     border-radius: 10px;
+}
+
+.granularity-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.granularity-buttons button {
+    background-color: #1C2541;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.granularity-buttons button:hover {
+    background-color: #3A506B;
+}
+
+.granularity-buttons .active {
+    background-color: #5BC0BE;
+    color: #0B132B;
+    font-weight: bold;
+}
+
+.statistics-card {
+    background-color: #1C2541;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-top: 2rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.statistics-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.statistics-header h2 {
+    font-size: 1.4rem;
+    color: #5BC0BE;
+    margin-bottom: 0.5rem;
+}
+
+.date-range {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.date-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.date-field label {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.date-field input {
+    padding: 8px;
+    background-color: #0B132B;
+    color: #FFFFFF;
+    border: 1px solid #5BC0BE;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.no-charts {
+    color: #B0BEC5;
+    margin-top: 1rem;
 }
 </style>
