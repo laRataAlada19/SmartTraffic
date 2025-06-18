@@ -33,6 +33,12 @@ export const useErrorStore = defineStore('error', () => {
         _statusCode.value = 0
         _title.value = ''
     }
+    const clearErrors = () => {
+        _message.value = ''
+        _fieldErrorMessages.value = [];
+        _statusCode.value = 0
+        _title.value = ''
+    }
     
     const setErrorMessages = (mainMessage, fieldMessages, status = 0, titleMessage = '') => {
         _message.value = mainMessage
@@ -65,6 +71,6 @@ export const useErrorStore = defineStore('error', () => {
     }
     return {
         message, statusCode, title,
-        fieldMessage, resetMessages, setErrorMessages
+        fieldMessage, resetMessages, setErrorMessages,clearErrors
     }
 })

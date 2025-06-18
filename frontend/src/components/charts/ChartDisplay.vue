@@ -57,7 +57,17 @@ async function exportChartData(chartName) {
     console.error('Erro ao exportar gráfico:', err);
   }
 }
+const store = useFactVehicleStore();
+const sharedData = ref([]);
+const isDataLoaded = ref(false);
 
+const fetchData = async () => {
+  if (!isDataLoaded.value) {
+    sharedData.value = await store.fetchData();
+    isDataLoaded.value = true;
+    console.log('Dados carregados:', sharedData.value);
+  }
+};
 
 const componentsMap = {
   LineChart: defineAsyncComponent(() => import('./types/LineChart.vue')),
@@ -78,7 +88,9 @@ const componentsMap = {
   TimeMap: defineAsyncComponent(() => import('./types/TimeMap.vue'))
 }
 
-
+onMounted(() => {
+  fetchData();
+})
 const validCharts = computed(() => {
   return (props.selectedCharts || []).map(chartName => ({
     name: chartName,
@@ -87,14 +99,10 @@ const validCharts = computed(() => {
 })
 
 </script>
-
 <template>
   <div>
     <div v-for="chart in selectedCharts" :key="chart">
-      <component :is="componentsMap[chart]" />
-      <button @click="exportChartData(chart)" style="margin-top: 10px;">
-        Exportar como CSV
-      </button>
+      <component :is="componentsMap[chart]" :data="sharedData" />
     </div>
   </div>
 </template>

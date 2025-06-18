@@ -1,26 +1,28 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-import { Radar } from 'vue-chartjs'
-import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js'
-import { useFactVehicleStore } from '@/stores/factvehicle'
-import { useSharedData } from '@/components/charts/useSharedData';
+// filepath: /Users/franciscocordeiro/Documents/GitHub/projeto_informatico2/frontend/src/components/charts/types/DirectionRadar.vue
+import { computed } from 'vue';
+import { Radar } from 'vue-chartjs';
+import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend ,
+  } from 'chart.js';
 
-ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend)
+ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
-const store = useFactVehicleStore()
-const data = ref([])
-const { sharedData } = useSharedData();
+// Accept the preloaded data as a prop
+const props = defineProps({
+  data: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
+});
 
+const directions = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
 
-onMounted(async () => {
-  data.value = sharedData.value;
-    console.log("Direction Radar data fetched:", data.value)
-})
-
-const directions = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']
-const totalByDir = directions.map(dir =>
-  data.value.reduce((sum, d) => sum + (d[dir] || 0), 0)
-)
+const totalByDir = computed(() =>
+  directions.map(dir =>
+    props.data.reduce((sum, d) => sum + (d[dir] || 0), 0)
+  )
+);
 </script>
 
 <template>

@@ -32,6 +32,15 @@ const cancel = () => {
 
 const login = () => {
   storeError.clearErrors()
+ console.log('Attempting to login with credentials:', credentials.value)
+  if (!credentials.value.email || !credentials.value.password) {
+    toast({
+      title: 'Login Failed',
+      description: 'Please enter both email and password.',
+      variant: 'destructive',
+    })
+    return
+  }
   storeAuth.login(credentials.value)
     .then(() => {
       toast({

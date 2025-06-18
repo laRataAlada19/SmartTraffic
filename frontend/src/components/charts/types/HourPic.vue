@@ -1,50 +1,39 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { Bar } from 'vue-chartjs'; // Importa o componente Bar
-import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-  CategoryScale,
-  LinearScale
-} from 'chart.js';
-import { useFactVehicleStore } from '@/stores/factvehicle';
-import dayjs from 'dayjs';
-import { useSharedData } from '@/components/charts/useSharedData';
+// filepath: /Users/franciscocordeiro/Documents/GitHub/projeto_informatico2/frontend/src/components/charts/types/HourPic.vue
+import { ref, computed } from 'vue';
+import { Bar } from 'vue-chartjs';
 
-
-// Registra os componentes necessários do Chart.js
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
-
-const store = useFactVehicleStore();
-const locationFilter = ref('Todos');
-const timeInterval = ref('dia');
-const data1 = ref([]);
-const hourFilter = ref('Todos');
-const availableHours = computed(() => {
-  if (!Array.isArray(data1.value)) return ['Todos'];
-  const hours = [...new Set(data1.value.map(entry => entry.hour))];
-  return ['Todos', ...hours.sort((a, b) => a - b)];
+// Accept the preloaded data as a prop
+const props = defineProps({
+  data: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
 });
 
-const peakHourData = computed(() => {
-  if (!Array.isArray(data1.value)) return [];
+const locationFilter = ref('Todos');
+const hourFilter = ref('Todos');
 
-  let data = [...data1.value];
+const availableHours = computed(() => {
+  if (!Array.isArray(props.data)) return [];
+  return [...new Set(props.data.map(entry => entry.hour))].sort((a, b) => a - b);
+});
+
+const groupedData = computed(() => {
+  let filteredData = [...props.data];
 
   if (locationFilter.value !== 'Todos') {
-    data = data.filter(d => d.location === locationFilter.value);
+    filteredData = filteredData.filter(d => d.location === locationFilter.value);
   }
 
   if (hourFilter.value !== 'Todos') {
-    data = data.filter(d => d.hour === parseInt(hourFilter.value));
+    filteredData = filteredData.filter(d => d.hour === parseInt(hourFilter.value));
   }
 
   const groupedByHour = {};
 
-  data.forEach(entry => {
+  filteredData.forEach(entry => {
     const hour = entry.hour;
     if (!groupedByHour[hour]) {
       groupedByHour[hour] = {
@@ -53,7 +42,7 @@ const peakHourData = computed(() => {
         motorcycle: 0,
         bike: 0,
         truck: 0,
-        bus: 0
+        bus: 0,
       };
     }
 
@@ -68,16 +57,19 @@ const peakHourData = computed(() => {
 
   return Object.entries(groupedByHour).sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
 });
-const { sharedData } = useSharedData();
 
-
-
-onMounted(async () => {
-  if (!Array.isArray(data1.value) || data1.value.length === 0) {
-    data1.value = sharedData.value;
-    console.log('Dados carregados:', data1.value);
-  }
-});
+const chartData = computed(() => ({
+  labels: groupedData.value.map(([hour]) => `${hour}:00`),
+  datasets: [
+    {
+      label: 'Total de Veículos',
+      data: groupedData.value.map(([_, values]) => values.total),
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      borderColor: 'rgba(75, 192, 192, 1)',
+      borderWidth: 1,
+    },
+  ],
+}));
 </script>
 
 <template>
@@ -85,38 +77,23 @@ onMounted(async () => {
     <div style="margin-bottom: 1rem;">
       <label>Hora:
         <select v-model="hourFilter">
+          <option value="Todos">Todos</option>
           <option v-for="hour in availableHours" :key="hour" :value="hour">
-            {{ hour === 'Todos' ? 'Todas' : `${hour}:00` }}
+            {{ hour }}:00
+          </option>
+        </select>
+      </label>
+
+      <label style="margin-left: 2rem;">Localidade:
+        <select v-model="locationFilter">
+          <option value="Todos">Todos</option>
+          <option v-for="loc in [...new Set(props.data.map(entry => entry.location))]" :key="loc" :value="loc">
+            {{ loc }}
           </option>
         </select>
       </label>
     </div>
-    
-    <div style="margin-top: 3rem;">
-      <Bar
-        v-if="peakHourData.length"
-        :data="{
-          labels: peakHourData.map(d => `${d[0]}:00`),
-          datasets: [{
-            label: 'Total de Veículos',
-            data: peakHourData.map(d => d[1].total),
-            backgroundColor: 'rgba(54, 162, 235, 0.7)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-          }]
-        }"
-        :options="{
-          responsive: true,
-          plugins: {
-            legend: { display: true },
-            title: { display: true, text: 'Tráfego por Hora do Dia' }
-          },
-          scales: {
-            y: { beginAtZero: true }
-          }
-        }"
-      />
-      <p v-else>Nenhum dado disponível para análise de horário de pico.</p>
-    </div>
+
+    <Bar :data="chartData" :options="{ responsive: true }" />
   </div>
 </template>

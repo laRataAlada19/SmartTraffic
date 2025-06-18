@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { Bar } from 'vue-chartjs'
+// filepath: /Users/franciscocordeiro/Documents/GitHub/projeto_informatico2/frontend/src/components/charts/types/TypeVei.vue
+import { ref, computed } from 'vue';
+import { Bar } from 'vue-chartjs';
 import {
   Chart as ChartJS,
   Title,
@@ -9,133 +10,142 @@ import {
   BarElement,
   CategoryScale,
   LinearScale,
-  PointElement
-} from 'chart.js'
-import { useFactVehicleStore } from '@/stores/factvehicle'
-import dayjs from 'dayjs'
-import { useSharedData } from '@/components/charts/useSharedData';
-
+  PointElement,
+  Filler,   
+} from 'chart.js';
+import dayjs from 'dayjs';
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
-ChartJS.register(BarElement) 
-const data1 = ref([]); 
-const locationFilter = ref('Todos');
-const timeInterval = ref('dia'); 
-const { sharedData } = useSharedData();
 
-
-
-onMounted(async () => {
-  const store = useFactVehicleStore(); 
-  data1.value = sharedData.value;
-  console.log('Dados carregados:', data1.value);
+const props = defineProps({
+  data: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
 });
 
-const vehicleTypeData = computed(() => {
-  if (!Array.isArray(data1.value)) return []
+const locationFilter = ref('Todos');
+const timeInterval = ref('dia');
 
-  let data = [...data1.value]
+const vehicleTypeData = computed(() => {
+  if (!Array.isArray(props.data)) return [];
+
+  let filteredData = [...props.data];
 
   if (locationFilter.value !== 'Todos') {
-    data = data.filter(d => d.location === locationFilter.value)
+    filteredData = filteredData.filter(d => d.location === locationFilter.value);
   }
 
-  const grouped = {}
+  const grouped = {};
 
-  data.forEach(entry => {
-    let key = ''
+  filteredData.forEach(entry => {
+    let key = '';
 
     switch (timeInterval.value) {
       case 'mes':
-        key = `${entry.year}-${String(entry.month).padStart(2, '0')}`
-        break
+        key = `${entry.year}-${String(entry.month).padStart(2, '0')}`;
+        break;
       case 'semana':
-        key = dayjs(entry.full_date).startOf('week').format('YYYY-MM-DD')
-        break
+        key = dayjs(entry.full_date).startOf('week').format('YYYY-MM-DD');
+        break;
       case 'dia':
       default:
-        key = entry.full_date
+        key = entry.full_date;
     }
 
-    if (!grouped[key]) {
-      grouped[key] = {
-        car: 0,
-        motorcycle: 0,
-        bike: 0,
-        truck: 0,
-        bus: 0
-      }
-    }
+    if (!grouped[key]) grouped[key] = { car: 0, motorcycle: 0, bike: 0, truck: 0, bus: 0 };
 
-    grouped[key].car += entry.car
-    grouped[key].motorcycle += entry.motorcycle
-    grouped[key].bike += entry.bike
-    grouped[key].truck += entry.truck
-    grouped[key].bus += entry.bus
-  })
+    grouped[key].car += entry.car;
+    grouped[key].motorcycle += entry.motorcycle;
+    grouped[key].bike += entry.bike;
+    grouped[key].truck += entry.truck;
+    grouped[key].bus += entry.bus;
+  });
 
-  return Object.entries(grouped).sort((a, b) => new Date(a[0]) - new Date(b[0]))
-})
+  return Object.entries(grouped).map(([key, values]) => ({
+    date: key,
+    ...values,
+  }));
+});
+
+const chartData = computed(() => ({
+  labels: vehicleTypeData.value.map(d => d.date),
+  datasets: [
+    {
+      label: 'Carros',
+      data: vehicleTypeData.value.map(d => d.car),
+      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+      borderColor: 'rgba(255, 99, 132, 1)',
+      borderWidth: 1,
+    },
+    {
+      label: 'Motos',
+      data: vehicleTypeData.value.map(d => d.motorcycle),
+      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+      borderColor: 'rgba(54, 162, 235, 1)',
+      borderWidth: 1,
+    },
+    {
+      label: 'Bicicletas',
+      data: vehicleTypeData.value.map(d => d.bike),
+      backgroundColor: 'rgba(255, 206, 86, 0.2)',
+      borderColor: 'rgba(255, 206, 86, 1)',
+      borderWidth: 1,
+    },
+    {
+      label: 'Camiões',
+      data: vehicleTypeData.value.map(d => d.truck),
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      borderColor: 'rgba(75, 192, 192, 1)',
+      borderWidth: 1,
+    },
+    {
+      label: 'Autocarro',
+      data: vehicleTypeData.value.map(d => d.bus),
+      backgroundColor: 'rgba(153, 102, 255, 0.2)',
+      borderColor: 'rgba(153, 102, 255, 1)',
+      borderWidth: 1,
+    },
+  ],
+}));
+
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: true,
+      position: 'top',
+    },
+    title: {
+      display: true,
+      text: 'Tipos de Veículos por Período',
+    },
+  },
+};
 </script>
 
 <template>
   <div>
-    <div style="margin-top: 3rem;">
-      <Bar
-        v-if="vehicleTypeData.length"
-        :data="{
-          labels: vehicleTypeData.map(d => d[0]),
-          datasets: [
-            {
-              label: 'Carros',
-              data: vehicleTypeData.map(d => d[1].car),
-              backgroundColor: 'rgba(54, 162, 235, 0.5)',
-              borderColor: 'rgba(54, 162, 235, 1)',
-              borderWidth: 1
-            },
-            {
-              label: 'Motociclo',
-              data: vehicleTypeData.map(d => d[1].motorcycle),
-              backgroundColor: 'rgba(255, 99, 132, 0.5)',
-              borderColor: 'rgba(255, 99, 132, 1)',
-              borderWidth: 1
-            },
-            {
-              label: 'Bicicletas',
-              data: vehicleTypeData.map(d => d[1].bike),
-              backgroundColor: 'rgba(75, 192, 192, 0.5)',
-              borderColor: 'rgba(75, 192, 192, 1)',
-              borderWidth: 1
-            },
-            {
-              label: 'Camiões',
-              data: vehicleTypeData.map(d => d[1].truck),
-              backgroundColor: 'rgba(255, 206, 86, 0.5)',
-              borderColor: 'rgba(255, 206, 86, 1)',
-              borderWidth: 1
-            },
-            {
-              label: 'Autocarro',
-              data: vehicleTypeData.map(d => d[1].bus),
-              backgroundColor: 'rgba(153, 102, 255, 0.5)',
-              borderColor: 'rgba(153, 102, 255, 1)',
-              borderWidth: 1
-            }
-          ]
-        }"
-        :options="{
-          responsive: true,
-          plugins: {
-            legend: { display: true },
-            title: { display: true, text: 'Distribuição de Tipos de Veículos' }
-          },
-          scales: {
-            y: { beginAtZero: true, stacked: false },
-            x: { stacked: false }
-          }
-        }"
-      />
-      <p v-else>Nenhum dado disponível para tipos de veículos.</p>
+    <div style="margin-bottom: 1rem;">
+      <label>Localidade:
+        <select v-model="locationFilter">
+          <option value="Todos">Todos</option>
+          <option v-for="loc in [...new Set(props.data.map(entry => entry.location))]" :key="loc" :value="loc">
+            {{ loc }}
+          </option>
+        </select>
+      </label>
+
+      <label style="margin-left: 2rem;">Intervalo:
+        <select v-model="timeInterval">
+          <option value="dia">Dia</option>
+          <option value="semana">Semana</option>
+          <option value="mes">Mês</option>
+        </select>
+      </label>
     </div>
+
+    <Bar :data="chartData" :options="chartOptions" />
   </div>
 </template>

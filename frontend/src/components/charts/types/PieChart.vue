@@ -1,70 +1,107 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { Pie } from 'vue-chartjs'
+// filepath: /Users/franciscocordeiro/Documents/GitHub/projeto_informatico2/frontend/src/components/charts/types/PieChart.vue
+import { ref, computed } from 'vue';
+import { Pie } from 'vue-chartjs';
 import {
   Chart as ChartJS,
   Title,
   Tooltip,
   Legend,
-  ArcElement
-} from 'chart.js'
-import { useFactVehicleStore } from '@/stores/factvehicle'
-import dayjs from 'dayjs'
-import { useSharedData } from '@/components/charts/useSharedData';
+  ArcElement,
+  Filler, 
+} from 'chart.js';
 
-ChartJS.register(Title, Tooltip, Legend, ArcElement)
+ChartJS.register(Title, Tooltip, Legend, ArcElement);
 
-const store = useFactVehicleStore()
-const locationFilter = ref('Todos')
-const timeInterval = ref('dia')
-const data1 = ref([])
-const { sharedData } = useSharedData();
+// Accept the preloaded data as a prop
+const props = defineProps({
+  data: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
+});
 
-
-
-onMounted(async () => {
-  if (!Array.isArray(data1.value) || data1.value.length === 0) {
-    data1.value = sharedData.value;
-    console.log('Dados carregados:', data1.value)
-  }
-})
+const locationFilter = ref('Todos');
 
 const locations = computed(() => {
-  if (!Array.isArray(data1.value)) return ['Todos']
-  const unique = new Set(data1.value.map(entry => entry.location || 'Desconhecido'))
-  return ['Todos', ...unique]
-})
+  if (!Array.isArray(props.data)) return ['Todos'];
+  const unique = new Set(props.data.map(entry => entry.location || 'Desconhecido'));
+  return ['Todos', ...unique];
+});
 
 const aggregatedVehicleCounts = computed(() => {
-  if (!Array.isArray(data1.value)) return {}
+  if (!Array.isArray(props.data)) return {};
 
-  let data = [...data1.value]
+  let filteredData = [...props.data];
 
   if (locationFilter.value !== 'Todos') {
-    data = data.filter(d => d.location === locationFilter.value)
+    filteredData = filteredData.filter(d => d.location === locationFilter.value);
   }
-
-  // Podemos ignorar o timeInterval para o total geral, ou se quiseres, podes filtrar por intervalo também.
-  // Aqui vamos pegar em todos os dados filtrados pela localização e somar os veículos de cada tipo
 
   const totals = {
     car: 0,
     motorcycle: 0,
     bike: 0,
     truck: 0,
-    bus: 0
-  }
+    bus: 0,
+  };
 
-  data.forEach(entry => {
-    totals.car += entry.car
-    totals.motorcycle += entry.motorcycle
-    totals.bike += entry.bike
-    totals.truck += entry.truck
-    totals.bus += entry.bus
-  })
+  filteredData.forEach(entry => {
+    totals.car += entry.car;
+    totals.motorcycle += entry.motorcycle;
+    totals.bike += entry.bike;
+    totals.truck += entry.truck;
+    totals.bus += entry.bus;
+  });
 
-  return totals
-})
+  return totals;
+});
+
+const chartData = computed(() => ({
+  labels: ['Carro', 'Moto', 'Bicicleta', 'Caminhão', 'Ônibus'],
+  datasets: [
+    {
+      label: 'Contagem de Veículos',
+      data: [
+        aggregatedVehicleCounts.value.car,
+        aggregatedVehicleCounts.value.motorcycle,
+        aggregatedVehicleCounts.value.bike,
+        aggregatedVehicleCounts.value.truck,
+        aggregatedVehicleCounts.value.bus,
+      ],
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(153, 102, 255, 0.2)',
+      ],
+      borderColor: [
+        'rgba(255, 99, 132, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+      ],
+      borderWidth: 1,
+    },
+  ],
+}));
+
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: true,
+      position: 'top',
+    },
+    title: {
+      display: true,
+      text: 'Gráfico de Pizza - Contagem de Veículos',
+    },
+  },
+};
 </script>
 
 <template>
@@ -75,48 +112,8 @@ const aggregatedVehicleCounts = computed(() => {
           <option v-for="loc in locations" :key="loc" :value="loc">{{ loc }}</option>
         </select>
       </label>
-
-      <label style="margin-left: 2rem;">Intervalo:
-        <select v-model="timeInterval">
-          <option value="dia">Dia</option>
-          <option value="semana">Semana</option>
-          <option value="mes">Mês</option>
-        </select>
-      </label>
     </div>
 
-    <Pie
-      v-if="Object.values(aggregatedVehicleCounts).some(val => val > 0)"
-      :data="{
-        labels: ['Veiculo Ligeiro', 'Motociclo', 'Bicicletas', 'Camiões', 'Autocarros'],
-        datasets: [{
-          label: 'Distribuição de Veículos',
-          data: [
-            aggregatedVehicleCounts.car,
-            aggregatedVehicleCounts.motorcycle,
-            aggregatedVehicleCounts.bike,
-            aggregatedVehicleCounts.truck,
-            aggregatedVehicleCounts.bus
-          ],
-          backgroundColor: [
-            'rgba(75, 192, 192, 0.7)',
-            'rgba(255, 159, 64, 0.7)',
-            'rgba(153, 102, 255, 0.7)',
-            'rgba(255, 99, 132, 0.7)',
-            'rgba(54, 162, 235, 0.7)'
-          ],
-          borderColor: 'white',
-          borderWidth: 2
-        }]
-      }"
-      :options="{
-        responsive: true,
-        plugins: {
-          legend: { position: 'right' },
-          title: { display: true, text: 'Distribuição de Veículos por Tipo' }
-        }
-      }"
-    />
-    <p v-else>Nenhum dado disponível para mostrar o gráfico de pizza.</p>
+    <Pie :data="chartData" :options="chartOptions" />
   </div>
 </template>

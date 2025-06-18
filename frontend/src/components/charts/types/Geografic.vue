@@ -1,122 +1,84 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { Chart } from 'vue-chartjs'
+import { ref, computed, onMounted } from 'vue';
+import { Bar } from 'vue-chartjs';
 import {
-    Chart as ChartJS,
-    Tooltip,
-    Title,
-    Legend,
-    LinearScale,
-} from 'chart.js'
-import { ChoroplethController, GeoFeature, ProjectionScale, ColorScale } from 'chartjs-chart-geo'
-import { useSharedData } from '@/components/charts/useSharedData';
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Filler, 
+} from 'chart.js';
 
-ChartJS.register(
-    Tooltip,
-    Title,
-    Legend,
-    LinearScale,
-    ChoroplethController,
-    GeoFeature,
-    ProjectionScale,
-    ColorScale
-)
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
+const props = defineProps({
+  data: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
+});
 
-const trafficData = ref([
-    { district: 'Leiria', value: 150 },
-    { district: 'Lisboa', value: 300 },
-    { district: 'Porto', value: 100 },
-    { district: 'Faro', value: 50 }
-])
-
-const geoJson = ref(null)
-const geoReady = ref(false)
-
+const geoJson = ref(null);
+const geoReady = ref(false);
 
 onMounted(async () => {
-    const res = await fetch('https://public.opendatasoft.com/explore/dataset/georef-portugal-distrito/download/?format=geojson')
-    const topoJson = await res.json()
+  const res = await fetch('https://public.opendatasoft.com/explore/dataset/georef-portugal-distrito/download/?format=geojson');
+  const topoJson = await res.json();
 
-    geoJson.value = {
-        ...topoJson,
-        features: topoJson.features.map(f => ({
-            type: f.type,
-            properties: { ...f.properties },
-            geometry: JSON.parse(JSON.stringify(f.geometry))
-        }))
-    }
+  geoJson.value = {
+    ...topoJson,
+    features: topoJson.features.map(f => ({
+      type: f.type,
+      properties: { ...f.properties },
+      geometry: JSON.parse(JSON.stringify(f.geometry)),
+    })),
+  };
 
-    geoReady.value = true
-    console.log('Features carregadas:', geoJson.value.features.length)
-})
+  geoReady.value = true;
+  console.log('Features carregadas:', geoJson.value.features.length);
+});
 
 const chartData = computed(() => {
-    if (!geoJson.value) return { labels: [], datasets: [] }
+  if (!geoJson.value) return { labels: [], datasets: [] };
 
+  const valueMap = props.data.reduce((acc, curr) => {
+    acc[curr.district] = curr.value;
+    return acc;
+  }, {});
 
-    const valueMap = trafficData.value.reduce((acc, curr) => {
-        acc[curr.district] = curr.value
-        return acc
-    }, {})
-
-
-    const featuresWithValue = geoJson.value.features.map(feature => {
-        const districtName = feature.properties.NOME
-        return {
-            ...feature,
-            value: valueMap[districtName] || 0
-        }
-    })
-
+  const featuresWithValue = geoJson.value.features.map(feature => {
+    const districtName = feature.properties.NOME;
     return {
-        labels: [],
-        datasets: [
-            {
-                label: 'Mapa de Portugal',
-                data: featuresWithValue,
-                borderColor: 'white',
-                borderWidth: 1,
-                showOutline: true,
-                showGraticule: false,
-            }
-        ]
-    }
-})
+      ...feature,
+      value: valueMap[districtName] || 0,
+    };
+  });
 
-
-const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: false,
-    plugins: {
-        title: {
-            display: true,
-            text: 'Mapa de Dispersão Geográfica - Tráfego'
-        },
-        tooltip: {
-            callbacks: {
-                label: ctx => {
-                    const distrito = ctx.raw.properties.NOME
-                    const valor = ctx.raw.value
-                    return `Distrito: ${distrito} - Intensidade: ${valor}`
-                }
-            }
-        },
-        legend: {
-            display: false
-        }
-    },
-    scales: {
-        projection: {
-            axis: 'x',
-            projection: 'mercator'
-        }
-    }
-}
+  return {
+    labels: featuresWithValue.map(f => f.properties.NOME),
+    datasets: [
+      {
+        label: 'Tráfego por Distrito',
+        data: featuresWithValue.map(f => f.value),
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
+      },
+    ],
+  };
+});
 </script>
+
 <template>
-    <div class="h-[600px]">
-        <Chart v-if="geoReady" :type="'choropleth'" :data="chartData" :options="chartOptions" />
-    </div>
+  <div v-if="geoReady">
+    <h3>Mapa Geográfico</h3>
+    <Bar :data="chartData" :options="{ responsive: true }" />
+  </div>
+  <div v-else>
+    <p>Carregando dados geográficos...</p>
+  </div>
 </template>

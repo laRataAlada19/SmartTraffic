@@ -1,6 +1,7 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { Line } from 'vue-chartjs'
+// filepath: /Users/franciscocordeiro/Documents/GitHub/projeto_informatico2/frontend/src/components/charts/types/LineChart.vue
+import { ref, computed } from 'vue';
+import { Line } from 'vue-chartjs';
 import {
   Chart as ChartJS,
   Title,
@@ -9,73 +10,90 @@ import {
   LineElement,
   CategoryScale,
   LinearScale,
-  PointElement
-} from 'chart.js'
-import { useFactVehicleStore  } from '@/stores/factvehicle'
-import dayjs from 'dayjs'
-import { useSharedData } from '@/components/charts/useSharedData';
+  PointElement,
+  Filler,   
+} from 'chart.js';
+import dayjs from 'dayjs';
 
-ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement)
+ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement);
 
-const store = useFactVehicleStore()
-const locationFilter = ref('Todos')
-const timeInterval = ref('dia')
-const data1 = ref([])
-const { sharedData } = useSharedData();
+// Accept the preloaded data as a prop
+const props = defineProps({
+  data: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
+});
 
-
-
-onMounted(async () => {
-  if (!Array.isArray(data1.value) || data1.value.length === 0) {
-    data1.value= sharedData.value;
-    console.log('Dados carregados kbjhasvdjahvfsghvdsjcbdshkbcsdbc:', data1.value)
-    
-  }
-})
-
-
+const locationFilter = ref('Todos');
+const timeInterval = ref('dia');
 
 const locations = computed(() => {
-  if (!Array.isArray(data1.value)) return ['Todos']
-  const unique = new Set(data1.value.map(entry => entry.location || 'Desconhecido'))
-  return ['Todos', ...unique]
-})
-
+  if (!Array.isArray(props.data)) return ['Todos'];
+  const unique = new Set(props.data.map(entry => entry.location || 'Desconhecido'));
+  return ['Todos', ...unique];
+});
 
 const filteredData = computed(() => {
-  if (!Array.isArray(data1.value)) return []
+  if (!Array.isArray(props.data)) return [];
 
-  let data = [...data1.value]
-
+  let filtered = [...props.data];
 
   if (locationFilter.value !== 'Todos') {
-    data = data.filter(d => d.location === locationFilter.value)
+    filtered = filtered.filter(d => d.location === locationFilter.value);
   }
 
-  const grouped = {}
+  const grouped = {};
 
-  data.forEach(entry => {
-    let key = ''
+  filtered.forEach(entry => {
+    let key = '';
 
     switch (timeInterval.value) {
       case 'mes':
-        key = `${entry.year}-${String(entry.month).padStart(2, '0')}`
-        break
+        key = `${entry.year}-${String(entry.month).padStart(2, '0')}`;
+        break;
       case 'semana':
-        key = dayjs(entry.full_date).startOf('week').format('YYYY-MM-DD')
-        break
+        key = dayjs(entry.full_date).startOf('week').format('YYYY-MM-DD');
+        break;
       case 'dia':
       default:
-        key = entry.full_date
+        key = entry.full_date;
     }
 
-    if (!grouped[key]) grouped[key] = 0
-    grouped[key] += entry.car + entry.motorcycle + entry.bike + entry.truck + entry.bus
-  })
+    if (!grouped[key]) grouped[key] = 0;
+    grouped[key] += entry.car + entry.motorcycle + entry.bike + entry.truck + entry.bus;
+  });
 
-  return Object.entries(grouped).sort((a, b) => new Date(a[0]) - new Date(b[0]))
-})
+  return Object.entries(grouped).sort((a, b) => new Date(a[0]) - new Date(b[0]));
+});
 
+const chartData = computed(() => ({
+  labels: filteredData.value.map(d => d[0]),
+  datasets: [
+    {
+      label: 'Total de Veículos',
+      data: filteredData.value.map(d => d[1]),
+      borderColor: 'rgb(75, 192, 192)',
+      fill: false,
+      tension: 0.1,
+    },
+  ],
+}));
+
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: true,
+      position: 'top',
+    },
+    title: {
+      display: true,
+      text: 'Gráfico de Linha',
+    },
+  },
+};
 </script>
 
 <template>
@@ -96,27 +114,6 @@ const filteredData = computed(() => {
       </label>
     </div>
 
-    <Line
-      v-if="filteredData.length"
-      :data="{
-        labels: filteredData.map(d => d[0]),
-        datasets: [{
-          label: 'Total de Veículos',
-          data: filteredData.map(d => d[1]),
-          borderColor: 'rgb(75, 192, 192)',
-          fill: false,
-          tension: 0.1
-        }]
-      }"
-      :options="{
-        responsive: true,
-        plugins: {
-          legend: { display: true },
-          title: { display: true, text: 'Contagem de Veículos' }
-        }
-      }"
-    />
-    <p v-else>Nenhum dado disponível.</p>
+    <Line :data="chartData" :options="chartOptions" />
   </div>
 </template>
-

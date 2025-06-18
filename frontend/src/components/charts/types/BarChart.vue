@@ -1,5 +1,6 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+// filepath: BarChart.vue
+import { computed } from 'vue';
 import { Bar } from 'vue-chartjs';
 import {
   Chart as ChartJS,
@@ -9,77 +10,86 @@ import {
   BarElement,
   CategoryScale,
   LinearScale,
-  PointElement
+  Filler, 
 } from 'chart.js';
-import { useFactVehicleStore } from '@/stores/factvehicle';
-import dayjs from 'dayjs';
-import { useSharedData } from '@/components/charts/useSharedData';
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, PointElement);
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
-const store = useFactVehicleStore();
-const locationFilter = ref('Todos');
-const timeInterval = ref('dia');
-const data1 = ref([]);
+const props = defineProps({
+  data: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
+});
 
-const { sharedData } = useSharedData();
+// Agrupar totais por tipo de veículo
+const chartData = computed(() => {
+  const totals = {
+    Carro: 0,
+    Motociclo: 0,
+    Bicicleta: 0,
+    Camião: 0,
+    Autocarro: 0,
+  };
 
-
-const getVehicleDataByType = (type) => {
-  const locationsSet = [...new Set(data1.value.map(d => d.location || 'Desconhecido'))];
-  return locationsSet.map(loc => {
-    const locEntries = data1.value.filter(d => d.location === loc);
-    return locEntries.reduce((sum, entry) => sum + (entry[type] || 0), 0);
+  props.data.forEach(d => {
+    totals.Carro += d.car || 0;
+    totals.Motociclo += d.motorcycle || 0;
+    totals.Bicicleta += d.bike || 0;
+    totals.Camião += d.truck || 0;
+    totals.Autocarro += d.bus || 0;
   });
-};
 
-const chartData = computed(() => ({
-  labels: [...new Set(data1.value.map(d => d.location || 'Desconhecido'))],
-  datasets: [
-    {
-      label: 'Veículos',
-      data: getVehicleDataByType('car'),
-      backgroundColor: 'rgba(75, 192, 192, 0.5)',
-      borderColor: 'rgb(75, 192, 192)',
-      borderWidth: 1
-    }
-  ]
-}));
+  return {
+    labels: Object.keys(totals),
+    datasets: [
+      {
+        label: 'Total por Tipo de Veículo',
+        data: Object.values(totals),
+        backgroundColor: [
+          '#36A2EB', // Carro
+          '#FF6384', // Motociclo
+          '#FFCE56', // Bicicleta
+          '#4BC0C0', // Camião
+          '#9966FF'  // Autocarro
+        ],
+        borderColor: '#444',
+        borderWidth: 1,
+      },
+    ],
+  };
+});
 
 const chartOptions = {
   responsive: true,
   plugins: {
     legend: {
       display: true,
-      position: 'top'
+      position: 'top',
     },
     title: {
       display: true,
-      text: 'Gráfico de Barras'
-    }
+      text: 'Distribuição por Tipo de Veículo',
+    },
   },
   scales: {
     x: {
       beginAtZero: true,
       title: {
         display: true,
-        text: 'Categorias'
-      }
+        text: 'Tipo de Veículo',
+      },
     },
     y: {
       beginAtZero: true,
       title: {
         display: true,
-        text: 'Valores'
-      }
-    }
-  }
+        text: 'Total de Veículos',
+      },
+    },
+  },
 };
-
-onMounted(async () => {
-  data1.value= sharedData.value;
-  console.log("BarChart data fetched:", data1.value);
-});
 </script>
 
 <template>

@@ -1,33 +1,34 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useFactVehicleStore } from '@/stores/factvehicle'
-import { useSharedData } from '@/components/charts/useSharedData';
+// filepath: /Users/franciscocordeiro/Documents/GitHub/projeto_informatico2/frontend/src/components/charts/types/GrowthRate.vue
+import { computed } from 'vue';
 
-const store = useFactVehicleStore()
-const data = ref([])
-const { sharedData } = useSharedData();
+// Accept the preloaded data as a prop
+const props = defineProps({
+  data: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
+});
 
-
-onMounted(async () => {
-  data.value = sharedData.value;
-    console.log("Direction Radar data fetched:", data.value)
-})
-
+// Helper function to calculate the total for a specific date
 function totalForDate(date) {
-  return data.value
+  return props.data
     .filter(d => d.full_date === date)
-    .reduce((sum, d) => sum + d.car + d.motorcycle + d.bike + d.truck + d.bus, 0)
+    .reduce((sum, d) => sum + d.car + d.motorcycle + d.bike + d.truck + d.bus, 0);
 }
 
-const today = '2025-05-21'
-const yesterday = '2025-05-20'
+// Define the dates for comparison
+const today = '2025-05-21';
+const yesterday = '2025-05-20';
 
+// Compute the growth rate
 const growth = computed(() => {
-  const t1 = totalForDate(today)
-  const t2 = totalForDate(yesterday)
-  const diff = t1 - t2
-  return t2 === 0 ? 0 : ((diff / t2) * 100).toFixed(2)
-})
+  const t1 = totalForDate(today);
+  const t2 = totalForDate(yesterday);
+  const diff = t1 - t2;
+  return t2 === 0 ? 0 : ((diff / t2) * 100).toFixed(2);
+});
 </script>
 
 <template>

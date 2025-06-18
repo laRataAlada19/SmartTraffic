@@ -46,6 +46,7 @@ export const useAuthStore = defineStore("auth", () => {
   const login = async (credentials) => {
     storeError.resetMessages();
     try {
+      console.log("Login attempt with credentials:", credentials);
       const responseLogin = await axios.post("auth/login", credentials);
       token.value = responseLogin.data.token;
       localStorage.setItem('token', token.value);
@@ -53,9 +54,10 @@ export const useAuthStore = defineStore("auth", () => {
       const responseUser = await axios.get("users/me");
       user.value = responseUser.data.data;
       repeatRefreshToken();
-      router.push({ name: "main" });
+      router.push({ name: "dashboard" });
       return user.value;
     } catch (e) {
+      console.error("Login error:", e);
       clearUser();
       storeError.setErrorMessages(
         e.response.data.message,

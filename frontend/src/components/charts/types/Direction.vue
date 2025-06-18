@@ -1,6 +1,9 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { Bar } from 'vue-chartjs'
+import { ref, computed, onMounted } from 'vue';
+import { Bar } from 'vue-chartjs';
+import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek';
+
 import {
   Chart as ChartJS,
   Title,
@@ -8,85 +11,146 @@ import {
   Legend,
   BarElement,
   CategoryScale,
-  LinearScale
-} from 'chart.js'
-import { useFactVehicleStore } from '@/stores/factvehicle'
-import dayjs from 'dayjs'
-import { useSharedData } from '@/components/charts/useSharedData';
+  LinearScale,
+} from 'chart.js';
 
 ChartJS.register(
-  Title, Tooltip, Legend,
-  BarElement, CategoryScale, LinearScale
-)
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+);
 
-const store = useFactVehicleStore()
-const locationFilter = ref('Todos')
-const timeInterval = ref('dia')
-const data1 = ref([])
+dayjs.extend(isoWeek);
 
-const { sharedData } = useSharedData();
-
-
-
-onMounted(async () => {
-  if (!Array.isArray(data1.value) || data1.value.length === 0) {
-    data1.value= sharedData.value;
-    console.log('Dados carregados:', data1.value)
+const props = defineProps({
+  data: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
+});
+onMounted(() => {
+  if (!props.data || !Array.isArray(props.data)) {
+    console.warn('Dados inválidos recebidos em Direction.vue');
   }
-})
+  console.log('Dados recebidos em Direction.vue:', props.data);
+console.log('Dados agrupados para gráfico:', directionData.value);
+
+});
+
+
+const locationFilter = ref('Todos');
+const timeInterval = ref('dia');
+
+const directions = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
+const propsData = props.data.length ? props.data : fakeData;
 
 const locations = computed(() => {
-  if (!Array.isArray(data1.value)) return ['Todos']
-  const unique = new Set(data1.value.map(entry => entry.location || 'Desconhecido'))
-  return ['Todos', ...unique]
-})
+  if (!Array.isArray(props.data)) return ['Todos'];
+  const unique = new Set(props.data.map(entry => entry.location || 'Desconhecido'));
+  return ['Todos', ...unique];
+});
 
 const directionData = computed(() => {
-  if (!Array.isArray(data1.value)) return []
+  if (!Array.isArray(props.data)) return [];
 
-  let data = [...data1.value]
-
+  let filteredData = [...props.data];
   if (locationFilter.value !== 'Todos') {
-    data = data.filter(d => d.location === locationFilter.value)
+    filteredData = filteredData.filter(d => d.location === locationFilter.value);
   }
 
-  const grouped = {}
+  const grouped = {};
 
-  data.forEach(entry => {
-    let key = ''
+  filteredData.forEach(entry => {
+    let key = '';
 
     switch (timeInterval.value) {
       case 'mes':
-        key = `${entry.year}-${String(entry.month).padStart(2, '0')}`
-        break
+        key = `${entry.year}-${String(entry.month).padStart(2, '0')}`;
+        break;
       case 'semana':
-        key = dayjs(entry.full_date).startOf('week').format('YYYY-MM-DD')
-        break
+        key = dayjs(entry.full_date).startOf('isoWeek').format('YYYY-MM-DD');
+        break;
       case 'dia':
       default:
-        key = entry.full_date
+        key = entry.full_date;
     }
 
     if (!grouped[key]) {
-      grouped[key] = {
-        norte: entry.n + entry.ne + entry.nw,
-        sul: entry.s + entry.se + entry.sw,
-        leste: entry.e + entry.ne + entry.se,
-        oeste: entry.w + entry.nw + entry.sw
-      }
-    } else {
-      grouped[key].norte += entry.n + entry.ne + entry.nw
-      grouped[key].sul += entry.s + entry.se + entry.sw
-      grouped[key].leste += entry.e + entry.ne + entry.se
-      grouped[key].oeste += entry.w + entry.nw + entry.sw
+      grouped[key] = {};
+      directions.forEach(dir => {
+        grouped[key][dir] = 0;
+      });
     }
-  })
 
-  return Object.entries(grouped).sort((a, b) => new Date(a[0]) - new Date(b[0]))
-})
+    directions.forEach(dir => {
+      grouped[key][dir] += entry[dir] || 0;
+    });
+  });
+
+  return Object.entries(grouped).sort((a, b) => new Date(a[0]) - new Date(b[0]));
+});
+
+function getColorForDirection(dir, border = false) {
+  const colors = {
+    n: 'rgba(255, 99, 132, 0.2)',
+    ne: 'rgba(255, 159, 64, 0.2)',
+    e: 'rgba(255, 205, 86, 0.2)',
+    se: 'rgba(75, 192, 192, 0.2)',
+    s: 'rgba(54, 162, 235, 0.2)',
+    sw: 'rgba(153, 102, 255, 0.2)',
+    w: 'rgba(201, 203, 207, 0.2)',
+    nw: 'rgba(255, 99, 255, 0.2)',
+  };
+
+  const borderColors = {
+    n: 'rgba(255, 99, 132, 1)',
+    ne: 'rgba(255, 159, 64, 1)',
+    e: 'rgba(255, 205, 86, 1)',
+    se: 'rgba(75, 192, 192, 1)',
+    s: 'rgba(54, 162, 235, 1)',
+    sw: 'rgba(153, 102, 255, 1)',
+    w: 'rgba(201, 203, 207, 1)',
+    nw: 'rgba(255, 99, 255, 1)',
+  };
+
+  return border ? borderColors[dir] : colors[dir];
+}
+
+const chartData = computed(() => {
+  const labels = directionData.value.map(d => d[0]);
+
+  const datasets = directions.map(dir => ({
+    label: dir.toUpperCase(),
+    data: directionData.value.map(d => d[1][dir]),
+    backgroundColor: getColorForDirection(dir),
+    borderColor: getColorForDirection(dir, true),
+    borderWidth: 1,
+  }));
+
+  return { labels, datasets };
+});
+
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: true,
+      position: 'top',
+    },
+    title: {
+      display: true,
+      text: 'Direção de Veículos',
+    },
+  },
+};
 </script>
 
 <template>
+   <p>Direction.vue está a renderizar!</p>
   <div>
     <div style="margin-bottom: 1rem;">
       <label>Localidade:
@@ -104,106 +168,6 @@ const directionData = computed(() => {
       </label>
     </div>
 
-    <div style="margin-top: 2rem;">
-      <h2>Direções do Tráfego</h2>
-      <Bar
-        v-if="directionData.length"
-        :data="{
-          labels: directionData.map(d => d[0]),
-          datasets: [
-            {
-              label: 'Norte',
-              data: directionData.map(d => d[1].norte),
-              backgroundColor: 'rgba(41, 128, 185, 0.7)',
-              borderColor: 'rgba(41, 128, 185, 1)',
-              borderWidth: 1
-            },
-            {
-              label: 'Sul',
-              data: directionData.map(d => d[1].sul),
-              backgroundColor: 'rgba(231, 76, 60, 0.7)',
-              borderColor: 'rgba(231, 76, 60, 1)',
-              borderWidth: 1
-            },
-            {
-              label: 'Leste',
-              data: directionData.map(d => d[1].leste),
-              backgroundColor: 'rgba(39, 174, 96, 0.7)',
-              borderColor: 'rgba(39, 174, 96, 1)',
-              borderWidth: 1
-            },
-            {
-              label: 'Oeste',
-              data: directionData.map(d => d[1].oeste),
-              backgroundColor: 'rgba(243, 156, 18, 0.7)',
-              borderColor: 'rgba(243, 156, 18, 1)',
-              borderWidth: 1
-            }
-          ]
-        }"
-        :options="{
-          responsive: true,
-          plugins: {
-            legend: { 
-              display: true,
-              position: 'top'
-            },
-            title: { 
-              display: true,
-              text: 'Fluxo de Tráfego por Direção Cardinal',
-              font: {
-                size: 16
-              }
-            },
-            tooltip: {
-              mode: 'index',
-              intersect: false
-            }
-          },
-          scales: {
-            y: { 
-              beginAtZero: true,
-              title: {
-                display: true,
-                text: 'Quantidade de Veículos'
-              }
-            },
-            x: { 
-              title: {
-                display: true,
-                text: 'Período'
-              }
-            }
-          },
-          interaction: {
-            mode: 'nearest',
-            axis: 'x',
-            intersect: false
-          }
-        }"
-      />
-      <p v-else style="color: #666; font-style: italic;">
-        Nenhum dado disponível para os filtros selecionados.
-      </p>
-    </div>
+    <Bar :data="chartData" :options="chartOptions" />
   </div>
 </template>
-
-<style scoped>
-div {
-  font-family: Arial, sans-serif;
-}
-label {
-  font-weight: bold;
-}
-select {
-  padding: 5px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  margin-left: 5px;
-}
-h2 {
-  color: #2c3e50;
-  margin-bottom: 20px;
-}
-</style>
