@@ -1,33 +1,30 @@
 <script setup>
-// filepath: /components/charts/types/Trend.vue
+import { ref, onMounted, computed } from 'vue'
+import { Line } from 'vue-chartjs'
+import { Chart as ChartJS, LineElement, PointElement, LinearScale, CategoryScale } from 'chart.js'
+import { useFactVehicleStore } from '@/stores/factvehicle'
+import { useSharedData } from '@/components/charts/useSharedData';
 
-import { computed } from 'vue';
-import { Line } from 'vue-chartjs';
-import { Chart as ChartJS, LineElement, PointElement, LinearScale, CategoryScale,
-  Filler } from 'chart.js';
+ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale)
 
-ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale);
+const store = useFactVehicleStore()
+const data = ref([])
+const { sharedData } = useSharedData();
 
-// Props sem required, para permitir uso do default
-const props = defineProps({
-  data: {
-    type: Array,
-    default: () => [],
-  },
-});
 
-// Computa total por dia, só se props.data for válida
+onMounted(async () => {
+  data.value = sharedData.value;
+    console.log("Direction Radar data fetched:", data.value)
+})
+
 const days = computed(() => {
-  if (!Array.isArray(props.data)) return [];
-
-  const grouped = {};
-  props.data.forEach(d => {
-    grouped[d.full_date] ??= 0;
-    grouped[d.full_date] += d.car + d.motorcycle + d.bike + d.truck + d.bus;
-  });
-
-  return Object.entries(grouped).sort((a, b) => new Date(a[0]) - new Date(b[0]));
-});
+  const grouped = {}
+  data.value.forEach(d => {
+    grouped[d.full_date] ??= 0
+    grouped[d.full_date] += d.car + d.motorcycle + d.bike + d.truck + d.bus
+  })
+  return Object.entries(grouped)
+})
 </script>
 
 <template>
