@@ -1,0 +1,9 @@
+Câmara HD FaceTime (integrada)=0
+Câmara de iPhone de Francisco=1
+Câmara da Vista de Secretária iPhone de Francisco=2
+Capture screen 0=3
+Capture screen 1=4
+Microfone de iPhone de Francisco=0
+Microfone (MacBook Pro)=1
+Microsoft Teams Audio=2
+Camo Microphone=3
