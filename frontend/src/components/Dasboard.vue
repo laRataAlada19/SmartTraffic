@@ -1,6 +1,6 @@
 <script setup>
 // Importações necessárias
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import ChartDisplay from '@/components/charts/ChartDisplay.vue';
 import LocationList from '@/components/locations/LocationList.vue';
@@ -28,6 +28,7 @@ const changeTheme = (selectedTheme) => {
     theme.value = selectedTheme;
     fetchSummary();
 };
+const data = ref([]);
 
 const fetchSummary = async () => {
     try {
@@ -35,12 +36,14 @@ const fetchSummary = async () => {
             date: selectedDate.value,
             theme: theme.value,
         };
-        totalVehicles.value = await factVehicleStore.fetchTotalVehicles(payload);
-        totalCars.value = await factVehicleStore.fetchTotalCars(payload);
-        totalBikes.value = await factVehicleStore.fetchTotalBikes(payload);
-        totalTrucks.value = await factVehicleStore.fetchTotalTrucks(payload);
-        totalBuses.value = await factVehicleStore.fetchTotalBuses(payload);
-        totalMotorcycles.value = await factVehicleStore.fetchTotalMotorcycles(payload);
+        data.value = await factVehicleStore.fetchDataFiltered(payload);
+
+        totalCars.value =data.value.reduce((acc, item) => acc + item.car, 0);
+        totalBikes.value = data.value.reduce((acc, item) => acc + item.bike, 0);
+        totalTrucks.value =data.value.reduce((acc, item) => acc + item.truck, 0);
+        totalBuses.value = data.value.reduce((acc, item) => acc + item.bus, 0);
+        totalMotorcycles.value = data.value.reduce((acc, item) => acc + item.motorcycle, 0);
+        totalVehicles.value = totalCars.value + totalBikes.value + totalTrucks.value + totalBuses.value + totalMotorcycles.value;
         mostMovimentedStrests.value = await factVehicleStore.fetchMostMovimentedStress(payload);
         lessMovimentedStrests.value = await factVehicleStore.fetchLessMovimentedStress(payload);
     } catch (error) {
@@ -52,7 +55,9 @@ const fetchSummary = async () => {
         });
     }
 };
-
+watch(selectedDate, (newDate) => {
+    fetchSummary();
+});
 onMounted(async () => {
     try {
         locationStore.fetchLocations();

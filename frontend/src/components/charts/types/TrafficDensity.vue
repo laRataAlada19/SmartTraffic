@@ -1,24 +1,34 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, CategoryScale } from 'chart.js'
 import { useFactVehicleStore } from '@/stores/factvehicle'
-import { useSharedData } from '@/components/charts/useSharedData';
+
 
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale)
 
 const store = useFactVehicleStore()
 const data = ref([])
-const { sharedData } = useSharedData();
+const props = defineProps({
+  data: {
+    type: Array,
+    required: true,
+    default: () => [],
+  },
+});
 
+onMounted(() => {
+  data.value = props.data; // Corrigir para usar data.value
+  console.log("Direction Radar data fetched:", data.value);
+});
 
-onMounted(async () => {
-  data.value = sharedData.value;
-    console.log("Direction Radar data fetched:", data.value)
-})
+const minutes = computed(() =>
+  data.value.map(d => `${d.hour}:${String(d.minute).padStart(2, '0')}`)
+);
 
-const minutes = data.value.map(d => `${d.hour}:${String(d.minute).padStart(2, '0')}`)
-const totals = data.value.map(d => d.car + d.motorcycle + d.bike + d.truck + d.bus)
+const totals = computed(() =>
+  data.value.map(d => d.car + d.motorcycle + d.bike + d.truck + d.bus)
+);
 </script>
 
 <template>

@@ -168,7 +168,6 @@ onMounted(async () => {
             v-if="isDataLoaded" 
             :is="componentsMap[chart.component]" 
             :data="rawSharedData"
-            @mounted="console.log('Component mounted:', chart.component, 'with data:', rawSharedData)"
           />
         </div>
       </div>

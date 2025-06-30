@@ -17,6 +17,76 @@ class FactVehicleCountController extends Controller
         return FactVehicleCountResource::collection($factVehicleCounts);
     }
 
+    public function filtered(Request $request)
+    {
+        $query = FactVehicleCount::with(['date', 'time', 'location']);
+
+        if ($request->has('date')) {
+            $date = Carbon::parse($request->input('date'));
+
+            if ($request->has('theme')) {
+                $theme = $request->input('theme');
+
+                switch ($theme) {
+                    case 1: // Tema diário
+                        $query->whereHas('date', function ($q) use ($date) {
+                            $q->whereDate('full_date', $date->toDateString());
+                        });
+                        break;
+
+                    case 2: // Tema semanal
+                        // Certifique-se de que o início e o fim da semana estão sendo calculados corretamente
+                        $startOfWeek = $date->copy()->startOfWeek(); // Início da semana (segunda-feira por padrão)
+                        $endOfWeek = $date->copy()->endOfWeek(); // Fim da semana (domingo por padrão)
+
+                        // Ajuste se a semana deve começar no domingo
+                        // $startOfWeek = $date->copy()->startOfWeek(Carbon::SUNDAY);
+                        // $endOfWeek = $date->copy()->endOfWeek(Carbon::SUNDAY);
+
+                        $query->whereHas('date', function ($q) use ($startOfWeek, $endOfWeek) {
+                            $q->whereBetween('full_date', [$startOfWeek->toDateString(), $endOfWeek->toDateString()]);
+                        });
+                        break;
+
+                    case 3: // Tema mensal
+                        $query->whereHas('date', function ($q) use ($date) {
+                            $q->whereYear('full_date', $date->year)
+                              ->whereMonth('full_date', $date->month);
+                        });
+                        break;
+
+                    case 4: // Tema anual
+                        $query->whereHas('date', function ($q) use ($date) {
+                            $q->whereYear('full_date', $date->year);
+                        });
+                        break;
+
+                    default:
+                        return response()->json(['error' => 'Tema inválido'], 400);
+                }
+            } else {
+                // Caso nenhum tema seja fornecido, use o comportamento padrão (diário)
+                $query->whereHas('date', function ($q) use ($date) {
+                    $q->whereDate('full_date', $date->toDateString());
+                });
+            }
+        }
+
+        if ($request->has('location_id')) {
+            $query->where('location_id', $request->input('location_id'));
+        }
+
+        if ($request->has('vehicle_type')) {
+            $vehicleType = $request->input('vehicle_type');
+            if (in_array($vehicleType, ['car', 'motorcycle', 'bike', 'truck', 'bus'])) {
+                $query->where($vehicleType, '>', 0);
+            }
+        }
+
+        return FactVehicleCountResource::collection($query->get());
+    }
+
+
     public function totalVehicles(Request $request)
     {
         return response()->json([

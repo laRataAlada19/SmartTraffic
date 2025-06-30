@@ -16,6 +16,19 @@ export const useFactVehicleStore = defineStore('factvehicle', () => {
         }
     };
 
+    const fetchDataFiltered = async ({ date, theme }) => {
+        try {
+            const response = await axios.get('/fact-vehicle-counts/filtered', {
+                params: { date, theme }
+            });
+            factvehicles.value = response.data.data;
+            return factvehicles.value;
+        } catch (error) {
+            console.error('Erro ao buscar dados filtrados:', error);
+            return [];
+        }
+    }
+
     const fetchTotalVehicles = async ({ date, theme }) => {
         try {
             const response = await axios.get('/fact-vehicle-counts/total', {
@@ -82,5 +95,6 @@ export const useFactVehicleStore = defineStore('factvehicle', () => {
         fetchTotalBuses,
         fetchMostMovimentedStress,
         fetchLessMovimentedStress,
+        fetchDataFiltered
     };
 });

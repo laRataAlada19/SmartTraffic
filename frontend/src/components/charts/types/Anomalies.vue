@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, CategoryScale } from 'chart.js'
 
-import { useSharedData } from '@/components/charts/useSharedData';
+
 
 
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale)

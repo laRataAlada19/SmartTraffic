@@ -46,7 +46,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
  */
 Route::prefix('fact-vehicle-counts')->group(function () {
     Route::get('/', [FactVehicleCountController::class, 'index']);
-
+    Route::get('/filtered', [FactVehicleCountController::class, 'filtered']);
     // Totals by vehicle type
     Route::get('/total', [FactVehicleCountController::class, 'totalVehicles']);
     Route::get('/total/car', [FactVehicleCountController::class, 'totalCars']);
