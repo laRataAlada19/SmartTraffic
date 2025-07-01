@@ -5,7 +5,7 @@ from database import Database
 from datetime import timedelta, datetime
 import math
 import os
-from config import detected_vehicles, class_counter, track_history, direction_summary, total_class_counter, DB_CONFIG_neon_tech, DATABASE_SCHEMA
+from config import detected_vehicles, class_counter, track_history, direction_summary, total_class_counter
 
 db = Database()
 
@@ -13,70 +13,6 @@ def arredondar_para_proximo_5_minutos(data_hora):
     data_hora = data_hora.replace(second=0, microsecond=0)
     minutos_extra = (5 - data_hora.minute % 5) % 5
     return data_hora + timedelta(minutes=minutos_extra)
-
-def process_video(video_file, model, total_class_counter, time_of_start, location):
-    print(f"Processing: {video_file}")
-    
-    if not os.path.exists(video_file):
-        print(f"O arquivo {video_file} não foi encontrado.")
-        return
-
-    cap = cv2.VideoCapture(video_file)
-    if not cap.isOpened():
-        print(f"Erro ao abrir {video_file}")
-        return
-
-    # Dados iniciais
-    fps_video = cap.get(cv2.CAP_PROP_FPS)
-    frame_number = 0
-    track_history = {}
-    ultimo_tempo_guardado = arredondar_para_proximo_5_minutos(time_of_start)
-
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        # Tempo atual do vídeo com base no número de frames
-        current_video_time = time_of_start + timedelta(seconds=(frame_number / fps_video))
-        tempo_agrupado = arredondar_para_proximo_5_minutos(current_video_time)
-
-        frame = cv2.resize(frame, (640, 480))
-        frame, track_history = process_frame(frame, model, detected_vehicles, class_counter, track_history)
-
-        # Mostra o FPS 
-        #cv2.putText(frame, f"Frame: {frame_number}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
-        #cv2.imshow('Frame', frame)
-
-        id = db.get_id(location)
-
-        if tempo_agrupado != ultimo_tempo_guardado:
-            print("Salvando dados na base de dados...")
-            if id is None:
-                print(f"Erro ao obter o ID da localização '{location}'. Verifique se a câmera está registrada no banco de dados.")
-                return
-            if not db.exists_result(tempo_agrupado, id):
-                db.save_results_to_bd(class_counter, total_class_counter, tempo_agrupado, location, id)
-                print("Dados salvos na base de dados.")
-            else:
-                print("Já existe entrada para esta câmara. Ignorado.")
-            ultimo_tempo_guardado = tempo_agrupado
-
-        frame_number += 1
-        #if cv2.waitKey(25) & 0xFF == ord('q'):
-            #break
-
-    for track_id in track_history:
-        _map_direction_(track_history, track_id, location, id)
-    if not db.exists_result(ultimo_tempo_guardado, id):
-        print("Salvando dados finais na base de dados (forçado no fim do vídeo)...")
-        db.save_results_to_bd(class_counter, total_class_counter, ultimo_tempo_guardado, location, id)
-    else:
-        print("Dados já existentes no fim do vídeo.")
-    cap.release()
-    #cv2.destroyAllWindows()
-    db.close()
-    save_results_to_file(video_file, detected_vehicles, class_counter, total_class_counter)
 
 def _map_direction_(track_history, track_id, location, id):
     # Ensure the track exists and is not empty
@@ -266,3 +202,66 @@ def _map_direction_(track_history, track_id, location, id):
 
     # Store direction history
     direction_summary[track_id] = direction
+
+def process_video(video_file, model, total_class_counter, time_of_start, location):
+    print(f"Processing: {video_file}")
+    
+    if not os.path.exists(video_file):
+        print(f"O arquivo {video_file} não foi encontrado.")
+        return
+
+    cap = cv2.VideoCapture(video_file)
+    if not cap.isOpened():
+        print(f"Erro ao abrir {video_file}")
+        return
+
+    # Dados iniciais
+    fps_video = cap.get(cv2.CAP_PROP_FPS)
+    frame_number = 0
+    track_history = {}
+    ultimo_tempo_guardado = arredondar_para_proximo_5_minutos(time_of_start)
+
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        # Tempo atual do vídeo com base no número de frames
+        current_video_time = time_of_start + timedelta(seconds=(frame_number / fps_video))
+        tempo_agrupado = arredondar_para_proximo_5_minutos(current_video_time)
+
+        frame = cv2.resize(frame, (640, 480))
+        frame, track_history = process_frame(frame, model, detected_vehicles, class_counter, track_history)
+
+        # Mostra o FPS 
+        #cv2.putText(frame, f"Frame: {frame_number}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
+        #cv2.imshow('Frame', frame)
+
+        id = db.get_id(location)
+
+        if tempo_agrupado != ultimo_tempo_guardado:
+            print("Salvando dados na base de dados...")
+            if id is None:
+                print(f"Erro ao obter o ID da localização '{location}'. Verifique se a câmera está registrada no banco de dados.")
+                return
+            if not db.exists_result(tempo_agrupado, id):
+                db.save_results_to_bd(class_counter, total_class_counter, tempo_agrupado, location, id)
+                print("Dados salvos na base de dados.")
+            else:
+                print("Já existe entrada para esta câmara. Ignorado.")
+            ultimo_tempo_guardado = tempo_agrupado
+
+        frame_number += 1
+        #if cv2.waitKey(25) & 0xFF == ord('q'):
+            #break
+
+    for track_id in track_history:
+        _map_direction_(track_history, track_id, location, id)
+    if not db.exists_result(ultimo_tempo_guardado, id):
+        print("Salvando dados finais na base de dados (forçado no fim do vídeo)...")
+        db.save_results_to_bd(class_counter, total_class_counter, ultimo_tempo_guardado, location, id)
+    else:
+        print("Dados já existentes no fim do vídeo.")
+    cap.release()
+    #cv2.destroyAllWindows()
+    save_results_to_file(video_file, detected_vehicles, class_counter, total_class_counter)

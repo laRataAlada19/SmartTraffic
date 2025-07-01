@@ -149,6 +149,10 @@ onMounted(async () => {
                         <p>Longitude: {{ locationDetails.longitude }}</p>
                     </div>
                     <div>
+                        <h2>Designação da Câmara</h2>
+                        <p>{{ locationDetails.camera }}</p>
+                    </div>
+                    <div>
                         <h2>Direção da Câmara</h2>
                         <p>{{ locationDetails.direction }}</p>
                     </div>

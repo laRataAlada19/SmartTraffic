@@ -28,7 +28,7 @@ export const useLocationStore = defineStore('location', () => {
     }
   };
 
-  const addLocation = async (location, direction, latitude, longitude) => {
+  const addLocation = async (location, direction, camera, latitude, longitude) => {
     try {
       const response = await axios.post('/locations', null, {
         params: {
@@ -36,6 +36,7 @@ export const useLocationStore = defineStore('location', () => {
           direction: direction,
           latitude: latitude,
           longitude: longitude,
+          camera: camera,
         },
       });
       locations.value.push(response.data); 

@@ -12,7 +12,8 @@ class Location extends Model
         'location', 
         'direction',
         'latitude',
-        'longitude'
+        'longitude',
+        'camera'
     ];
 
     protected $table = 'vehicle_detection.locations';

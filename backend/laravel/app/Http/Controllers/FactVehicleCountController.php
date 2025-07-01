@@ -182,7 +182,6 @@ class FactVehicleCountController extends Controller
         }
     }
     
-
     private function aggregateByLocation(Request $request, $order)
     {
         $date = Carbon::parse($request->input('date'));

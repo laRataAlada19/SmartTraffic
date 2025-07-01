@@ -33,7 +33,6 @@ class Database:
 
     def execute_query(self, query, params=None):
         try:
-            self.connect()
             if not self.connection:
                 self.log("Conexão com o banco de dados não está disponível.", level="ERROR")
                 return None

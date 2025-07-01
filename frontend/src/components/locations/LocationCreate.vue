@@ -2,12 +2,14 @@
 import { ref, onMounted, reactive } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import { toast } from '@/components/ui/toast';
+import { Camera } from 'lucide-vue-next';
 
 const locationStore = useLocationStore();
 
 const newLocation = reactive({
     location: '',
     direction: '',
+    camera: '',
     latitude: '',
     longitude: '',
 });
@@ -22,12 +24,13 @@ const directions = reactive([
 ]);
 
 function createLocation() {
-    if (!newLocation.location || !newLocation.direction || !newLocation.latitude || !newLocation.longitude) {
+    if (!newLocation.location || !newLocation.direction || !newLocation.latitude || !newLocation.longitude || !newLocation.camera) {
         const missingFields = [
             !newLocation.location ? 'Local' : '',
             !newLocation.direction ? 'Direção' : '',
             !newLocation.latitude ? 'Latitude' : '',
-            !newLocation.longitude ? 'Longitude' : ''
+            !newLocation.longitude ? 'Longitude' : '',
+            !newLocation.camera ? 'Designação da Câmara' : '',
         ].filter(Boolean).join(', ');
 
         toast({
@@ -38,9 +41,7 @@ function createLocation() {
         return;
     }
 
-    console.log('Criando localização:', newLocation);
-
-    locationStore.addLocation(newLocation.location, newLocation.direction, newLocation.latitude, newLocation.longitude)
+    locationStore.addLocation(newLocation.location, newLocation.direction, newLocation.camera, newLocation.latitude, newLocation.longitude)
         .then(() => {
             toast({
                 title: 'Sucesso',
@@ -48,6 +49,7 @@ function createLocation() {
             });
             newLocation.location = '';
             newLocation.direction = '';
+            newLocation.camera = '';
             newLocation.latitude = '';
             newLocation.longitude = '';
         })
@@ -79,6 +81,11 @@ function createLocation() {
                         {{ direction.name }}
                     </option>
                 </select>
+            </div>
+
+            <div class="form-field">
+                <label>Designação da Câmara:</label>
+                <input v-model="newLocation.camera" />
             </div>
 
             <div class="form-row">

@@ -79,6 +79,10 @@ function cancelUpdate() {
             </select>
         </div>
 
+        <div class="field-group">
+            <h3>*Por motivos tecnicos e de integridade, não é possivel alterar a <strong>Designação da Câmara</strong></h3>
+        </div>
+
         <div class="btn-actions">
             <button class="btn-edit" @click="updateLocation(updatedLocation)">Guardar</button>
             <button class="btn-delete" @click="cancelUpdate()">Cancelar</button>
@@ -122,6 +126,13 @@ function cancelUpdate() {
 
 .field-group label {
     font-size: 0.95rem;
+    color: #B0BEC5;
+    margin-bottom: 0.5rem;
+}
+
+.field-group h3 {
+    font-size: 0.8rem;
+    font-style: italic;
     color: #B0BEC5;
     margin-bottom: 0.5rem;
 }

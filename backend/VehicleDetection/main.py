@@ -4,6 +4,9 @@ from video_processing import process_video
 from file_operations import clean_file
 from datetime import datetime
 import os
+from database import Database
+
+db = Database()
 
 def get_video_files():
     video_files_by_location={}
@@ -24,33 +27,25 @@ def get_video_files():
 
     return video_files_by_location
 
-def extract_timestamp(video_name):
+def extract_timestamp(video):
+    video_name = os.path.basename(video)  # Get the filename only
     video_name = os.path.splitext(video_name)[0]  # Remove ".mp4"
     timestamp_str = video_name.split('_')[1]  # Get the part after "video_" YYYYMMDD-HHMMSS
     timestamp_str = f"{timestamp_str[:4]}-{timestamp_str[4:6]}-{timestamp_str[6:8]} {timestamp_str[9:11]}:{timestamp_str[11:13]}:{timestamp_str[13:]}" # format to "YYYY-MM-DD HH:MM:SS"
     timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")  # convert to datetime object, format "YYYY-MM-DD HH:MM:SS"
     return timestamp
 
-#timestamp.strftime("%Y-%m-%d %H:%M:%S")
-
 def main():
     model = load_model()
     clean_file("results.txt")
 
     for location, video_files in get_video_files().items():
-        print(f"Processing videos for location: {location}")
+        print(f"Processing videos for camera: {location}")
         for video in video_files:
-            print(f"Processing: {video}")
-            video_name = os.path.basename(video)  # Get the filename only
-            timestamp = extract_timestamp(video_name)
+            timestamp = extract_timestamp(video)
+            db.connect()
             process_video(video, model, total_class_counter, timestamp, location)
-   
-    #time_of_start = datetime.strptime("2025-05-21 19:17:40", "%Y-%m-%d %H:%M:%S")
-    #for video in video_files:
-        #print(f"Processing: {video}")
-        #process_video(video, model, total_class_counter,time_of_start,location)
+            db.close()
 
 if __name__ == "__main__":
     main()
-
-#source myenv/bin/activate 
