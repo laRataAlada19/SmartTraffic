@@ -1,21 +1,20 @@
 import cv2
-import time
 from frame_processing import process_frame
 from file_operations import save_results_to_file
 from database import Database
-from datetime import datetime, timedelta
+from datetime import timedelta, datetime
 import math
-import psycopg2
 import os
 from config import detected_vehicles, class_counter, track_history, direction_summary, total_class_counter, DB_CONFIG_neon_tech, DATABASE_SCHEMA
+
+db = Database()
 
 def arredondar_para_proximo_5_minutos(data_hora):
     data_hora = data_hora.replace(second=0, microsecond=0)
     minutos_extra = (5 - data_hora.minute % 5) % 5
     return data_hora + timedelta(minutes=minutos_extra)
 
-def process_video(video_file, model, ground_truth, total_class_counter, time_of_start, camera):
-    db = Database()
+def process_video(video_file, model, total_class_counter, time_of_start, location):
     print(f"Processing: {video_file}")
     
     if not os.path.exists(video_file):
@@ -43,68 +42,43 @@ def process_video(video_file, model, ground_truth, total_class_counter, time_of_
         tempo_agrupado = arredondar_para_proximo_5_minutos(current_video_time)
 
         frame = cv2.resize(frame, (640, 480))
-        frame, track_history = process_frame(frame, model, detected_vehicles, class_counter, track_history, camera)
+        frame, track_history = process_frame(frame, model, detected_vehicles, class_counter, track_history)
 
-        # Mostra o FPS (não necessário em produção)
         # Mostra o FPS 
         #cv2.putText(frame, f"Frame: {frame_number}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
         #cv2.imshow('Frame', frame)
 
-        # Se mudámos para o próximo intervalo de 5 minutos
-        
+        id = db.get_id(location)
+
         if tempo_agrupado != ultimo_tempo_guardado:
-            print(f"[{tempo_agrupado}] Salvando dados na base de dados...")
-            if not db.exists_result(tempo_agrupado, camera):
-                db.save_results_to_bd(class_counter, total_class_counter, tempo_agrupado, camera)
-                #db.save_results_to_bd(class_counter, total_class_counter, tempo_agrupado, camera)
-                print(f"[{tempo_agrupado}] Dados salvos na base de dados.")
+            print("Salvando dados na base de dados...")
+            if id is None:
+                print(f"Erro ao obter o ID da localização '{location}'. Verifique se a câmera está registrada no banco de dados.")
+                return
+            if not db.exists_result(tempo_agrupado, id):
+                db.save_results_to_bd(class_counter, total_class_counter, tempo_agrupado, location, id)
+                print("Dados salvos na base de dados.")
             else:
-                print(f"[{tempo_agrupado}] Já existe entrada para esta câmara. Ignorado.")
+                print("Já existe entrada para esta câmara. Ignorado.")
             ultimo_tempo_guardado = tempo_agrupado
 
         frame_number += 1
         #if cv2.waitKey(25) & 0xFF == ord('q'):
             #break
 
-
-
     for track_id in track_history:
-        _map_direction_(track_history, track_id, camera)
-    if not db.exists_result(ultimo_tempo_guardado, camera):
-        print(f"[{ultimo_tempo_guardado}] Salvando dados finais na base de dados (forçado no fim do vídeo)...")
-        db.save_results_to_bd(class_counter, total_class_counter, ultimo_tempo_guardado, camera)
+        _map_direction_(track_history, track_id, location, id)
+    if not db.exists_result(ultimo_tempo_guardado, id):
+        print("Salvando dados finais na base de dados (forçado no fim do vídeo)...")
+        db.save_results_to_bd(class_counter, total_class_counter, ultimo_tempo_guardado, location, id)
     else:
-        print(f"[{ultimo_tempo_guardado}] Dados já existentes no fim do vídeo.")
+        print("Dados já existentes no fim do vídeo.")
     cap.release()
     #cv2.destroyAllWindows()
+    db.close()
     save_results_to_file(video_file, detected_vehicles, class_counter, total_class_counter)
 
-def get_camera_direction(camera_name):
-    try:
-        # Conectar ao banco de dados
-        connection = psycopg2.connect(**DB_CONFIG_neon_tech)
-        cursor = connection.cursor()
- 
-        # Query para buscar a direção da câmera
-        query = f"SELECT direction FROM {DATABASE_SCHEMA}.locations WHERE location_id = 3"
-        cursor.execute(query, (camera_name,))
-        result = cursor.fetchone()
-
-        # Fechar a conexão
-        cursor.close()
-        connection.close()
-
-        # Retornar a direção, se encontrada
-        if result:
-            return result[0]  # A direção está no primeiro índice do resultado
-        else:
-            print(f"Nenhuma câmera encontrada com o nome: {camera_name}")
-            return None
-    except Exception as e:
-        print(f"Erro ao conectar ao banco de dados ou executar a query: {e}")
-        return None
-
-def _map_direction_(track_history, track_id, camera):
+def _map_direction_(track_history, track_id, location, id):
     # Ensure the track exists and is not empty
     if track_id not in track_history or not track_history[track_id]:
         print(f"Track ID {track_id} is missing or empty. Skipping direction mapping.")
@@ -127,15 +101,15 @@ def _map_direction_(track_history, track_id, camera):
     angle = math.degrees(math.atan2(dy, dx)) % 360
 
     # Buscar a direção da câmera no banco de dados
-    camera_direction = get_camera_direction(camera)
-    if camera_direction:
-        print(f"Direção da câmera '{camera}': {camera_direction}")
+    location_direction = db.get_location_direction(id)
+    if location_direction:
+        print(f"Direção da câmera '{location}': {location_direction}")
     else:
-        print(f"Usando cálculo padrão, pois a direção da câmera '{camera}' não foi encontrada.")
+        print(f"Usando cálculo padrão, pois a direção da câmera '{location}' não foi encontrada.")
 
     # Map angle to direction
 
-    if camera_direction == "N":
+    if location_direction == "N" or location_direction == "NORTE" or location_direction == "NORTH":
         if 22.5 <= angle < 67.5:
             direction = "NE"
         elif 67.5 <= angle < 112.5:
@@ -152,7 +126,7 @@ def _map_direction_(track_history, track_id, camera):
             direction = "SE"
         else:
             direction = "E"
-    elif camera_direction == "S":
+    elif location_direction == "S" or location_direction == "SUL" or location_direction == "SOUTH":
         if 22.5 <= angle < 67.5:
             direction = "SW"
         elif 67.5 <= angle < 112.5:
@@ -169,7 +143,7 @@ def _map_direction_(track_history, track_id, camera):
             direction = "NW"
         else:
             direction = "W"
-    elif camera_direction == "E":
+    elif location_direction == "E" or location_direction == "LESTE" or location_direction == "EAST":
         if 22.5 <= angle < 67.5:
             direction = "SE"
         elif 67.5 <= angle < 112.5:
@@ -186,7 +160,7 @@ def _map_direction_(track_history, track_id, camera):
             direction = "SW"
         else:
             direction = "S"
-    elif camera_direction == "W":
+    elif location_direction == "W" or location_direction == "OESTE" or location_direction == "WEST":
         if 22.5 <= angle < 67.5:
             direction = "NW"
         elif 67.5 <= angle < 112.5:
@@ -203,7 +177,7 @@ def _map_direction_(track_history, track_id, camera):
             direction = "NE"
         else:
             direction = "N"
-    elif camera_direction == "NE":
+    elif location_direction == "NE" or location_direction == "NORDESTE" or location_direction == "NORTHEAST":
         if 22.5 <= angle < 67.5:
             direction = "N"
         elif 67.5 <= angle < 112.5:
@@ -220,7 +194,7 @@ def _map_direction_(track_history, track_id, camera):
             direction = "W"
         else:
             direction = "NW"
-    elif camera_direction == "NW":
+    elif location_direction == "NW" or location_direction == "NOROESTE" or location_direction == "NORTHWEST":
         if 22.5 <= angle < 67.5:
             direction = "W"
         elif 67.5 <= angle < 112.5:
@@ -237,7 +211,7 @@ def _map_direction_(track_history, track_id, camera):
             direction = "NE"
         else:
             direction = "N"
-    elif camera_direction == "SE":
+    elif location_direction == "SE" or location_direction == "SUDESTE" or location_direction == "SOUTHEAST":
         if 22.5 <= angle < 67.5:
             direction = "E"
         elif 67.5 <= angle < 112.5:
@@ -254,7 +228,7 @@ def _map_direction_(track_history, track_id, camera):
             direction = "N"
         else:
             direction = "NE"
-    elif camera_direction == "SW":
+    elif location_direction == "SW" or location_direction == "SUDOESTE" or location_direction == "SOUTHWEST":
         if 22.5 <= angle < 67.5:
             direction = "S"
         elif 67.5 <= angle < 112.5:
@@ -272,7 +246,7 @@ def _map_direction_(track_history, track_id, camera):
         else:
             direction = "W"
     else:
-        print(f"Direção da câmera '{camera}' não reconhecida. Usando cálculo padrão.")
+        print(f"Direção da câmera '{location}' não reconhecida. Usando cálculo padrão.")
         if 22.5 <= angle < 67.5:
             direction = "NE"
         elif 67.5 <= angle < 112.5:

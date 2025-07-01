@@ -2,7 +2,7 @@ import os
 import subprocess
 from datetime import datetime
 
-WATCH_DIRS = os.environ.get("WATCH_DIR", "/app/backend/VehicleDetection/videos/cam1").split(',')
+WATCH_DIRS = os.environ.get("WATCH_DIR", "/app/backend/VehicleDetection/videos").split(',')
 
 SEEN_FILES_PATH = "/app/backend/VehicleDetection/data/seen_videos.txt"
 MAIN_SCRIPT_PATH = "/app/backend/VehicleDetection/main.py"
@@ -12,9 +12,15 @@ LOG_PATH = (
     else "/app/backend/VehicleDetection/logs/cron_VehicleDetection.log"
 )
 
-def log(message):
+def log(message, level="INFO"):
+    colors = {
+        "INFO": "\033[92m",     # green
+        "WARNING": "\033[93m",  # yellow
+        "ERROR": "\033[91m",    # red
+    }
+    color = colors.get(level.upper(), "\033[0m")
     timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
-    full_message = f"{timestamp} {message}\n"
+    full_message = f"{color}{timestamp} [{level.upper()}] {message}\033[0m\n"
     print(full_message.strip())  # Still prints to stdout
     os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
     with open(LOG_PATH, "a") as log_file:
@@ -28,9 +34,9 @@ def load_seen_files():
 
 def save_seen_files(files):
     os.makedirs(os.path.dirname(SEEN_FILES_PATH), exist_ok=True)
-    with open(SEEN_FILES_PATH, "w") as f:
+    with open(SEEN_FILES_PATH, "a") as f:
         for file in sorted(files):
-            f.write(file + "\n")
+            f.write("\n" + file)
 
 def main():
     seen_files = load_seen_files()
@@ -39,7 +45,7 @@ def main():
     for folder in WATCH_DIRS:
         for root, _, files in os.walk(folder):
             for name in files:
-                if name.endswith((".mp4", ".avi")):
+                if name.endswith((".mp4")):
                     full_path = os.path.join(root, name)
                     current_files.add(full_path)
 

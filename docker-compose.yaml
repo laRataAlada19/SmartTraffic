@@ -43,7 +43,7 @@ services:
       dockerfile: Dockerfile
     image: projeto_informatico-vehicledetection
     environment:
-      - WATCH_DIR=/app/backend/VehicleDetection/videos/cam1
+      - WATCH_DIR=/app/backend/VehicleDetection/videos
     volumes:
       - ./backend/VehicleDetection:/app/backend/VehicleDetection
 

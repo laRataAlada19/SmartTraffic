@@ -7,7 +7,7 @@ from datetime import datetime
 from collections import Counter
 
 
-def process_frame(frame, model, detected_vehicles, class_counter, track_history,camera):
+def process_frame(frame, model, detected_vehicles, class_counter, track_history):
     results = model.track(frame, persist=True)
     
     if results and results[0].boxes and results[0].boxes.id is not None:

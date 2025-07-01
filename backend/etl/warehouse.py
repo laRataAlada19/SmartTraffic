@@ -5,6 +5,7 @@ import psycopg2
 import os
 import re
 from datetime import datetime
+from psycopg2.extras import RealDictCursor
 
 #pip install sqlalchemy
 #pip install pandas
@@ -51,21 +52,31 @@ class Warehouse:
         self.time_df = None
         self.location_df = None
 
+    def log(self, message, level="INFO"):
+        colors = {
+            "INFO": "\033[92m",     # green
+            "WARNING": "\033[93m",  # yellow
+            "ERROR": "\033[91m",    # red
+        }
+        color = colors.get(level.upper(), "\033[0m")
+        timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
+        print(f"{color}{timestamp} [{level.upper()}] {message}\033[0m\n", end="")
+
     def connect_db(self):
         try:
             self.conn = psycopg2.connect(**DB_CONFIG_neon_tech)
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Conexão com a DB estabelecida com sucesso!\033[0m")
+            self.log("CUSTOM: Conexão com a BD estabelecida com sucesso!")
         except Exception as e:
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Erro ao conectar com a BD: {e}\033[0m")
+            self.log(f"CUSTOM: Erro ao conectar com a BD: {e}", level="ERROR")
             self.conn = None
             raise
 
     def connect_dw(self):
         try:
             self.engine = create_engine(f"postgresql+psycopg2://{DB_CONFIG_neon_tech['user']}:{DB_CONFIG_neon_tech['password']}@{DB_CONFIG_neon_tech['host']}/{DB_CONFIG_neon_tech['dbname']}")
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Conexão com o DW estabelecida com sucesso!\033[0m")
+            self.log("CUSTOM: Conexão com o DW estabelecida com sucesso!")
         except Exception as e:
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Erro ao conectar com o DW: {e}\033[0m")
+            self.log(f"CUSTOM: Erro ao conectar com o DW: {e}", level="ERROR")
             self.engine = None
             raise
 
@@ -73,19 +84,48 @@ class Warehouse:
         try:
             if self.conn:
                 self.conn.close()
-                print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Conexão com a DB encerrada.\033[0m")
+                self.log("CUSTOM: Conexão com a DB encerrada.")
         except Exception as e:
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Erro ao encerrar a conexão com a DB: {e}\033[0m")
+            self.log(f"CUSTOM: Erro ao encerrar a conexão com a DB: {e}", level="ERROR")
             raise
 
     def close_dw(self):
         try:
             if self.engine:
                 self.engine.dispose()
-                print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Conexão com o DW encerrada.\033[0m")
+                self.log("CUSTOM: Conexão com o DW encerrada.")
         except Exception as e:
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Erro ao encerrar a conexão com o DW: {e}\033[0m")
+            self.log(f"CUSTOM: Erro ao encerrar a conexão com o DW: {e}", level="ERROR")
             raise
+
+    def execute_query(self, query, where, params=None):
+        try:
+            is_select = bool(re.match(r"^\s*(SELECT|WITH)", query, re.IGNORECASE))
+
+            if where == 1:  # DB
+                with self.conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                    cursor.execute(query, params)
+                    if is_select:
+                        rows = cursor.fetchall()
+                        return pd.DataFrame(rows)
+                    else:
+                        self.conn.commit()
+                        return None
+
+            elif where == 2:  # DW
+                with self.engine.begin() as conn:
+                    result = conn.execute(text(query), params)
+                    if is_select:
+                        return pd.DataFrame(result.fetchall(), columns=result.keys())
+                    return None
+
+            else:
+                self.log("CUSTOM: Parâmetro 'where' inválido. Use 1 para DB e 2 para DW.", level="ERROR")
+                raise ValueError("Invalid 'where' parameter. Use 1 for DB and 2 for DW.")
+
+        except Exception as e:
+            self.log(f"CUSTOM: Erro ao executar a query: {e}", level="ERROR")
+            return None
 
     def get_last_row_id(self, path, table):
         if table == 1:  # vehicle_counts
@@ -93,10 +133,11 @@ class Warehouse:
         elif table == 2:  # locations
             file_path = os.path.join(path, 'last_updated_locations.txt')
         else:
+            self.log("CUSTOM: Invalid table number.", level="ERROR")
             raise ValueError("Invalid table number.")
 
         if not os.path.exists(file_path):
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: No last row ID/time file found. Starting from scratch.\033[0m")
+            self.log("CUSTOM: No last row ID/time file found. Starting from scratch.", level="WARNING")
             return 0 if table == 1 else "1970-01-01 00:00:00"
 
         try:
@@ -104,7 +145,7 @@ class Warehouse:
                 value = f.read().strip()
                 return int(value) if table == 1 else value
         except Exception as e:
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Error reading last row ID/time: {e}\033[0m")
+            self.log(f"CUSTOM: Error reading last row ID/time: {e}", level="ERROR")
             return 0 if table == 1 else "1970-01-01 00:00:00"
 
     def save_last_row_id(self, path, value, table):
@@ -115,12 +156,13 @@ class Warehouse:
             elif table == 2: # locations
                 file_path = os.path.join(path, 'last_updated_locations.txt')
             else:
+                self.log("CUSTOM: Invalid table number.", level="ERROR")
                 raise ValueError("Invalid table number.")
 
             with open(file_path, 'w') as f:
                 f.write(str(value))
         except Exception as e:
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Error saving last row ID/time: {e}\033[0m")
+            self.log(f"CUSTOM: Error saving last row ID/time: {e}", level="ERROR")
             raise
 
     def extract_data(self, path):
@@ -132,38 +174,40 @@ class Warehouse:
                     n, s, e, w, ne, nw, se, sw, 
                     timestamp, location_id
                 FROM {DATABASE_SCHEMA}.vehicle_counts
-                WHERE id > {last_id}
+                WHERE id > %s
             """
-            with self.conn:
-                vehicle_df = pd.read_sql(query_vc, self.conn)
+            vehicle_df = self.execute_query(query_vc, 1, (last_id,))
 
             if not vehicle_df.empty:
                 self.save_last_row_id(path, vehicle_df["vehicle_count_id"].max(), 1)
-                print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: vehicle_counts extracted rows: {len(vehicle_df)}\033[0m")
+                self.log(f"CUSTOM: vehicle_counts extracted rows: {len(vehicle_df)}")
             else:
-                print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: No new vehicle_counts data.\033[0m")
+                self.log("CUSTOM: No new vehicle_counts data.", level="WARNING")
 
             # Step 2: Extract updated or new locations
             last_updated = self.get_last_row_id(path, 2)  # 2 → locations
             vehicle_location_ids = (
                 vehicle_df["location_id"].unique().tolist() if not vehicle_df.empty else []
             )
-            vehicle_location_ids_str = ','.join(map(str, vehicle_location_ids)) or "NULL"
 
             query_loc = f"""
-                SELECT location_id, location, direction, updated_at, latitude, longitude
+                SELECT location_id, location, direction, updated_at, latitude, longitude, camera
                 FROM {DATABASE_SCHEMA}.locations
-                WHERE updated_at > '{last_updated}'
-                OR location_id IN ({vehicle_location_ids_str})
+                WHERE updated_at > %s
+                OR location_id = ANY(%s)
             """
-            location_df_full = pd.read_sql(query_loc, self.conn)
+            #meti ANY em vez de IN para evitar problemas com "1,2,3" como uma so string, e nao uma lista de inteiros
+            
+            
+            params = (last_updated, vehicle_location_ids)
+            location_df_full = self.execute_query(query_loc, 1, params)
 
             if not location_df_full.empty:
                 most_recent = location_df_full["updated_at"].max()
                 self.save_last_row_id(path, most_recent, 2)
-                print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: locations extracted rows:\033[0m", len(location_df_full))
+                self.log(f"CUSTOM: locations extracted rows: {len(location_df_full)}")
             else:
-                print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: No locations data.\033[0m")
+                self.log("CUSTOM: No new locations data.", level="WARNING")
 
             # Step 3: Filter location_df for merging only (those used in vehicle_df)
             if not vehicle_df.empty:
@@ -179,7 +223,7 @@ class Warehouse:
                 used_location_ids = vehicle_df["location_id"].unique() if not vehicle_df.empty else []
                 extra_location_df = location_df_full[~location_df_full["location_id"].isin(used_location_ids)]
                 self.location_df = extra_location_df.drop(columns=["updated_at"])
-                print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Updated locations extracted rows:\033[0m", len(self.location_df))
+                self.log(f"CUSTOM: Updated locations extracted rows: {len(self.location_df)}")
             else:
                 self.location_df = pd.DataFrame()
 
@@ -188,11 +232,11 @@ class Warehouse:
             elif not vehicle_df.empty and self.location_df.empty:
                 return vehicle_df, 0
             elif vehicle_df.empty:
-                print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: No new data to process.\033[0m")
+                self.log("CUSTOM: No new vehicle data to process.", level="WARNING")
                 return pd.DataFrame(), len(self.location_df)
 
         except Exception as e:
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Error during extraction: {e}\033[0m")
+            self.log(f"CUSTOM: Error during extraction: {e}", level="ERROR")
             raise
 
     def transform_data(self, df):
@@ -207,6 +251,7 @@ class Warehouse:
                 df["hour"] = df["timestamp"].dt.hour
                 df["minute"] = df["timestamp"].dt.minute
                 df["period"] = df["timestamp"].dt.strftime("%p")
+                self.log("CUSTOM: Date transformed successfully")
 
                 # Transform camera direction in the direction column from loacation table from DB
                 df["direction"] = df["direction"].astype(str).str.strip().str.upper()
@@ -224,10 +269,12 @@ class Warehouse:
                     df["direction"].isin(["N", "S", "E", "W", "NE", "NW", "SE", "SW"]),
                     "UNKNOWN"
                 )
+                self.log("CUSTOM: Direction transformed successfully")
 
                 # Transform location latitude and longitude to decimal degrees, example: 40.7128, -74.0060
                 df["latitude"] = df["latitude"].apply(dms_to_decimal)
                 df["longitude"] = df["longitude"].apply(dms_to_decimal)
+                self.log("CUSTOM: Latitude and longitude transformed successfully")
 
 
             if self.location_df is not None and not self.location_df.empty:
@@ -247,19 +294,20 @@ class Warehouse:
                     self.location_df["direction"].isin(["N", "S", "E", "W", "NE", "NW", "SE", "SW"]),
                     "UNKNOWN"
                 )
+                self.log("CUSTOM: Location direction transformed successfully")
 
                 # Transform location latitude and longitude to decimal degrees, example: 40.7128, -74.0060
                 self.location_df["latitude"] = self.location_df["latitude"].apply(dms_to_decimal)
                 self.location_df["longitude"] = self.location_df["longitude"].apply(dms_to_decimal)
+                self.log("CUSTOM: Location latitude and longitude transformed successfully")
 
-
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Data transformed successfully\033[0m")
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Vehicle rows: {len(df)}, Location rows: {len(self.location_df) if self.location_df is not None else 0}\033[0m")
+            self.log("CUSTOM: Data transformed successfully")
+            self.log(f"CUSTOM: Vehicle rows: {len(df)}, Location rows: {len(self.location_df) if self.location_df is not None else 0}")
 
             return df, self.location_df 
 
         except Exception as e:
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Error transforming data: {e}\033[0m")
+            self.log(f"CUSTOM: Error transforming data: {e}", level="ERROR")
             raise
 
     def load_dim_date (self, df):
@@ -270,50 +318,45 @@ class Warehouse:
             self.date_df["month"] = self.date_df["full_date"].dt.month
             self.date_df["day"] = self.date_df["full_date"].dt.day
             self.date_df["weekday"] = self.date_df["full_date"].dt.strftime("%A")
-            
-            with self.engine.begin() as conn:
-                for _, row in self.date_df.iterrows():
-                    conn.execute(
-                        text(f"""
-                            INSERT INTO {WAREHOUSE_SCHEMA}.dim_date (full_date, year, month, day, weekday)
-                            VALUES (:full_date, :year, :month, :day, :weekday)
-                            ON CONFLICT (full_date) DO NOTHING;
-                        """),
-                        row.to_dict()
-                    )
+
+            query_dd = f"""
+                INSERT INTO {WAREHOUSE_SCHEMA}.dim_date (full_date, year, month, day, weekday)
+                VALUES (:full_date, :year, :month, :day, :weekday)
+                ON CONFLICT (full_date) DO NOTHING;
+            """
+
+            self.execute_query(query_dd, 2, self.date_df.to_dict(orient='records'))
 
             self.date_df = pd.read_sql(f"SELECT * FROM {WAREHOUSE_SCHEMA}.dim_date", self.engine)
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Loaded dim_date table\033[0m")
+            self.log("CUSTOM: loaded dim_date table")
         except Exception as e:
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Erro ao carregar a tabela dim_date: {e}\033[0m")
+            self.log(f"CUSTOM: erro ao carregar a tabela dim_date: {e}", level="ERROR")
             raise
 
     def load_dim_time(self, df):
         try:
             self.time_df = df[["time", "hour", "minute", "period"]].drop_duplicates().rename(columns={"time": "full_time"})
-            with self.engine.begin() as conn:
-                for _, row in self.time_df.iterrows():
-                    conn.execute(
-                        text(f"""
-                            INSERT INTO {WAREHOUSE_SCHEMA}.dim_time (full_time, hour, minute, period)
-                            VALUES (:full_time, :hour, :minute, :period)
-                            ON CONFLICT (full_time) DO NOTHING;
-                        """),
-                        row.to_dict()
-                    )
+
+            query_dt = f"""
+                INSERT INTO {WAREHOUSE_SCHEMA}.dim_time (full_time, hour, minute, period)
+                VALUES (:full_time, :hour, :minute, :period)
+                ON CONFLICT (full_time) DO NOTHING;
+            """
+
+            self.execute_query(query_dt, 2, self.time_df.to_dict(orient='records'))
 
             self.time_df = pd.read_sql(f"SELECT * FROM {WAREHOUSE_SCHEMA}.dim_time", self.engine)
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Loaded dim_time table\033[0m")
+            self.log("CUSTOM: loaded dim_time table")
         except Exception as e:
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Erro ao carregar a tabela dim_time: {e}\033[0m")
+            self.log(f"CUSTOM: erro ao carregar a tabela dim_time: {e}", level="ERROR")
             raise
 
     def load_dim_location(self, df):
         try:
             if (df is None or df.empty) and (self.location_df is None or self.location_df.empty):
-                print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: No location data to load.\033[0m")
+                self.log("CUSTOM: No location data to load.", level="WARNING")
                 return
-            
+                        
             if df is not None and not df.empty:
                 combined_df = pd.concat([df, self.location_df]).drop_duplicates(subset=["location_id"], keep="last")
             else:
@@ -327,26 +370,28 @@ class Warehouse:
                 
                 # Get existing locations from dimension table
                 query = f"""
-                    SELECT location_id, location, direction, latitude, longitude
+                    SELECT location_id, location, direction, latitude, longitude, camera
                     FROM {WAREHOUSE_SCHEMA}.dim_location
-                    WHERE location_id IN %(location_ids)s
+                    WHERE location_id IN :ids
                 """
-                existing = pd.read_sql(
-                    query, 
-                    self.engine, 
-                    params={"location_ids": location_ids}
-                )
+
+                params = {"ids": tuple(location_ids)}
+                existing = self.execute_query(query, 2, params)
 
                 # Convert existing locations to a dictionary for fast lookup
-                existing_dict = {
-                    row["location_id"]: {
-                        "location": row["location"],
-                        "direction": row["direction"],
-                        "latitude": row["latitude"],
-                        "longitude": row["longitude"]
+                if existing is None or existing.empty:
+                    existing_dict = {}
+                else:
+                    existing_dict = {
+                        row["location_id"]: {
+                            "location": row["location"],
+                            "direction": row["direction"],
+                            "latitude": row["latitude"],
+                            "longitude": row["longitude"],
+                            "camera": row["camera"]
+                        }
+                        for _, row in existing.iterrows()
                     }
-                    for _, row in existing.iterrows()
-                }
 
                 new_rows = 0
                 updated_rows = 0
@@ -358,55 +403,58 @@ class Warehouse:
                         direction = row["direction"]
                         latitude = row["latitude"]
                         longitude = row["longitude"]
+                        camera = row["camera"]
 
                         if location_id not in existing_dict:
                             # Insert new location
-                            conn.execute(
-                                text(f"""
-                                    INSERT INTO {WAREHOUSE_SCHEMA}.dim_location (location_id, location, direction, latitude, longitude)
-                                    VALUES (:location_id, :location, :direction, :latitude, :longitude)
-                                """),
-                                {
-                                    "location_id": location_id,
-                                    "location": location,
-                                    "direction": direction,
-                                    "latitude": latitude,
-                                    "longitude": longitude
-                                }
-                            )
+                            query_dl = f"""
+                                INSERT INTO {WAREHOUSE_SCHEMA}.dim_location (location_id, location, direction, latitude, longitude, camera)
+                                VALUES (:location_id, :location, :direction, :latitude, :longitude, :camera)
+                            """
+
+                            params = {
+                                "location_id": location_id,
+                                "location": location,
+                                "direction": direction,
+                                "latitude": latitude,
+                                "longitude": longitude,
+                                "camera": camera
+                            }
+                            self.execute_query(query_dl, 2, params)
+
                             new_rows += 1
                         else:
                             existing_location = existing_dict[location_id]
                             # Update if either location name or direction has changed
-                            if (existing_location["location"] != location or 
-                                existing_location["direction"] != direction):
-                                conn.execute(
-                                    text(f"""
-                                        UPDATE {WAREHOUSE_SCHEMA}.dim_location
-                                        SET location = :location,
-                                            direction = :new_direction,
-                                            location_old = :old_location,
-                                            direction_old = :old_direction
-                                        WHERE location_id = :location_id
-                                    """),
-                                    {
-                                        "location_id": location_id,
-                                        "location": location,
-                                        "new_direction": direction,
-                                        "old_location": existing_location["location"],
-                                        "old_direction": existing_location["direction"]
-                                    }
-                                )
+                            if (existing_location["location"] != location or existing_location["direction"] != direction):
+                                query_dl = f"""
+                                    UPDATE {WAREHOUSE_SCHEMA}.dim_location
+                                    SET location = :location,
+                                        direction = :new_direction,
+                                        location_old = :old_location,
+                                        direction_old = :old_direction,
+                                    WHERE location_id = :location_id
+                                """
+
+                                params = {
+                                    "location_id": location_id,
+                                    "location": location,
+                                    "new_direction": direction,
+                                    "old_location": existing_location["location"],
+                                    "old_direction": existing_location["direction"]
+                                }
+                                self.execute_query(query_dl, 2, params)
+
                                 updated_rows += 1
 
                 skipped_rows = len(combined_df) - new_rows - updated_rows
 
                 # Refresh the in-memory cache
                 self.location_df = pd.read_sql(f"SELECT * FROM {WAREHOUSE_SCHEMA}.dim_location", self.engine)
-                print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Loaded dim_location table\033[0m")
-                print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: New rows inserted: {new_rows}, Updated: {updated_rows}, Skipped: {skipped_rows}\033[0m")
+                self.log("CUSTOM: Loaded dim_location table")
+                self.log(f"CUSTOM: New rows inserted: {new_rows}, Updated: {updated_rows}, Skipped: {skipped_rows}")
         except Exception as e:
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Error loading dim_location table: {e}\033[0m")
+            self.log(f"CUSTOM: Error loading dim_location table: {e}", level="ERROR")
             raise
 
     def load_fact_vehicle_count(self, df):
@@ -446,33 +494,34 @@ class Warehouse:
             
             with self.engine.begin() as conn:
                 # Check if the fact table is empty
-                existing_combinations = pd.read_sql(
-                    f"SELECT date_id, time_id, location_id FROM {WAREHOUSE_SCHEMA}.fact_vehicle_counts", conn
-                )
+                query_fvc = f"""
+                    SELECT date_id, time_id, location_id FROM {WAREHOUSE_SCHEMA}.fact_vehicle_counts
+                """
+
+                existing_combinations = self.execute_query(query_fvc, 2)
                 
                 if existing_combinations.empty:
                     # First insertion into an empty fact table
-                    print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: First insertion.\033[0m")
-                    for _, row in fact_df.iterrows():  # Use fact_df directly here
-                        conn.execute(
-                            text(f"""
-                                INSERT INTO {WAREHOUSE_SCHEMA}.fact_vehicle_counts (
-                                    date_id, time_id, location_id,
-                                    car, motorcycle, bike, truck, bus,
-                                    n, s, e, w, ne, nw, se, sw
-                                ) VALUES (
-                                    :date_id, :time_id, :location_id,
-                                    :car, :motorcycle, :bike, :truck, :bus,
-                                    :n, :s, :e, :w, :ne, :nw, :se, :sw
-                                );
-                            """),
-                            row.to_dict()
-                        )
+                    self.log("CUSTOM: First insertion into fact_vehicle_counts table.")
+
+                    query_fvc = f"""
+                        INSERT INTO {WAREHOUSE_SCHEMA}.fact_vehicle_counts (
+                                date_id, time_id, location_id,
+                                car, motorcycle, bike, truck, bus,
+                                n, s, e, w, ne, nw, se, sw
+                            ) VALUES (
+                                :date_id, :time_id, :location_id,
+                                :car, :motorcycle, :bike, :truck, :bus,
+                                :n, :s, :e, :w, :ne, :nw, :se, :sw
+                            );
+                        """
                     
-                    print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Inserted {len(fact_df)} new records into fact_vehicle_counts\033[0m")
+                    self.execute_query(query_fvc, 2, fact_df.to_dict(orient='records'))
+                    
+                    self.log(f"CUSTOM: Inserted {len(fact_df)} new records into fact_vehicle_counts")
                 else:
                     # If the fact table has data, check for conflicts
-                    print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Checking for conflicts.\033[0m")
+                    self.log("CUSTOM: Checking for conflicts.")
                     
                     # Create a composite key column to check for existing records
                     fact_df['composite_key'] = fact_df['date_id'].astype(str) + '_' + \
@@ -491,28 +540,26 @@ class Warehouse:
                     
                     if not new_records.empty:
                         # Insert new records without conflict (conflict check is already handled)
-                        for _, row in new_records.iterrows():
-                            conn.execute(
-                                text(f"""
-                                    INSERT INTO {WAREHOUSE_SCHEMA}.fact_vehicle_counts (
-                                        date_id, time_id, location_id,
-                                        car, motorcycle, bike, truck, bus,
-                                        n, s, e, w, ne, nw, se, sw
-                                    ) VALUES (
-                                        :date_id, :time_id, :location_id,
-                                        :car, :motorcycle, :bike, :truck, :bus,
-                                        :n, :s, :e, :w, :ne, :nw, :se, :sw
-                                    )
-                                    ON CONFLICT (date_id, time_id, location_id) DO NOTHING;
-                                """),
-                                row.to_dict()
+                        query_fvc = f"""
+                            INSERT INTO {WAREHOUSE_SCHEMA}.fact_vehicle_counts (
+                                date_id, time_id, location_id,
+                                car, motorcycle, bike, truck, bus,
+                                n, s, e, w, ne, nw, se, sw
+                            ) VALUES (
+                                :date_id, :time_id, :location_id,
+                                :car, :motorcycle, :bike, :truck, :bus,
+                                :n, :s, :e, :w, :ne, :nw, :se, :sw
                             )
+                            ON CONFLICT (date_id, time_id, location_id) DO NOTHING;
+                        """
 
-                        print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Inserted {len(new_records)} new records into fact_vehicle_counts\033[0m")
+                        self.execute_query(query_fvc, 2, new_records.to_dict(orient='records'))
+
+                        self.log(f"CUSTOM: Inserted {len(new_records)} new records into fact_vehicle_counts")
                     else:
-                        print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: No new records to insert\033[0m")
-            
+                        self.log("CUSTOM: No new records to insert into fact_vehicle_counts", level="WARNING")
+
             return fact_df
         except Exception as e:
-            print(f"\033[92m{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} CUSTOM: Error loading fact table: {str(e)}\033[0m")
+            self.log(f"CUSTOM: Error loading fact table: {e}", level="ERROR")
             raise

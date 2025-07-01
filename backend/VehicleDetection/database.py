@@ -8,59 +8,91 @@ class Database:
     def __init__(self):
         self.connection = None
 
+    def log(self, message, level="INFO"):
+        colors = {
+            "INFO": "\033[92m",     # green
+            "WARNING": "\033[93m",  # yellow
+            "ERROR": "\033[91m",    # red
+        }
+        color = colors.get(level.upper(), "\033[0m")
+        timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
+        print(f"{color}{timestamp} [{level.upper()}] {message}\033[0m\n", end="")
+
     def connect(self):
         try:
             self.connection = psycopg2.connect(**DB_CONFIG_neon_tech)
-            print("Conexão com o banco de dados estabelecida com sucesso!")
+            self.log("Conexão com o banco de dados estabelecida com sucesso.")
         except Exception as e:
-            print(f"Erro ao conectar ao banco de dados: {e}")
+            self.log(f"Erro ao conectar ao banco de dados: {e}", level="ERROR")
             self.connection = None
 
+    def close(self):
+        if self.connection:
+            self.connection.close()
+            self.log("Conexão com o banco de dados fechada.")
+
     def execute_query(self, query, params=None):
-        if not self.connection:
-            print("Conexão não estabelecida. Chame o método connect() primeiro.")
-            return None
         try:
+            self.connect()
+            if not self.connection:
+                self.log("Conexão com o banco de dados não está disponível.", level="ERROR")
+                return None
             with self.connection.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(query, params)
                 if query.strip().lower().startswith("select"):
                     return cursor.fetchall()
                 self.connection.commit()
         except Exception as e:
-            print(f"Erro ao executar a query: {e}")
+            self.log(f"Erro ao executar a query: {e}", level="ERROR")
+            return None
+    
+    def exists_result(self, timestamp, location_id):
+        try:
+            query = f"""
+                SELECT COUNT(*) FROM {DATABASE_SCHEMA}.vehicle_counts 
+                WHERE timestamp = %s AND location_id = %s
+            """
+            
+            result = self.execute_query(query, (timestamp, location_id))
+
+            return result[0]['count'] > 0 
+        except Exception as e:
+            self.log(f"Erro ao verificar a existência de resultados: {e}", level="ERROR")
+            return False
+        
+    def get_location_direction(self, location_id):
+        try:
+            print(f"Obtendo direção para a localização id: {location_id}")
+            query = f"""
+                SELECT direction FROM {DATABASE_SCHEMA}.locations 
+                WHERE location_id = %s
+            """
+            
+            result = self.execute_query(query, (location_id,))
+
+            # Retornar a direção, se encontrada
+            if result:
+                return result[0]['direction'].upper()  # A direção está no primeiro índice do resultado
+            else:
+                self.log(f"Nenhuma direção encontrada para a localização id '{location_id}'", level="WARNING")
+                return None
+        except Exception as e:
+            self.log(f"Erro ao obter a direção da localização: {e}", level="ERROR")
             return None
 
-    def close(self):
-        if self.connection:
-            self.connection.close()
-            print("Conexão com o banco de dados encerrada.")
-    
-    def exists_result(self, timestamp, camera):
+    def get_id(self,location_name):
+        query = f"""
+            SELECT location_id FROM {DATABASE_SCHEMA}.locations WHERE camera = %s
+        """
+        id = self.execute_query(query, (location_name,))
+        if id:
+            return id[0]['location_id']  # buscar so o id
+        else:
+            print(f"Nenhuma localização encontrada para a câmera '{location_name}'.")
+            return None
+
+    def save_results_to_bd(self, class_counter, total_class_counter, timestamp, location_camera, location_id):
         try:
-            conn = psycopg2.connect(**DB_CONFIG_neon_tech)
-            cur = conn.cursor()
-
-            query = f"""
-            SELECT COUNT(*) FROM {DATABASE_SCHEMA}.vehicle_counts 
-            WHERE timestamp = %s AND location_id = 8
-            """
-            cur.execute(query, (timestamp, camera))
-            result = cur.fetchone()[0]
-            
-            cur.close()
-            conn.close()
-
-            return result > 0
-        except Exception as e:
-            print(f"Erro ao verificar existência de dados: {e}")
-            return False
-
-    def save_results_to_bd(self, class_counter, total_class_counter, timestamp, camera):
-        try:
-            from collections import Counter
-
-            self.connect()
-
             # Inicializa os contadores de direção
             final_directions = {"N": 0, "S": 0, "E": 0, "W": 0, "NE": 0, "NW": 0, "SE": 0, "SW": 0}
 
@@ -80,7 +112,7 @@ class Database:
                     timestamp, location_id
                 ) VALUES (%s, %s, %s, %s, %s,
                     %s, %s, %s, %s, %s, %s, %s, %s,
-                    %s, 3)
+                    %s, %s)
             """
 
             params = (
@@ -97,11 +129,13 @@ class Database:
                 final_directions["NW"],
                 final_directions["SE"],
                 final_directions["SW"],
-                timestamp
+                timestamp,
+                location_id
             )
 
             self.execute_query(query, params)
-            self.close()
-            print(f"[{timestamp}] Dados salvos para câmara '{camera}' com sucesso!")
+            self.log(f"Resultados salvos no banco de dados para a localização '{location_camera}' com timestamp '{timestamp}'.")
         except Exception as e:
-            print(f"Erro ao salvar resultados no banco de dados: {e}")
+            self.log(f"Erro ao salvar resultados para a localização '{location_camera}' no banco de dados: {e}", level="ERROR")
+            return False
+        return True
