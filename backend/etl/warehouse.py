@@ -191,7 +191,7 @@ class Warehouse:
             )
 
             query_loc = f"""
-                SELECT location_id, location, direction, updated_at, latitude, longitude, camera
+                SELECT location_id, location, direction, updated_at, latitude, longitude
                 FROM {DATABASE_SCHEMA}.locations
                 WHERE updated_at > %s
                 OR location_id = ANY(%s)
@@ -370,7 +370,7 @@ class Warehouse:
                 
                 # Get existing locations from dimension table
                 query = f"""
-                    SELECT location_id, location, direction, latitude, longitude, camera
+                    SELECT location_id, location, direction, latitude, longitude
                     FROM {WAREHOUSE_SCHEMA}.dim_location
                     WHERE location_id IN :ids
                 """
@@ -387,8 +387,7 @@ class Warehouse:
                             "location": row["location"],
                             "direction": row["direction"],
                             "latitude": row["latitude"],
-                            "longitude": row["longitude"],
-                            "camera": row["camera"]
+                            "longitude": row["longitude"]
                         }
                         for _, row in existing.iterrows()
                     }
@@ -403,13 +402,12 @@ class Warehouse:
                         direction = row["direction"]
                         latitude = row["latitude"]
                         longitude = row["longitude"]
-                        camera = row["camera"]
 
                         if location_id not in existing_dict:
                             # Insert new location
                             query_dl = f"""
-                                INSERT INTO {WAREHOUSE_SCHEMA}.dim_location (location_id, location, direction, latitude, longitude, camera)
-                                VALUES (:location_id, :location, :direction, :latitude, :longitude, :camera)
+                                INSERT INTO {WAREHOUSE_SCHEMA}.dim_location (location_id, location, direction, latitude, longitude)
+                                VALUES (:location_id, :location, :direction, :latitude, :longitude)
                             """
 
                             params = {
@@ -417,8 +415,7 @@ class Warehouse:
                                 "location": location,
                                 "direction": direction,
                                 "latitude": latitude,
-                                "longitude": longitude,
-                                "camera": camera
+                                "longitude": longitude
                             }
                             self.execute_query(query_dl, 2, params)
 

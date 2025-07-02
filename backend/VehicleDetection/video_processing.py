@@ -14,7 +14,7 @@ def arredondar_para_proximo_5_minutos(data_hora):
     minutos_extra = (5 - data_hora.minute % 5) % 5
     return data_hora + timedelta(minutes=minutos_extra)
 
-def _map_direction_(track_history, track_id, location, id):
+def _map_direction_(track_history, track_id, id):
     # Ensure the track exists and is not empty
     if track_id not in track_history or not track_history[track_id]:
         print(f"Track ID {track_id} is missing or empty. Skipping direction mapping.")
@@ -39,9 +39,9 @@ def _map_direction_(track_history, track_id, location, id):
     # Buscar a direção da câmera no banco de dados
     location_direction = db.get_location_direction(id)
     if location_direction:
-        print(f"Direção da câmera '{location}': {location_direction}")
+        print(f"Direção da localização id '{id}': {location_direction}")
     else:
-        print(f"Usando cálculo padrão, pois a direção da câmera '{location}' não foi encontrada.")
+        print(f"Usando cálculo padrão, pois a direção da localização id '{id}' não foi encontrada.")
 
     # Map angle to direction
 
@@ -203,7 +203,7 @@ def _map_direction_(track_history, track_id, location, id):
     # Store direction history
     direction_summary[track_id] = direction
 
-def process_video(video_file, model, total_class_counter, time_of_start, location):
+def process_video(video_file, model, total_class_counter, time_of_start, location_id):
     print(f"Processing: {video_file}")
     db.connect()
     if not os.path.exists(video_file):
@@ -237,18 +237,18 @@ def process_video(video_file, model, total_class_counter, time_of_start, locatio
         #cv2.putText(frame, f"Frame: {frame_number}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)
         #cv2.imshow('Frame', frame)
 
-        id = db.get_id(location)
+        id = db.verify_id(location_id)
 
         if tempo_agrupado != ultimo_tempo_guardado:
             print("Salvando dados na base de dados...")
             if id is None:
-                print(f"Erro ao obter o ID da localização '{location}'. Verifique se a câmera está registrada no banco de dados.")
+                print(f"Erro ao verificar o ID da localização '{location_id}'.")
                 return
             if not db.exists_result(tempo_agrupado, id):
-                db.save_results_to_bd(class_counter, total_class_counter, tempo_agrupado, location, id)
+                db.save_results_to_bd(class_counter, total_class_counter, tempo_agrupado, id)
                 print("Dados salvos na base de dados.")
             else:
-                print("Já existe entrada para esta câmara. Ignorado.")
+                print("Já existe entrada para este id. Ignorado.")
             ultimo_tempo_guardado = tempo_agrupado
 
         frame_number += 1
@@ -256,10 +256,10 @@ def process_video(video_file, model, total_class_counter, time_of_start, locatio
             #break
 
     for track_id in track_history:
-        _map_direction_(track_history, track_id, location, id)
+        _map_direction_(track_history, track_id, id)
     if not db.exists_result(ultimo_tempo_guardado, id):
         print("Salvando dados finais na base de dados (forçado no fim do vídeo)...")
-        db.save_results_to_bd(class_counter, total_class_counter, ultimo_tempo_guardado, location, id)
+        db.save_results_to_bd(class_counter, total_class_counter, ultimo_tempo_guardado, id)
     else:
         print("Dados já existentes no fim do vídeo.")
     cap.release()

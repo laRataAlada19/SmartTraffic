@@ -167,7 +167,6 @@ onMounted(async () => {
     </div>
 
     <button class="btn-confirm" @click="confirmarSelecao">Confirmar Seleção</button>
-    </div>
 </template>
 
 <style scoped>

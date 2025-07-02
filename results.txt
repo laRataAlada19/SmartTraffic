@@ -1,5 +1,5 @@
 
-==== RESULTS FOR /Users/franciscocordeiro/Documents/GitHub/projeto_informatico2/backend/VehicleDetection/videos/3/video_20250702-225421.mp4 ====
+==== RESULTS FOR /Users/nazariy/projects/projeto_informatico/backend/VehicleDetection/videos/3/video_20250702-225421.mp4 ====
 Total Unique Detections: 0
 
 Vehicle Type Summary
@@ -17,7 +17,7 @@ SW: 0
 Speed Summary:
 =========================
 
-==== RESULTS FOR /Users/franciscocordeiro/Documents/GitHub/projeto_informatico2/backend/VehicleDetection/videos/3/video_20250702-224618.mp4 ====
+==== RESULTS FOR /Users/nazariy/projects/projeto_informatico/backend/VehicleDetection/videos/3/video_20250702-224618.mp4 ====
 Total Unique Detections: 0
 
 Vehicle Type Summary
@@ -35,7 +35,7 @@ SW: 0
 Speed Summary:
 =========================
 
-==== RESULTS FOR /Users/franciscocordeiro/Documents/GitHub/projeto_informatico2/backend/VehicleDetection/videos/3/video_20250702-224608.mp4 ====
+==== RESULTS FOR /Users/nazariy/projects/projeto_informatico/backend/VehicleDetection/videos/3/video_20250702-224608.mp4 ====
 Total Unique Detections: 0
 
 Vehicle Type Summary

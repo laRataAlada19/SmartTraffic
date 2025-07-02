@@ -39,13 +39,11 @@ def main():
     model = load_model()
     clean_file("results.txt")
 
-    for location, video_files in get_video_files().items():
-        print(f"Processing videos for camera: {location}")
+    for location_id, video_files in get_video_files().items():
+        print(f"Processing videos for location id: {location_id}")
         for video in video_files:
             timestamp = extract_timestamp(video)
-            db.connect()
-            process_video(video, model, total_class_counter, timestamp, location)
-            db.close()
+            process_video(video, model, total_class_counter, timestamp, location_id)
 
 if __name__ == "__main__":
     main()

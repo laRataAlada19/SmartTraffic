@@ -79,18 +79,18 @@ class Database:
             self.log(f"Erro ao obter a direção da localização: {e}", level="ERROR")
             return None
 
-    def get_id(self,location_name):
+    def verify_id(self,location_id):
         query = f"""
             SELECT location_id FROM {DATABASE_SCHEMA}.locations WHERE location_id = %s
         """
-        id = self.execute_query(query, (location_name,))
+        id = self.execute_query(query, (location_id,))
         if id:
             return id[0]['location_id']  # buscar so o id
         else:
-            print(f"Nenhuma localização encontrada para a câmera '{location_name}'.")
+            print(f"Nenhuma localização encontrada com id '{location_id}'.")
             return None
 
-    def save_results_to_bd(self, class_counter, total_class_counter, timestamp, location_camera, location_id):
+    def save_results_to_bd(self, class_counter, total_class_counter, timestamp, location_id):
         try:
             # Inicializa os contadores de direção
             final_directions = {"N": 0, "S": 0, "E": 0, "W": 0, "NE": 0, "NW": 0, "SE": 0, "SW": 0}
@@ -133,8 +133,8 @@ class Database:
             )
 
             self.execute_query(query, params)
-            self.log(f"Resultados salvos no banco de dados para a localização '{location_camera}' com timestamp '{timestamp}'.")
+            self.log(f"Resultados salvos no banco de dados para a localização id '{location_id}' com timestamp '{timestamp}'.")
         except Exception as e:
-            self.log(f"Erro ao salvar resultados para a localização '{location_camera}' no banco de dados: {e}", level="ERROR")
+            self.log(f"Erro ao salvar resultados para a localização id '{location_id}' no banco de dados: {e}", level="ERROR")
             return False
         return True
