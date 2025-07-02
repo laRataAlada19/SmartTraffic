@@ -46,7 +46,7 @@ const login = () => {
       toast({
         title: 'Login Successful',
         description: 'You have successfully logged in.',
-        variant: 'success',
+        variant: 'default',
       })
       router.push({ name: 'dashboard' })
     })

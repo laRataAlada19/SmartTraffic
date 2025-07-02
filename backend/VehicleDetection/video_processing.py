@@ -205,7 +205,7 @@ def _map_direction_(track_history, track_id, location, id):
 
 def process_video(video_file, model, total_class_counter, time_of_start, location):
     print(f"Processing: {video_file}")
-    
+    db.connect()
     if not os.path.exists(video_file):
         print(f"O arquivo {video_file} não foi encontrado.")
         return
@@ -264,4 +264,5 @@ def process_video(video_file, model, total_class_counter, time_of_start, locatio
         print("Dados já existentes no fim do vídeo.")
     cap.release()
     #cv2.destroyAllWindows()
+    db.close()
     save_results_to_file(video_file, detected_vehicles, class_counter, total_class_counter)

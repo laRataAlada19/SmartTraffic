@@ -101,15 +101,7 @@ function createLocation() {
                 </select>
             </div>
 
-            <div class="form-field">
-                <label>Designação da Câmara:</label>
-                <select v-model="newLocation.camera">
-                    <option disabled value="">Selecione a câmara</option>
-                    <option v-for="camera in cameras" :key="camera.index" :value="camera.name">
-                        {{ camera.name }}
-                    </option>
-                </select>
-            </div>
+    
 
             <div class="form-row">
                 <div class="form-field">
@@ -126,7 +118,7 @@ function createLocation() {
 
             <div class="form-actions">
                 <button @click="createLocation">Criar</button>
-                <button @click="fetchCameras" style="margin-left: 1rem;">Atualizar Câmaras</button>
+               
             </div>
         </div>
     </div>

@@ -81,7 +81,7 @@ class Database:
 
     def get_id(self,location_name):
         query = f"""
-            SELECT location_id FROM {DATABASE_SCHEMA}.locations WHERE camera = %s
+            SELECT location_id FROM {DATABASE_SCHEMA}.locations WHERE location_id = %s
         """
         id = self.execute_query(query, (location_name,))
         if id:

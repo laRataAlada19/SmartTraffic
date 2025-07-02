@@ -174,24 +174,7 @@ onMounted(async () => {
     </div>
 
     <button class="btn-confirm" @click="confirmarSelecao">Confirmar Seleção</button>
-
-    <h3>Gráficos Selecionados:</h3>
-
-    <div v-if="!isDataLoaded" style="text-align: center; margin-top: 30px;">
-      <span class="spinner"></span>
-      <p>Carregando dados...</p>
     </div>
-
-    <div v-else>
-      <div v-for="chart in selectedCharts" :key="chart">
-        <component
-          v-if="isDataLoaded"
-          :is="componentsMap[chart]"
-          :data="rawSharedData"
-        />
-      </div>
-    </div>
-  </div>
 </template>
 
 <style scoped>

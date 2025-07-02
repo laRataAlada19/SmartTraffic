@@ -1,190 +1,215 @@
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, inject } from 'vue';
 import { useLocationStore } from '@/stores/location';
-import { toast } from '@/components/ui/toast';
+import { useErrorStore } from '@/stores/error';
 import { useRouter } from 'vue-router';
 
-const locationStore = useLocationStore();
-const props = defineProps({
-    location: Object
-});
-const emit = defineEmits(['cancelUpdate']);
-const showUpdateForm = ref(true);
 const router = useRouter();
-let updatedLocation = reactive({
-    location: props.location.location,
-    direction: props.location.direction,
-    latitude: props.location.latitude,
-    longitude: props.location.longitude
-});
+const locationStore = useLocationStore();
+const alertDialog = inject('alertDialog')
+const storeError = useErrorStore();
+const props = defineProps({
+  locations: Array
+})
+const availableCameras = ref({})
+const selectedCamera = ref({})
+const isRecording = ref({})
 
-const directions = reactive([
-    { name: 'Norte', id: '1' },
-    { name: 'Sul', id: '2' },
-    { name: 'Este', id: '3' },
-    { name: 'Oeste', id: '4' },
-    { name: 'Noroeste', id: '5' },
-    { name: 'Sudeste', id: '6' },
-]);
-
-function updateLocation(location) {
-    locationStore.updateLocation(props.location.location_id, location)
-        .then(() => {
-            toast({
-                title: 'Sucesso',
-                description: `Localização ${location.location} atualizada com sucesso!`,
-            });
-            cancelUpdate();//voltar atras
-        })
-        .catch(error => {
-            console.error('Erro ao atualizar localização:', error);
-            toast({
-                title: 'Erro',
-                description: 'Ocorreu um erro ao atualizar a localização. Tente novamente.',
-                variant: 'destructive',
-            });
+onMounted(async () => {
+  try {
+        const response = await fetch('http://localhost:5001/cameras');
+        const data = await response.json();
+        availableCameras.value = data;
+    } catch (error) {
+        console.error('Erro ao buscar câmaras:', error);
+        toast({
+            title: 'Erro ao listar câmaras',
+            description: 'Certifique-se que o servidor local está a correr.',
+            variant: 'destructive',
         });
+    }
+})
+
+
+async function toggleRecording(location) {
+  const name = selectedCamera.value[location.location_id]
+  if (!name) return alert("Seleciona uma câmara")
+
+  const action = isRecording.value[location.location_id] ? 'stop' : 'start'
+  if( action === 'start' && !name) {
+    alert("Por favor, seleciona uma câmara para iniciar a gravação.")
+    return
+  }
+  if (action === 'stop' && !isRecording.value[location.location_id]) {
+    alert("A gravação já está parada.")
+    return
+  }
+  if(action === 'start') {
+    alert(`A iniciar gravação na câmara ${name}...`);
+    const response = await fetch(`http://localhost:5001/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          camera_name: name,
+          location_id: location.location_id
+        })
+      });
+    if(response.ok ) {
+      alert(`Gravação iniciada com sucesso na câmara ${name}.`);
+      isRecording.value[location.location_id] = !isRecording.value[location.location_id];
+    } else if(response.status === 407){
+      alert(`A gravação na câmara ${name} já está a decorrer.`);
+    }
+    else {
+      alert(`Erro ao iniciar a gravação na câmara ${name}.`);
+    }
+  } else {
+    if(action === 'stop') {
+      const response = await fetch(`http://localhost:5001/stop`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          camera_name: name,
+          location_id: location.location_id
+        })
+      });
+    if (response.ok) {
+      alert(`Gravação parada com sucesso na câmara ${name}.`);
+    } else {
+      alert(`Erro ao parar a gravação na câmara ${name}.`);
+      console.error('Erro ao parar a gravação:', response.statusText);
+    }
+    isRecording.value[location.location_id] = !isRecording.value[location.location_id];
+    alert(`A parar gravação na câmara ${name}...`);
+  }
+}
+ 
 }
 
-function cancelUpdate() {
-    emit('cancelUpdate', !showUpdateForm.value);
+function viewLocation(location) {
+  router.push({
+    name: 'Location',
+    params: {
+      id: location.location_id
+    }
+  });
 }
+
+function editLocation(location) {
+  router.push({
+    name: 'Location',
+    params: {
+      id: location.location_id,
+      action: 'edit'
+    }
+  });
+}
+
+function deleteConfirmed(id) {
+  storeError.resetMessages()
+  locationStore.deleteLocation(id)
+    .then(() => {
+      locationStore.fetchLocations()
+    })
+    .catch((error) => {
+      storeError.setError(error)
+    })
+}
+
+function deleteLocation(id, name) {
+  alertDialog.value.open(() => deleteConfirmed(id), 'Tem a certeza?', 'Cancelar', `Sim, apagar a localização ${name}`,
+    `Ao apagar esta localização, serão apagados todos os dados relativos à mesma.`);
+}
+
 </script>
 
 <template>
-    <h1 class="dashboard-title">Atualizar Localização</h1>
-    <section class="location-update-card">
-        <div class="field-group">
-            <label for="location">Localização:</label>
-            <input id="location" v-model="updatedLocation.location" />
-        </div>
+  <div class="locations-column">
+    <div class="locations-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Localização</th>
+            <th>Direção</th>
+            <th class="text-center">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(location, index) in locations" :key="index">
+            <td>{{ location.location }}</td>
+            <td>{{ location.direction }}</td>
+            <td class="action-buttons">
+              <button @click="viewLocation(location)">
+                <img src="../icons/eye.svg" alt="eye" class="icon">
+              </button>
+              <button @click="editLocation(location)">
+                <img src="../icons/pencil.svg" alt="pencil" class="icon">
+              </button>
+              <button @click="deleteLocation(location.location_id, location.location)">
+                <img src="../icons/trash.svg" alt="trash" class="icon">
+              </button>
+              <select v-model="selectedCamera[location.location_id]">
+                <option disabled value="">Seleciona a câmara</option>
+                <option v-for="camera in availableCameras" :value="camera.name" :key="camera.index">{{ camera.name }}</option>
+              </select>
 
-        <div class="field-group">
-            <label>Latitude:</label>
-            <input v-model="updatedLocation.latitude" />
-        </div>
-
-        <div class="field-group">
-            <label>Longitude:</label>
-            <input v-model="updatedLocation.longitude" />
-        </div>
-
-        <div class="field-group">
-            <label>Direção:</label>
-            <select v-model="updatedLocation.direction">
-                <option disabled value="">Selecione a direção</option>
-                <option v-for="direction in directions" :key="direction.id" :value="direction.name">
-                    {{ direction.name }}
-                </option>
-            </select>
-        </div>
-
-        <div class="field-group">
-            <h3>*Por motivos tecnicos e de integridade, não é possivel alterar a <strong>Designação da Câmara</strong></h3>
-        </div>
-
-        <div class="btn-actions">
-            <button class="btn-edit" @click="updateLocation(updatedLocation)">Guardar</button>
-            <button class="btn-delete" @click="cancelUpdate()">Cancelar</button>
-        </div>
-    </section>
+              <button @click="toggleRecording(location)">
+                {{ isRecording[location.location_id] ? 'Parar' : 'Gravar' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </template>
 
-
 <style scoped>
-.dashboard-title {
-    font-size: 1.75rem;
-    font-weight: bold;
-    color: #5BC0BE;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid #5BC0BE;
-    padding-bottom: 0.5rem;
+.locations-column {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  background-color: #1C2541;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(91, 192, 190, 0.1);
 }
 
-.location-update-card {
-    background-color: #1C2541;
-    color: #ffffff;
-    padding: 2rem;
-    border-radius: 12px;
-    max-width: 800px;
-    margin: 2rem auto;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+.locations-table table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #FFFFFF;
+  font-size: 0.95rem;
 }
 
-.location-update-card h2 {
-    font-size: 1.5rem;
-    color: #5BC0BE;
-    text-align: center;
-    margin-bottom: 1.5rem;
+.locations-table thead {
+  background-color: #0B132B;
 }
 
-.field-group {
-    margin-bottom: 1rem;
-    display: flex;
-    flex-direction: column;
+.locations-table th,
+.locations-table td {
+  border: 1px solid #3A506B;
+  padding: 12px;
+  text-align: left;
 }
 
-.field-group label {
-    font-size: 0.95rem;
-    color: #B0BEC5;
-    margin-bottom: 0.5rem;
+.locations-table th {
+  color: #5BC0BE;
+  font-weight: 600;
 }
 
-.field-group h3 {
-    font-size: 0.8rem;
-    font-style: italic;
-    color: #B0BEC5;
-    margin-bottom: 0.5rem;
+.locations-table tr:hover {
+  background-color: rgba(91, 192, 190, 0.05);
 }
 
-.field-group input,
-.field-group select {
-    padding: 10px;
-    border-radius: 6px;
-    background-color: #0B132B;
-    color: white;
-    border: 1px solid #5BC0BE;
-    font-size: 1rem;
+.icon {
+  width: 24px;
+  height: 24px;
 }
 
-.field-group select {
-    appearance: none;
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
 }
-
-.btn-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 2rem;
-    gap: 1rem;
-}
-
-.btn-edit {
-    background-color: #4CAF50;
-    color: white;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.btn-edit:hover {
-    background-color: #45a049;
-}
-
-.btn-delete {
-    background-color: #f44336;
-    color: white;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.btn-delete:hover {
-    background-color: #e53935;
-}
-</style>
+</style> 

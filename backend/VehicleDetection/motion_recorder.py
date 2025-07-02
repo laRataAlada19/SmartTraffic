@@ -3,31 +3,32 @@ import subprocess
 import re
 import time
 import cv2
+from threading import Event
 
-# Caminhos e configurações
-MAPPING_FILE = "camera_map.txt"
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+MAPPING_FILE = os.path.join(SCRIPT_DIR, "camera_map.txt")
+
 OUTPUT_BASE_DIR = "./videos"
-VIDEO_DURATION = 10  # segundos
+VIDEO_DURATION = 10 
 FPS = 20
 MIN_CONTOUR_AREA = 2000
 MOTION_THRESHOLD = 5
 FRAME_SKIP = 5
 
 def listar_cameras_ffmpeg():
-    """Executa o comando ffmpeg para listar dispositivos AVFoundation e guarda mapeamento."""
     print("A listar câmaras com ffmpeg...")
     try:
         result = subprocess.run(
             ['ffmpeg', '-f', 'avfoundation', '-list_devices', 'true', '-i', ''],
             stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True
         )
-        output = result.stderr  # a listagem aparece no stderr
+        output = result.stderr
     except Exception as e:
         print("Erro ao correr ffmpeg:", e)
         return {}
 
     cameras = {}
-    # Regex para linhas tipo: [AVFoundation input device @ 0x7fbf9c406d80] [0] FaceTime HD Camera
     for line in output.splitlines():
         m = re.search(r'\[(\d+)\] (.+)', line)
         if m:
@@ -35,7 +36,6 @@ def listar_cameras_ffmpeg():
             name = m.group(2).strip()
             cameras[name] = index
 
-    # Guarda mapeamento num ficheiro simples
     with open(MAPPING_FILE, "w") as f:
         for name, index in cameras.items():
             f.write(f"{name}={index}\n")
@@ -44,21 +44,19 @@ def listar_cameras_ffmpeg():
     return cameras
 
 def ler_mapeamento():
-    """Lê o ficheiro camera_map.txt e devolve dict name->index"""
     if not os.path.exists(MAPPING_FILE):
         return {}
-
     cameras = {}
-    with open(MAPPING_FILE, "r") as f:
+    with open(MAPPING_FILE, "r", encoding="utf-8") as f:
         for line in f:
             if "=" in line:
-                name, index = line.strip().split("=", 1)
-                cameras[name] = int(index)
+                nome, idx = line.strip().split("=", 1)
+                cameras[nome.strip()] = int(idx.strip())
     return cameras
 
-def detect_motion_and_record(camera_index, output_dir):
-    os.makedirs(output_dir, exist_ok=True)
-    cap = cv2.VideoCapture(camera_index)
+
+def detect_motion_and_record(camera_index, output_dir, stop_event):
+    cap = cv2.VideoCapture(camera_index, cv2.CAP_AVFOUNDATION)
     if not cap.isOpened():
         print(f"Erro ao abrir a câmara no índice {camera_index}")
         return
@@ -72,7 +70,7 @@ def detect_motion_and_record(camera_index, output_dir):
 
     print(f"Iniciado monitorização da câmara {camera_index}, grava vídeos em {output_dir}")
 
-    while True:
+    while not stop_event.is_set():
         frame_counter += 1
         if frame_counter % FRAME_SKIP != 0:
             continue
@@ -99,11 +97,14 @@ def detect_motion_and_record(camera_index, output_dir):
             if motion_frames >= MOTION_THRESHOLD:
                 print("Movimento detectado! Gravando vídeo...")
                 timestamp = time.strftime("%Y%m%d-%H%M%S")
-                output_path = os.path.join(output_dir, f"video_{timestamp}.mp4")
+                output_path = os.path.join(output_dir, f"video_{timestamp}.mp4")  # Use o diretório da localização
                 out = cv2.VideoWriter(output_path, fourcc, FPS, (frame_width, frame_height))
 
                 start_time = time.time()
                 while time.time() - start_time < VIDEO_DURATION:
+                    if stop_event.is_set():
+                        print("Parando gravação...")
+                        break
                     ret, frame = cap.read()
                     if not ret:
                         break
@@ -111,45 +112,8 @@ def detect_motion_and_record(camera_index, output_dir):
 
                 out.release()
                 print(f"Vídeo salvo em: {output_path}")
-                motion_frames = 0
-        else:
-            motion_frames = 0
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            print("Monitorização encerrada pelo utilizador.")
-            break
 
     cap.release()
-    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    # Se o ficheiro de mapeamento não existe, gera-o
-    cameras = ler_mapeamento()
-    if not cameras:
-        cameras = listar_cameras_ffmpeg()
-        if not cameras:
-            print("Nenhuma câmara encontrada. Sai.")
-            exit(1)
-
-    print("\nCâmaras detectadas e seus índices:")
-    for name, index in cameras.items():
-        print(f"- {name} => índice {index}")
-
-    # Exemplo: procura um nome parcial para o iPhone via Camo (ajusta aqui para o teu dispositivo)
-    nome_camera_procura = "iPhone de Francisco"  
-    camera_index = None
-    for name, index in cameras.items():
-        if nome_camera_procura.lower() in name.lower():
-            camera_index = index
-            camera_name = name
-            break
-
-    if camera_index is None:
-        print(f"Não foi encontrada a câmara com '{nome_camera_procura}' no nome.")
-        print("Usa um dos índices detetados manualmente.")
-        exit(1)
-
-    print(f"\nUsando a câmara '{camera_name}' no índice {camera_index}")
-
-    pasta_saida = os.path.join(OUTPUT_BASE_DIR, camera_name.replace(" ", "_"))
-    detect_motion_and_record(camera_index, pasta_saida)
+    print("Este ficheiro é agora um módulo. Usa-o via camera_server.py")
