@@ -36,7 +36,7 @@ def save_seen_files(files):
     os.makedirs(os.path.dirname(SEEN_FILES_PATH), exist_ok=True)
     with open(SEEN_FILES_PATH, "a") as f:
         for file in sorted(files):
-            f.write("\n" + file)
+            f.write(file + "\n")
 
 def main():
     seen_files = load_seen_files()
@@ -54,10 +54,10 @@ def main():
     if new_files:
         log(f"New files detected: {len(new_files)}")
         try:
-            result = subprocess.run(["/usr/local/bin/python3", MAIN_SCRIPT_PATH], check=True, capture_output=True, text=True)
+            #result = subprocess.run(["/usr/local/bin/python3", MAIN_SCRIPT_PATH], check=True, capture_output=True, text=True)
             log("main.py executed successfully.")
-            log("main.py output:\n" + result.stdout.strip())
-            save_seen_files(current_files)
+            #log("main.py output:\n" + result.stdout.strip())
+            save_seen_files(new_files)
         except subprocess.CalledProcessError as e:
             log(f"Error running main.py: {e}")
             log(f"stderr:\n{e.stderr.strip()}")
