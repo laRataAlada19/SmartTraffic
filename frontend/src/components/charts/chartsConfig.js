@@ -15,4 +15,19 @@ export default [
   {name: 'Mapa Horário de Tráfego',type: 'mapa-temporal',component: 'TimeMap',description: 'Visualiza a distribuição geográfica do tráfego num determinado horário, com marcadores interativos que mostram o volume total por ponto de medição.'},
   {name: 'Mapa com evolução temporal', type: 'radar', component: 'TimeMap', description: 'Mapa que mostra a evolução dos dados ao longo do tempo.' },
   {name: 'Matriz Origem-Destino de Veículos',type: 'matrix',component: 'ODMatrix',description: 'Representa os fluxos de tráfego entre localidades, com a intensidade das ligações exibida por uma escala de cor, facilitando a identificação de trajetos mais frequentes.'},
+  {
+    component: 'LineChart',
+    name: 'Linha',
+    description: 'Exibe dados em linha'
+  },
+  {
+    component: 'BarChart',
+    name: 'Barras',
+    description: 'Exibe dados em barras'
+  },
+  {
+    component: 'PieChart',
+    name: 'Pizza',
+    description: 'Exibe dados em pizza'
+  }
 ]

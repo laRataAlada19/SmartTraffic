@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, inject } from 'vue';
+import { ref, onMounted, watch, inject, computed } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import { toast } from '@/components/ui/toast';
 import LocationUpdate from './LocationUpdate.vue';
@@ -8,6 +8,7 @@ import router from '@/router';
 import { useErrorStore } from '@/stores/error';
 import ChartDisplay from '@/components/charts/ChartDisplay.vue';
 import { LMap, LTileLayer, LCircleMarker, LPopup } from '@vue-leaflet/vue-leaflet'
+import * as XLSX from 'xlsx';
 
 const locationStore = useLocationStore();
 const storeError = useErrorStore();
@@ -23,8 +24,91 @@ const granularity = ref(3); //default diario
 const showUpdateForm = ref(false);
 const startDate = ref(new Date().toISOString().split('T')[0]); // Data atual no formato YYYY-MM-DD
 const endDate = ref(new Date().toISOString().split('T')[0]); // Data atual no formato YYYY-MM-DD
-const selectedCharts = ref([]);
+//const selectedCharts = ref([]);//AQUI
 const center = ref([])
+const chartRef = ref(null);
+
+//AQUI
+const selectedCharts = ref([
+    'LineChart',
+    'BarChart',
+    'PieChart'
+])
+
+function exportExcel() {
+    if (!chartRef.value || !locationDetails.value) return;
+
+    const exportData = chartRef.value.getExportData();
+    const { charts } = exportData;
+
+    const wb = XLSX.utils.book_new();
+
+    // Adiciona folha com metadados da localização
+    const locationSheetData = [
+        ['Nome da Localização', locationDetails.value.location],
+        ['Latitude', locationDetails.value.latitude],
+        ['Longitude', locationDetails.value.longitude],
+        ['Câmara', locationDetails.value.camera],
+        ['Direção', locationDetails.value.direction]
+    ];
+    const locationSheet = XLSX.utils.aoa_to_sheet(locationSheetData);
+    XLSX.utils.book_append_sheet(wb, locationSheet, 'Localização');
+
+    // Adiciona uma folha por gráfico selecionado
+    charts.forEach(chart => {
+        const sheet = XLSX.utils.json_to_sheet(chart.data);
+        XLSX.utils.book_append_sheet(wb, sheet, chart.name.substring(0, 31)); // Nome da aba até 31 chars
+    });
+
+    XLSX.writeFile(wb, `export_${locationDetails.value.location}.xlsx`);
+}
+
+function exportCSV() {
+    if (!chartRef.value || !locationDetails.value) return;
+
+    const exportData = chartRef.value.getExportData();
+    const { charts } = exportData;
+
+    let csvContent = '';
+
+    csvContent += `Campo,Valor\n`;
+    csvContent += `Nome da Localização,"${locationDetails.value.location}"\n`;
+    csvContent += `Latitude,"${locationDetails.value.latitude}"\n`;
+    csvContent += `Longitude,"${locationDetails.value.longitude}"\n`;
+    csvContent += `Câmara,"${locationDetails.value.camera}"\n`;
+    csvContent += `Direção,"${locationDetails.value.direction}"\n\n`;
+
+    charts.forEach(chart => {
+        if (!chart.data || chart.data.length === 0) return;
+
+        csvContent += `\n---------------------\n`;
+        csvContent += `Gráfico: "${chart.name}"\n`;
+
+        // Cabeçalhos
+        const headers = Object.keys(chart.data[0]);
+        csvContent += headers.join(',') + '\n';
+
+        // Dados
+        chart.data.forEach(row => {
+            const rowValues = headers.map(key =>
+                `"${String(row[key]).replace(/"/g, '""')}"`
+            );
+            csvContent += rowValues.join(',') + '\n';
+        });
+
+        csvContent += '\n'; // Espaço entre gráficos
+    });
+
+    // 📥 Download do CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const safeLocationName = locationDetails.value.location.replace(/[^a-zA-Z0-9]/g, '_');
+    a.href = url;
+    a.download = `export_${safeLocationName}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
 
 function dmsToDecimal(coordStr) {
     if (typeof coordStr !== 'string') {
@@ -162,14 +246,6 @@ onMounted(async () => {
                     <l-map ref="leafletMap" :zoom="14" :center="center" style="height: 100%;">
                         <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             attribution="&copy; OpenStreetMap contributors" />
-                        <l-circle-marker v-for="(entry, i) in filteredData" :key="i"
-                            :lat-lng="[entry.latitude, entry.longitude]" :radius="5" color="blue" fill
-                            fill-opacity="0.6">
-                            <l-popup>
-                                <p><strong>{{ entry.full_date }} {{ entry.hour }}:{{ entry.minute }}</strong></p>
-                                <p>Total: {{ total(entry) }}</p>
-                            </l-popup>
-                        </l-circle-marker>
                     </l-map>
                 </div>
 
@@ -209,19 +285,21 @@ onMounted(async () => {
 
             <div v-if="selectedCharts.length > 0" class="charts-wrapper">
                 <h2>Gráficos Selecionados</h2>
-                <ChartDisplay :selectedCharts="selectedCharts" />
+                <ChartDisplay ref="chartRef" :selectedCharts="selectedCharts" />
             </div>
             <div v-else class="no-charts">
                 <p>Nenhum gráfico selecionado.</p>
             </div>
+            <div class="btn-actions export-buttons">
+                <button class="btn btn-edit" @click="exportExcel">Exportar Excel</button>
+                <button class="btn btn-edit" @click="exportCSV">Exportar CSV</button>
+            </div>
         </section>
     </div>
-
     <div v-else>
         <p>A carregar os detalhes da localização...</p>
     </div>
 </template>
-
 
 <style scoped>
 .dashboard-title {
@@ -411,5 +489,11 @@ onMounted(async () => {
 .no-charts {
     color: #B0BEC5;
     margin-top: 1rem;
+}
+
+.export-buttons {
+    justify-content: center;
+    /* Centraliza os botões */
+    margin-top: 2rem;
 }
 </style>

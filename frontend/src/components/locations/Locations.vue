@@ -37,6 +37,8 @@ onMounted(async () => {
     <br />
 
     <LocationCreate />
+    <br />
+    <br />
     <!--</div>-->
 </template>
 

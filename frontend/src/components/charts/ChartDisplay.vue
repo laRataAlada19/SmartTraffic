@@ -36,12 +36,18 @@ const store = useFactVehicleStore()
 const sharedData = ref([])
 const isDataLoaded = ref(false)
 const loadingError = ref(null)
+const selectedCharts = ref({});
 
 // Busca os dados
 const fetchData = async () => {
   try {
     if (!isDataLoaded.value) {
-      sharedData.value = await store.fetchData()
+      //sharedData.value = await store.fetchData()//AQUI
+      sharedData.value = [//AQUI
+        { id: 1, name: 'Vehicle A', count: 120, date: '2025-01-01' },
+        { id: 2, name: 'Vehicle B', count: 85, date: '2025-01-02' },
+        { id: 3, name: 'Vehicle C', count: 95, date: '2025-01-03' }
+      ]
       isDataLoaded.value = true
       console.log('Dados carregados:', sharedData.value)
     }
@@ -63,46 +69,32 @@ const validCharts = computed(() => {
     }))
 })
 
-// Função para exportar dados
-async function exportChartData(chartName) {
-  try {
-    const chartConfig = charts.find(c => c.component === chartName)
-    if (!chartConfig) {
-      console.error(`Configuração não encontrada para o gráfico: ${chartName}`)
-      return
-    }
+function getExportData() {
+  const selected = Object.keys(selectedCharts.value).filter(key => selectedCharts.value[key]?.length !== 0)
+  const filteredCharts = validCharts.value.filter(c => selected.includes(c.name))
 
-    // Simula a exportação - implemente a lógica real conforme sua API
-    const fileName = `${chartName.toLowerCase()}_data.csv`
-    const dataToExport = sharedData.value
-    
-    // Cria um CSV simples (substitua pela sua lógica real)
-    let csvContent = "data:text/csv;charset=utf-8,"
-    
-    if (dataToExport.length > 0) {
-      // Cabeçalhos
-      const headers = Object.keys(dataToExport[0])
-      csvContent += headers.join(",") + "\r\n"
-      
-      // Dados
-      dataToExport.forEach(item => {
-        csvContent += headers.map(header => item[header]).join(",") + "\r\n"
-      })
-    }
-
-    const encodedUri = encodeURI(csvContent)
-    const link = document.createElement("a")
-    link.setAttribute("href", encodedUri)
-    link.setAttribute("download", fileName)
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    
-    console.log(`Dados exportados: ${fileName}`)
-  } catch (err) {
-    console.error('Erro ao exportar dados:', err)
+  // Só exporta os dados e nomes dos gráficos selecionados
+  return {
+    charts: filteredCharts.map(c => ({
+      name: c.config?.name || c.name,
+      data: sharedData.value // Aqui podes filtrar mais se necessário
+    }))
   }
 }
+
+function toggle(chartName) {
+  if (selectedCharts.value[chartName]) {
+    // If the chart is already selected, remove it
+    delete selectedCharts.value[chartName];
+  } else {
+    // If the chart is not selected, add it
+    selectedCharts.value[chartName] = true;
+  }
+}
+
+defineExpose({
+  getExportData
+})
 
 onMounted(() => {
   fetchData()
@@ -116,7 +108,7 @@ onMounted(() => {
       <div class="spinner"></div>
       <p>Carregando dados...</p>
     </div>
-    
+
     <div v-if="loadingError" class="error-message">
       {{ loadingError }}
       <button @click="fetchData" class="retry-button">Tentar novamente</button>
@@ -127,20 +119,14 @@ onMounted(() => {
       <div v-for="chart in validCharts" :key="chart.name" class="chart-wrapper">
         <div class="chart-header">
           <h3>{{ chart.config?.name || chart.name }}</h3>
-          <button 
-            @click="exportChartData(chart.name)" 
-            class="export-button"
-            title="Exportar dados"
-          >
+          <label>
             Exportar
-          </button>
+            <input type="checkbox" :checked="selectedCharts[chart.name]" @change="toggle(chart.name)" />
+          </label>
         </div>
         <div class="chart-container">
-          <component 
-            :is="chart.component" 
-            :data="sharedData"
-            v-if="isDataLoaded"
-          />
+          <!-- <component :is="chart.component" :data="sharedData" v-if="isDataLoaded" />-->
+          <p style="color: green;">Simulated chart: {{ chart.name }}</p>
         </div>
         <p class="chart-description" v-if="chart.config?.description">
           {{ chart.config.description }}
@@ -180,8 +166,13 @@ onMounted(() => {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-message {

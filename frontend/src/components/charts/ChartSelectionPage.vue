@@ -6,6 +6,16 @@ import { defineAsyncComponent } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useFactVehicleStore } from '@/stores/factvehicle';
 
+const allData = ref([]);
+const selectedDestinations = ref({});
+const selectedCharts = computed(() => Object.keys(selectedDestinations.value));
+const router = useRouter();
+const storeAuth = useAuthStore();
+const store = useFactVehicleStore();
+const sharedData = ref([]);
+const isDataLoaded = ref(false);
+const rawSharedData = computed(() => sharedData.value);
+
 const groupedCharts = computed(() => {
   const groups = {};
   charts.forEach(chart => {
@@ -15,12 +25,6 @@ const groupedCharts = computed(() => {
   });
   return groups;
 });
-
-const allData = ref([]);
-const selectedDestinations = ref({});
-const selectedCharts = computed(() => Object.keys(selectedDestinations.value));
-const router = useRouter();
-const storeAuth = useAuthStore();
 
 const componentsMap = {
   LineChart: defineAsyncComponent(() => import('./types/LineChart.vue')),
@@ -88,13 +92,6 @@ async function confirmarSelecao() {
   }
 }
 
-const store = useFactVehicleStore();
-const sharedData = ref([]);
-const isDataLoaded = ref(false);
-
-// opcional: computed com toRaw se mesmo assim quiseres dados puros
-const rawSharedData = computed(() => sharedData.value);
-
 const fetchData = async () => {
   if (!isDataLoaded.value) {
     try {
@@ -136,12 +133,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-if="!storeAuth.user" class="dashboard-wrapper">
+  <!--<div v-if="!storeAuth.user" class="dashboard-wrapper">
     <h1 style="text-align: center; margin-top: 20px;">Aceda ao dashboard</h1>
     <p style="text-align: center; margin-bottom: 20px;">Por favor, faça login para aceder ao dashboard.</p>
   </div>
 
-  <div v-else class="dashboard-wrapper">
+  <div v-else class="dashboard-wrapper">-->
     <h1 class="dashboard-title">Selecionar Gráficos:</h1>
 
     <div class="chart-group" v-for="(charts, type) in groupedCharts" :key="type">
@@ -164,11 +161,7 @@ onMounted(async () => {
           <strong>{{ chart.name }}</strong>
           <p class="chart-description">{{ chart.description }}</p>
 
-          <component 
-            v-if="isDataLoaded" 
-            :is="componentsMap[chart.component]" 
-            :data="rawSharedData"
-          />
+          <component v-if="isDataLoaded" :is="componentsMap[chart.component]" :data="rawSharedData" />
         </div>
       </div>
     </div>
@@ -184,14 +177,10 @@ onMounted(async () => {
 
     <div v-else>
       <div v-for="chart in selectedCharts" :key="chart">
-        <component
-          v-if="isDataLoaded"
-          :is="componentsMap[chart]"
-          :data="rawSharedData"
-        />
+        <component v-if="isDataLoaded" :is="componentsMap[chart]" :data="rawSharedData" />
       </div>
     </div>
-  </div>
+  <!--</div>-->
 </template>
 
 <style scoped>
