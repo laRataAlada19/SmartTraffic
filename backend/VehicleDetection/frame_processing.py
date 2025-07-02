@@ -82,8 +82,8 @@ def process_frame(frame, model, detected_vehicles, class_counter, track_history)
             points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
             cv2.polylines(annotated_frame, [points], isClosed=False, color=(0, 255, 0), thickness=2)
 
- 
+
         return annotated_frame, track_history  # Return track_history along with the annotated frame
     
     print("No boxes detected or no IDs assigned.")
-    return frame
+    return frame,track_history

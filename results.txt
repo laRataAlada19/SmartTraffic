@@ -1,17 +1,16 @@
 
-==== RESULTS FOR /Users/nazariy/projects/projeto_informatico/backend/VehicleDetection/videos/Câmara_de_iPhone_de_Francisco/video_20250801-152211.mp4 ====
-Total Unique Detections: 48
+==== RESULTS FOR /Users/franciscocordeiro/Documents/GitHub/projeto_informatico2/backend/VehicleDetection/videos/Câmara_de_iPhone_de_Francisco/video_20250630-124220.mp4 ====
+Total Unique Detections: 32
 
 Vehicle Type Summary
-Class: car, Count: 38
-Class: bus, Count: 4
-Class: truck, Count: 5
-Class: motorcycle, Count: 1
+Class: car, Count: 24
+Class: motorcycle, Count: 5
+Class: truck, Count: 3
 
 Direction Summary:
-N: 46
-S: 0
-E: 0
+N: 7
+S: 1
+E: 22
 W: 0
 NE: 0
 NW: 0
@@ -19,8 +18,60 @@ SE: 0
 SW: 0
 
 Speed Summary:
-car: 9.62 Km/h
-truck: 7.79 Km/h
-bus: 5.03 Km/h
-motorcycle: 14.48 Km/h
+car: 52.46 Km/h
+truck: 79.38 Km/h
+bus: 86.55 Km/h
+motorcycle: 165.90 Km/h
+=========================
+
+==== RESULTS FOR /Users/franciscocordeiro/Documents/GitHub/projeto_informatico2/backend/VehicleDetection/videos/Câmara_de_iPhone_de_Francisco/video_20250801-152211.mp4 ====
+Total Unique Detections: 84
+
+Vehicle Type Summary
+Class: car, Count: 67
+Class: motorcycle, Count: 6
+Class: truck, Count: 7
+Class: bus, Count: 4
+
+Direction Summary:
+N: 9
+S: 41
+E: 29
+W: 0
+NE: 0
+NW: 0
+SE: 0
+SW: 0
+
+Speed Summary:
+car: 46.55 Km/h
+truck: 47.42 Km/h
+bus: 25.93 Km/h
+motorcycle: 123.79 Km/h
+=========================
+
+==== RESULTS FOR /Users/franciscocordeiro/Documents/GitHub/projeto_informatico2/backend/VehicleDetection/videos/Câmara_de_iPhone_de_Francisco/video_20250630-124210.mp4 ====
+Total Unique Detections: 257
+
+Vehicle Type Summary
+Class: car, Count: 201
+Class: motorcycle, Count: 11
+Class: truck, Count: 34
+Class: bus, Count: 11
+
+Direction Summary:
+N: 101
+S: 46
+E: 102
+W: 1
+NE: 0
+NW: 0
+SE: 0
+SW: 0
+
+Speed Summary:
+car: 80.58 Km/h
+truck: 74.39 Km/h
+bus: 48.38 Km/h
+motorcycle: 116.84 Km/h
 =========================
