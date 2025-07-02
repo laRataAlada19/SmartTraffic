@@ -2,7 +2,6 @@
 import { ref, onMounted, reactive } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import { toast } from '@/components/ui/toast';
-import { Camera } from 'lucide-vue-next';
 
 const locationStore = useLocationStore();
 
@@ -22,6 +21,25 @@ const directions = reactive([
     { name: 'Noroeste', id: '5' },
     { name: 'Sudeste', id: '6' },
 ]);
+
+const cameras = ref([]);
+
+async function fetchCameras() {
+    try {
+        const response = await fetch('http://localhost:5001/cameras');
+        const data = await response.json();
+        cameras.value = data;
+    } catch (error) {
+        console.error('Erro ao buscar câmaras:', error);
+        toast({
+            title: 'Erro ao listar câmaras',
+            description: 'Certifique-se que o servidor local está a correr.',
+            variant: 'destructive',
+        });
+    }
+}
+
+onMounted(fetchCameras);
 
 function createLocation() {
     if (!newLocation.location || !newLocation.direction || !newLocation.latitude || !newLocation.longitude || !newLocation.camera) {
@@ -83,10 +101,7 @@ function createLocation() {
                 </select>
             </div>
 
-            <div class="form-field">
-                <label>Designação da Câmara:</label>
-                <input v-model="newLocation.camera" />
-            </div>
+    
 
             <div class="form-row">
                 <div class="form-field">
@@ -103,6 +118,7 @@ function createLocation() {
 
             <div class="form-actions">
                 <button @click="createLocation">Criar</button>
+               
             </div>
         </div>
     </div>
