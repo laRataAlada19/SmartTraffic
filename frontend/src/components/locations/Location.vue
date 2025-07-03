@@ -257,9 +257,7 @@ onMounted(async () => {
                     </button>
                 </div>
             </div>
-        </div>
-
-        <h1 class="dashboard-title">Estatísticas</h1>
+            <h1 class="dashboard-title">Estatísticas</h1>
 
         <section class="statistics-card">
             <div class="statistics-header">
@@ -296,6 +294,9 @@ onMounted(async () => {
             </div>
         </section>
     </div>
+        </div>
+
+        
     <div v-else>
         <p>A carregar os detalhes da localização...</p>
     </div>
