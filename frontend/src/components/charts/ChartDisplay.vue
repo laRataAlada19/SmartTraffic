@@ -42,12 +42,7 @@ const selectedCharts = ref({});
 const fetchData = async () => {
   try {
     if (!isDataLoaded.value) {
-      //sharedData.value = await store.fetchData()//AQUI
-      sharedData.value = [//AQUI
-        { id: 1, name: 'Vehicle A', count: 120, date: '2025-01-01' },
-        { id: 2, name: 'Vehicle B', count: 85, date: '2025-01-02' },
-        { id: 3, name: 'Vehicle C', count: 95, date: '2025-01-03' }
-      ]
+      sharedData.value = await store.fetchData()
       isDataLoaded.value = true
       console.log('Dados carregados:', sharedData.value)
     }
@@ -124,9 +119,8 @@ onMounted(() => {
             <input type="checkbox" :checked="selectedCharts[chart.name]" @change="toggle(chart.name)" />
           </label>
         </div>
-        <div class="chart-container">
-          <!-- <component :is="chart.component" :data="sharedData" v-if="isDataLoaded" />-->
-          <p style="color: green;">Simulated chart: {{ chart.name }}</p>
+        <div class="chart-container" :id="`chart-${chart.name}`">
+          <component :is="chart.component" :data="sharedData" v-if="isDataLoaded" />
         </div>
         <p class="chart-description" v-if="chart.config?.description">
           {{ chart.config.description }}

@@ -19,17 +19,17 @@ const isRecording = ref({})
 
 onMounted(async () => {
   try {
-        const response = await fetch('http://localhost:5001/cameras');
-        const data = await response.json();
-        availableCameras.value = data;
-    } catch (error) {
-        console.error('Erro ao buscar câmaras:', error);
-        toast({
-            title: 'Erro ao listar câmaras',
-            description: 'Certifique-se que o servidor local está a correr.',
-            variant: 'destructive',
-        });
-    }
+    const response = await fetch('http://localhost:5001/cameras');
+    const data = await response.json();
+    availableCameras.value = data;
+  } catch (error) {
+    console.error('Erro ao buscar câmaras:', error);
+    toast({
+      title: 'Erro ao listar câmaras',
+      description: 'Certifique-se que o servidor local está a correr.',
+      variant: 'destructive',
+    });
+  }
 })
 async function getStatus(location) {
   try {
@@ -159,9 +159,7 @@ function deleteLocation(id, name) {
   alertDialog.value.open(() => deleteConfirmed(id), 'Tem a certeza?', 'Cancelar', `Sim, apagar a localização ${name}`,
     `Ao apagar este localização, serão apagados todos os dados relativos a mesma.`)
 }
-
 </script>
-
 
 <template>
   <div class="locations-column">
@@ -192,19 +190,16 @@ function deleteLocation(id, name) {
               </button>
               <select class="custom-select" v-model="selectedCamera[location.location_id]">
                 <option disabled value="">Seleciona a câmara</option>
-                <option v-for="camera in availableCameras" :value="camera.name" :key="camera.index">{{ camera.name }}</option>
+                <option v-for="camera in availableCameras" :value="camera.name" :key="camera.index">{{ camera.name }}
+                </option>
               </select>
               <button @click="getStatus(location)">
                 <img src="../icons/refresh.svg" alt="refresh" class="icon">
               </button>
-
-              <button
-  @click="toggleRecording(location)"
-  :class="['record-button', isRecording[location.location_id] ? 'stop' : '']"
->
-  {{ isRecording[location.location_id] ? 'Parar' : 'Gravar' }}
-</button>
-
+              <button @click="toggleRecording(location)"
+                :class="['record-button', isRecording[location.location_id] ? 'stop' : '']">
+                {{ isRecording[location.location_id] ? 'Parar' : 'Gravar' }}
+              </button>
             </td>
           </tr>
         </tbody>
@@ -247,6 +242,7 @@ function deleteLocation(id, name) {
   border-radius: 12px;
   box-shadow: 0 0 10px rgba(91, 192, 190, 0.1);
 }
+
 .custom-select {
   background-color: #0B132B;
   color: #FFFFFF;
