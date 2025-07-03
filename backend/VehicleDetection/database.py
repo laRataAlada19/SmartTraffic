@@ -110,7 +110,7 @@ class Database:
             print(f"Nenhuma localização encontrada com id '{location_id}'.")
             return None
 
-    def save_results_to_bd(self, class_counter, total_class_counter, timestamp, location_id):
+    def save_results_to_bd(self, class_counter, total_class_counter, timestamp, location_id, speed_limit):
         try:
             # Inicializa os contadores de direção
             final_directions = {"N": 0, "S": 0, "E": 0, "W": 0, "NE": 0, "NW": 0, "SE": 0, "SW": 0}
@@ -128,10 +128,10 @@ class Database:
                 INSERT INTO {DATABASE_SCHEMA}.vehicle_counts (
                     car, motorcycle, bike, truck, bus,
                     n, s, e, w, ne, nw, se, sw,
-                    timestamp, location_id
+                    timestamp, location_id, excesso_velocidae
                 ) VALUES (%s, %s, %s, %s, %s,
                     %s, %s, %s, %s, %s, %s, %s, %s,
-                    %s, %s)
+                    %s, %s, %s)
             """
 
             params = (
@@ -149,7 +149,8 @@ class Database:
                 final_directions["SE"],
                 final_directions["SW"],
                 timestamp,
-                location_id
+                location_id,
+                speed_limit
             )
 
             self.execute_query(query, params)

@@ -219,7 +219,7 @@ def process_video(video_file, model, total_class_counter, time_of_start, locatio
     fps_video = cap.get(cv2.CAP_PROP_FPS)
     frame_number = 0
     track_history = {}
-    speed_violations = {}
+    speed_violations = 0
     ultimo_tempo_guardado = arredondar_para_proximo_5_minutos(time_of_start)
 
     while cap.isOpened():
@@ -261,7 +261,7 @@ def process_video(video_file, model, total_class_counter, time_of_start, locatio
         _map_direction_(track_history, track_id, id)
     if not db.exists_result(ultimo_tempo_guardado, id):
         print("Salvando dados finais na base de dados (forçado no fim do vídeo)...")
-        db.save_results_to_bd(class_counter, total_class_counter, ultimo_tempo_guardado, id)
+        db.save_results_to_bd(class_counter, total_class_counter, ultimo_tempo_guardado, id,speed_violations)
     else:
         print("Dados já existentes no fim do vídeo.")
     cap.release()

@@ -47,7 +47,7 @@ def process_frame(frame, model, detected_vehicles, class_counter, track_history,
                     speed = distance / time_diff  
 
                     if speed > speed_limited_of_street:
-                        speed_violations[track_id] = speed
+                        speed_violations += 1
 
             if track_id not in track_history:
                 track_history[track_id] = []
