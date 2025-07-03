@@ -79,6 +79,7 @@ class Database:
         except Exception as e:
             self.log(f"Erro ao obter o limite de velocidade da localização: {e}", level="ERROR")
             return None
+        
     def get_location_direction(self, location_id):
         try:
             print(f"Obtendo direção para a localização id: {location_id}")
@@ -128,7 +129,7 @@ class Database:
                 INSERT INTO {DATABASE_SCHEMA}.vehicle_counts (
                     car, motorcycle, bike, truck, bus,
                     n, s, e, w, ne, nw, se, sw,
-                    timestamp, location_id, excesso_velocidae
+                    timestamp, location_id, excesso_velocidade
                 ) VALUES (%s, %s, %s, %s, %s,
                     %s, %s, %s, %s, %s, %s, %s, %s,
                     %s, %s, %s)

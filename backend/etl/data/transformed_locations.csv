@@ -1,2 +1,2 @@
-location_id,location,direction,latitude,longitude
-21,teste,E,40.4461,-8.6682
+location_id,location,direction,latitude,longitude,limite
+21,teste,E,40.4461,-8.6682,55
