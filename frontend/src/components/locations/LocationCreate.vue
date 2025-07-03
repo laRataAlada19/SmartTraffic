@@ -11,6 +11,7 @@ const newLocation = reactive({
     camera: '',
     latitude: '',
     longitude: '',
+    limite: '',
 });
 
 const directions = reactive([
@@ -24,31 +25,18 @@ const directions = reactive([
 
 const cameras = ref([]);
 
-async function fetchCameras() {
-    try {
-        const response = await fetch('http://localhost:5001/cameras');
-        const data = await response.json();
-        cameras.value = data;
-    } catch (error) {
-        console.error('Erro ao buscar câmaras:', error);
-        toast({
-            title: 'Erro ao listar câmaras',
-            description: 'Certifique-se que o servidor local está a correr.',
-            variant: 'destructive',
-        });
-    }
-}
 
-onMounted(fetchCameras);
+
+
 
 function createLocation() {
-    if (!newLocation.location || !newLocation.direction || !newLocation.latitude || !newLocation.longitude || !newLocation.camera) {
+    if (!newLocation.location || !newLocation.direction || !newLocation.latitude || !newLocation.longitude || !newLocation.limite) {
         const missingFields = [
             !newLocation.location ? 'Local' : '',
             !newLocation.direction ? 'Direção' : '',
             !newLocation.latitude ? 'Latitude' : '',
             !newLocation.longitude ? 'Longitude' : '',
-            !newLocation.camera ? 'Designação da Câmara' : '',
+            !newLocation.limite ? 'Limite de velocidade' : '',
         ].filter(Boolean).join(', ');
 
         toast({
@@ -59,7 +47,7 @@ function createLocation() {
         return;
     }
 
-    locationStore.addLocation(newLocation.location, newLocation.direction, newLocation.camera, newLocation.latitude, newLocation.longitude)
+    locationStore.addLocation(newLocation.location, newLocation.direction, newLocation.limite, newLocation.latitude, newLocation.longitude)
         .then(() => {
             toast({
                 title: 'Sucesso',
@@ -112,6 +100,10 @@ function createLocation() {
                     <label>Longitude*:</label>
                     <input v-model="newLocation.longitude" />
                 </div>
+            </div>
+            <div class="form-field">
+                <label>Limite de velocidade (km/h):</label>
+                <input v-model="newLocation.limite" type="number" />
             </div>
 
             <p class="hint-text">* em formato DD ou DMS</p>

@@ -18,6 +18,7 @@ class UpdateLocationRequest extends FormRequest
             'direction' => 'nullable|string|max:50',
             'latitude' => 'nullable|string|max:50',
             'longitude' => 'nullable|string|max:50',
+            'limite' => 'required|integer|min:1|max:150',
         ];
     }
 }

@@ -18,7 +18,7 @@ class CreateLocationRequest extends FormRequest
             'direction' => 'required|string|max:50',
             'latitude' => 'required|string',
             'longitude' => 'required|string',
-            'camera' => 'required|string|max:50',
+            'limite' => 'required|integer|min:1|max:150',
         ];
     }
 }

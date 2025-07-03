@@ -171,6 +171,7 @@ function deleteLocation(id, name) {
           <tr>
             <th>Localização</th>
             <th>Direção</th>
+            <th>Limite Velocidade</th>
             <th class="text-center">Ações</th>
           </tr>
         </thead>
@@ -178,6 +179,7 @@ function deleteLocation(id, name) {
           <tr v-for="(location, index) in locations" :key="index">
             <td>{{ location.location }}</td>
             <td>{{ location.direction }}</td>
+            <td>{{ location.limite }} km/h</td>
             <td class="action-buttons">
               <button @click="viewLocation(location)">
                 <img src="../icons/eye.svg" alt="eye" class="icon">

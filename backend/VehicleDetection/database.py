@@ -59,6 +59,26 @@ class Database:
             self.log(f"Erro ao verificar a existência de resultados: {e}", level="ERROR")
             return False
         
+    def get_speed_limit(self, location_id):
+        try:
+            print(f"Obtendo limite de velocidade para a localização id: {location_id}")
+            query = f"""
+                SELECT limite FROM {DATABASE_SCHEMA}.locations 
+                WHERE location_id = %s
+            """
+            
+            result = self.execute_query(query, (location_id,))
+
+            # Retornar o limite de velocidade, se encontrado
+            if result:
+                self.log(f"Limite de velocidade encontrado: {result[0]['limite']} km/h")
+                return result[0]['limite']  # A velocidade está no primeiro índice do resultado
+            else:
+                self.log(f"Nenhum limite de velocidade encontrado para a localização id '{location_id}'", level="WARNING")
+                return None
+        except Exception as e:
+            self.log(f"Erro ao obter o limite de velocidade da localização: {e}", level="ERROR")
+            return None
     def get_location_direction(self, location_id):
         try:
             print(f"Obtendo direção para a localização id: {location_id}")

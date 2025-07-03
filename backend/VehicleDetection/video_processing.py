@@ -219,6 +219,7 @@ def process_video(video_file, model, total_class_counter, time_of_start, locatio
     fps_video = cap.get(cv2.CAP_PROP_FPS)
     frame_number = 0
     track_history = {}
+    speed_violations = {}
     ultimo_tempo_guardado = arredondar_para_proximo_5_minutos(time_of_start)
 
     while cap.isOpened():
@@ -231,7 +232,8 @@ def process_video(video_file, model, total_class_counter, time_of_start, locatio
         tempo_agrupado = arredondar_para_proximo_5_minutos(current_video_time)
 
         frame = cv2.resize(frame, (640, 480))
-        frame, track_history = process_frame(frame, model, detected_vehicles, class_counter, track_history)
+        speed_limited_of_street = db.get_speed_limit(location_id)
+        frame, track_history = process_frame(frame, model, detected_vehicles, class_counter, track_history,speed_limited_of_street,speed_violations)
 
         # Mostra o FPS 
         #cv2.putText(frame, f"Frame: {frame_number}", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 0), 2)

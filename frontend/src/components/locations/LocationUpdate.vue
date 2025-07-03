@@ -17,7 +17,8 @@ let updatedLocation = reactive({
     location: props.location.location,
     direction: props.location.direction,
     latitude: props.location.latitude,
-    longitude: props.location.longitude
+    longitude: props.location.longitude,
+    limite: props.location.limite,
 });
 
 const directions = reactive([
@@ -97,6 +98,10 @@ function deleteConfirmed(id) {
                   {{ direction.name }}
               </option>
           </select>
+      </div>
+      <div class="field-group">
+          <label for="limite">Limite de Velocidade:</label>
+          <input id="limite" v-model="updatedLocation.limite" type="number" />
       </div>
 
       <div class="field-group">

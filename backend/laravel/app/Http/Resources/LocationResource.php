@@ -18,7 +18,7 @@ class LocationResource extends JsonResource
             'id' => $this->id,
             'location' => $this->location,
             'direction' => $this->direction,
-            'camera' => $this->camera,
+            'limite' => $this->limite,
         ];
     }
 }
