@@ -1,0 +1,52 @@
+
+==== RESULTS FOR /Users/franciscocordeiro/Documents/GitHub/projeto_informatico2/backend/VehicleDetection/videos/6/video_20250703-175423.mp4 ====
+Total Unique Detections: 52
+
+Vehicle Type Summary
+Class: car, Count: 43
+Class: bus, Count: 4
+Class: truck, Count: 4
+Class: motorcycle, Count: 1
+
+Direction Summary:
+N: 48
+S: 0
+E: 2
+W: 0
+NE: 0
+NW: 0
+SE: 0
+SW: 0
+
+Speed Summary:
+car: 14.24 Km/h
+truck: 8.95 Km/h
+bus: 11.84 Km/h
+motorcycle: 11.41 Km/h
+=========================
+
+==== RESULTS FOR /Users/franciscocordeiro/Documents/GitHub/projeto_informatico2/backend/VehicleDetection/videos/6/video_20250703-175423.mp4 ====
+Total Unique Detections: 75
+
+Vehicle Type Summary
+Class: car, Count: 62
+Class: bus, Count: 5
+Class: truck, Count: 6
+Class: motorcycle, Count: 2
+
+Direction Summary:
+N: 71
+S: 0
+E: 2
+W: 0
+NE: 0
+NW: 0
+SE: 0
+SW: 0
+
+Speed Summary:
+car: 16.16 Km/h
+truck: 10.72 Km/h
+bus: 15.21 Km/h
+motorcycle: 11.51 Km/h
+=========================
