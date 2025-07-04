@@ -31,5 +31,6 @@ average_speed_truck = []
 average_speed_bus = []
 average_speed_motorcycle = []
 average_speed_bike = []
+average_speed_all = 0
 
 average_speeds_summary = {"car": average_speed_car, "truck": average_speed_truck, "bus": average_speed_bus, "motorcycle": average_speed_motorcycle, "bike": average_speed_bike}

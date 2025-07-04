@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 48 48" width="48px" height="48px"><path fill="#1565C0" d="M13,13c0-3.3,2.7-6,6-6h10c3.3,0,6,2.7,6,6h4c0-5.5-4.5-10-10-10H19C13.5,3,9,7.5,9,13v11.2h4V13z"/><path fill="#1565C0" d="M4.6 22L11 30.4 17.4 22z"/><g><path fill="#1565C0" d="M35,35c0,3.3-2.7,6-6,6H19c-3.3,0-6-2.7-6-6H9c0,5.5,4.5,10,10,10h10c5.5,0,10-4.5,10-10V23h-4V35z"/><path fill="#1565C0" d="M30.6 26L37 17.6 43.4 26z"/></g></svg>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg fill="#5BC0BE" height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve" stroke="#5BC0BE">
+
+<g id="SVGRepo_bgCarrier" stroke-width="0"/>
+
+<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+
+<g id="SVGRepo_iconCarrier"> <path d="M256,0C179.9,0,111.7,33.4,64.9,86.2L0,21.3V192h170.7l-60.2-60.2C145.6,90.5,197.5,64,256,64c106,0,192,85.9,192,192 c0,106.1-86,192-192,192c-53,0-101-21.5-135.8-56.2L75,437c46.4,46.3,110.4,75,181,75c141.4,0,256-114.6,256-256S397.4,0,256,0z M234.7,106.7v170.7h128v-42.7h-85.3v-128H234.7z"/> </g>
+
+</svg>
