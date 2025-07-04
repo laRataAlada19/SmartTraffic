@@ -2,13 +2,15 @@
 import { ref, onMounted, reactive } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import { toast } from '@/components/ui/toast';
+import { LMap, LTileLayer } from '@vue-leaflet/vue-leaflet'
 
+const leafletMap = ref(null);
 const locationStore = useLocationStore();
+const center = ref([39.7443, -8.80725]);
 
 const newLocation = reactive({
     location: '',
     direction: '',
-    camera: '',
     latitude: '',
     longitude: '',
     limite: '',
@@ -22,12 +24,6 @@ const directions = reactive([
     { name: 'Noroeste', id: '5' },
     { name: 'Sudeste', id: '6' },
 ]);
-
-const cameras = ref([]);
-
-
-
-
 
 function createLocation() {
     if (!newLocation.location || !newLocation.direction || !newLocation.latitude || !newLocation.longitude || !newLocation.limite) {
@@ -55,9 +51,9 @@ function createLocation() {
             });
             newLocation.location = '';
             newLocation.direction = '';
-            newLocation.camera = '';
             newLocation.latitude = '';
             newLocation.longitude = '';
+            newLocation.limite = '';
         })
         .catch(error => {
             console.error('Erro ao criar localização:', error);
@@ -67,6 +63,31 @@ function createLocation() {
                 variant: 'destructive',
             });
         });
+}
+
+function decimalToDms(decimalCoord) {
+    decimalCoord = Number(decimalCoord);
+    if (typeof decimalCoord !== 'number') {
+        console.error('Invalid input: expected a number');
+        return null;
+    }
+
+    const isNegative = decimalCoord < 0;
+    const absoluteCoord = Math.abs(decimalCoord);
+
+    const degrees = Math.floor(absoluteCoord);
+    const minutes = Math.floor((absoluteCoord - degrees) * 60);
+    const seconds = ((absoluteCoord - degrees) * 60 - minutes) * 60;
+
+    const direction = isNegative ? (decimalCoord < 0 ? 'S' : 'W') : (decimalCoord > 0 ? 'N' : 'E');
+
+    return `${degrees}° ${minutes}' ${seconds.toFixed(2)}" ${direction}`;
+}
+
+function onMapClick(e) {
+    const { lat, lng } = e.latlng;
+    newLocation.latitude = decimalToDms(lat.toFixed(6));
+    newLocation.longitude = decimalToDms(lng.toFixed(6));
 }
 </script>
 
@@ -88,29 +109,30 @@ function createLocation() {
                     </option>
                 </select>
             </div>
-
-    
-
-            <div class="form-row">
-                <div class="form-field">
-                    <label>Latitude*:</label>
-                    <input v-model="newLocation.latitude" />
-                </div>
-                <div class="form-field">
-                    <label>Longitude*:</label>
-                    <input v-model="newLocation.longitude" />
-                </div>
-            </div>
             <div class="form-field">
                 <label>Limite de velocidade (km/h):</label>
                 <input v-model="newLocation.limite" type="number" />
             </div>
-
-            <p class="hint-text">* em formato DD ou DMS</p>
+            <div class="form-row">
+                <div class="form-field">
+                    <label>Latitude*:</label>
+                    <input v-model="newLocation.latitude" readonly />
+                </div>
+                <div class="form-field">
+                    <label>Longitude*:</label>
+                    <input v-model="newLocation.longitude" readonly />
+                </div>
+            </div>
+            <div class="map-container">
+                <l-map ref="leafletMap" :zoom="14" :center="center" style="height: 800px; width: 1500px"
+                    @click="onMapClick">
+                    <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution="&copy; OpenStreetMap contributors" />
+                </l-map>
+            </div>
 
             <div class="form-actions">
                 <button @click="createLocation">Criar</button>
-               
             </div>
         </div>
     </div>
@@ -196,9 +218,25 @@ function createLocation() {
     background-color: #3A506B;
 }
 
-.hint-text {
-    font-size: 0.875rem;
-    color: #B0BEC5;
-    font-style: italic;
+.map-container {
+    height: 500px;
+    margin-top: 1rem;
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: 0;
+    /*para garantir que o mapa não se meta em cima da navbar e toast*/
+}
+
+.leaflet-container {
+    z-index: 0 !important;
+    /*para garantir que o mapa não se meta em cima da navbar e toast*/
+}
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-popup {
+    z-index: 0 !important;
+    /*para garantir que o mapa não se meta em cima da navbar e toast*/
 }
 </style>

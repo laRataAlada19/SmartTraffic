@@ -8,6 +8,9 @@ import { useErrorStore } from '@/stores/error';
 import ChartDisplay from '@/components/charts/ChartDisplay.vue';
 import { LMap, LTileLayer } from '@vue-leaflet/vue-leaflet'
 import * as XLSX from 'xlsx';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import logoImgPath from '@/assets/smart-traffic-logo.png';
 
 const locationStore = useLocationStore();
 const storeError = useErrorStore();
@@ -39,76 +42,233 @@ const directions = reactive([
 function exportExcel() {
     if (!chartRef.value || !locationDetails.value) return;
 
-    const exportData = chartRef.value.getExportData();
-    const { charts } = exportData;
+    const { charts } = chartRef.value.getExportData();
+    const location = locationDetails.value;
 
-    const wb = XLSX.utils.book_new();
+    const workbook = XLSX.utils.book_new();
 
-    // Adiciona folha com metadados da localização
-    const locationSheetData = [
-        ['Nome da Localização', locationDetails.value.location],
-        ['Latitude', locationDetails.value.latitude],
-        ['Longitude', locationDetails.value.longitude],
-        ['Câmara', locationDetails.value.camera],
-        ['Direção', locationDetails.value.direction]
+    // Create a sheet with location metadata
+    const locationData = [
+        ['Nome da Localização', location.location],
+        ['Latitude', location.latitude],
+        ['Longitude', location.longitude],
+        ['Limite de Velocidade', `${location.limite} km/h`],
+        ['Direção', location.direction],
     ];
-    const locationSheet = XLSX.utils.aoa_to_sheet(locationSheetData);
-    XLSX.utils.book_append_sheet(wb, locationSheet, 'Localização');
+    const locationSheet = XLSX.utils.aoa_to_sheet(locationData);
+    XLSX.utils.book_append_sheet(workbook, locationSheet, 'Localização');
 
-    // Adiciona uma folha por gráfico selecionado
-    charts.forEach(chart => {
-        const sheet = XLSX.utils.json_to_sheet(chart.data);
-        XLSX.utils.book_append_sheet(wb, sheet, chart.name.substring(0, 31)); // Nome da aba até 31 chars
+    // Add one sheet per selected chart
+    charts.forEach(({ name, data }) => {
+        if (!data || data.length === 0) return;
+        const sheet = XLSX.utils.json_to_sheet(data);
+        // Sheet name max 31 characters per Excel limitations
+        XLSX.utils.book_append_sheet(workbook, sheet, name.substring(0, 31));
     });
 
-    XLSX.writeFile(wb, `export_${locationDetails.value.location}.xlsx`);
+    // Save the workbook with a friendly filename
+    const filename = `export_${location.location.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
+    XLSX.writeFile(workbook, filename);
 }
 
 function exportCSV() {
     if (!chartRef.value || !locationDetails.value) return;
 
-    const exportData = chartRef.value.getExportData();
-    const { charts } = exportData;
+    const { charts } = chartRef.value.getExportData();
+    const location = locationDetails.value;
 
-    let csvContent = '';
+    // Metadata section (Campo, Valor)
+    const metadata = [
+        ['Campo', 'Valor'],
+        ['Nome da Localização', location.location],
+        ['Latitude', location.latitude],
+        ['Longitude', location.longitude],
+        ['Limite de Velocidade', `${location.limite} km/h`],
+        ['Direção', location.direction],
+    ];
 
-    csvContent += `Campo,Valor\n`;
-    csvContent += `Nome da Localização,"${locationDetails.value.location}"\n`;
-    csvContent += `Latitude,"${locationDetails.value.latitude}"\n`;
-    csvContent += `Longitude,"${locationDetails.value.longitude}"\n`;
-    csvContent += `Câmara,"${locationDetails.value.camera}"\n`;
-    csvContent += `Direção,"${locationDetails.value.direction}"\n\n`;
+    // Convert metadata to CSV
+    let csvContent = metadata.map(row =>
+        row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')
+    ).join('\n');
 
-    charts.forEach(chart => {
-        if (!chart.data || chart.data.length === 0) return;
+    // Add spacing after metadata
+    csvContent += '\n\n';
 
-        csvContent += `\n---------------------\n`;
-        csvContent += `Gráfico: "${chart.name}"\n`;
+    // Add chart data sections
+    charts.forEach(({ name, data }) => {
+        if (!data || data.length === 0) return;
 
-        // Cabeçalhos
-        const headers = Object.keys(chart.data[0]);
-        csvContent += headers.join(',') + '\n';
+        // Add chart title
+        csvContent += `"Gráfico: ${name}"\n`;
 
-        // Dados
-        chart.data.forEach(row => {
-            const rowValues = headers.map(key =>
+        const headers = Object.keys(data[0]);
+        csvContent += headers.map(h => `"${h}"`).join(',') + '\n';
+
+        // Add chart rows
+        data.forEach(row => {
+            const values = headers.map(key =>
                 `"${String(row[key]).replace(/"/g, '""')}"`
             );
-            csvContent += rowValues.join(',') + '\n';
+            csvContent += values.join(',') + '\n';
         });
 
-        csvContent += '\n'; // Espaço entre gráficos
+        csvContent += '\n'; // Extra spacing between charts
     });
 
-    // 📥 Download do CSV
+    // Trigger CSV download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    const safeLocationName = locationDetails.value.location.replace(/[^a-zA-Z0-9]/g, '_');
-    a.href = url;
-    a.download = `export_${safeLocationName}.csv`;
-    a.click();
+    const link = document.createElement('a');
+
+    const safeFilename = `export_${location.location.replace(/[^a-zA-Z0-9]/g, '_')}.csv`;
+    link.href = url;
+    link.download = safeFilename;
+    link.click();
+
     URL.revokeObjectURL(url);
+}
+
+async function exportPDF() {
+    if (!chartRef.value || !locationDetails.value) return;
+
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // Load image as base64 data URL
+    const loadImageToDataUrl = (src) => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous'; // important if image hosted externally
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                try {
+                    const dataUrl = canvas.toDataURL('image/png');
+                    resolve(dataUrl);
+                } catch (e) {
+                    reject(e);
+                }
+            };
+            img.onerror = (e) => reject(e);
+            img.src = src;
+        });
+    };
+
+    let logoDataUrl;
+    try {
+        logoDataUrl = await loadImageToDataUrl(logoImgPath);
+    } catch (e) {
+        console.error('Error loading logo:', e);
+        logoDataUrl = null;
+    }
+
+    // Draw header background first so logo is visible on top
+    doc.setFillColor(33, 150, 243); // Blue
+    doc.rect(0, 0, pageWidth, 20, 'F');
+
+    if (logoDataUrl) {
+        doc.addImage(logoDataUrl, 'PNG', pageWidth - 40, 1.6, 20, 17);
+    } else {
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(10);
+        doc.text('Logo not available', pageWidth - 50, 15);
+    }
+
+    doc.setTextColor(255, 255, 255); // White text
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Detalhes da Localização', 10, 13);
+
+    // Restore default text color for the rest
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+
+    let y = 30;
+    const metadata = [
+        [`Nome:`, locationDetails.value.location],
+        [`Latitude:`, locationDetails.value.latitude],
+        [`Longitude:`, locationDetails.value.longitude],
+        [`Limite de Velocidade:`, `${locationDetails.value.limite} km/h`],
+        [`Direção:`, locationDetails.value.direction],
+    ];
+
+    metadata.forEach(([label, value]) => {
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, 10, y);
+        doc.setFont('helvetica', 'normal');
+        doc.text(String(value), 60, y);
+        y += 7;
+    });
+
+    // Divider
+    doc.setDrawColor(200);
+    doc.line(10, y + 2, pageWidth - 10, y + 2);
+    y += 15;
+
+    // Charts Section
+    let x = 10;
+    const imgWidth = 85;
+    const imgHeight = 60;
+    let chartCount = 0;
+
+    const chartElements = chartRef.value?.$el?.querySelectorAll('canvas');
+    if (!chartElements || chartElements.length === 0) {
+        console.warn("No canvas elements found inside ChartDisplay.");
+        return;
+    }
+
+    for (const canvas of chartElements) {
+        const imgData = canvas.toDataURL('image/png');
+        const chartName = `Gráfico ${chartCount + 1}`;
+
+        // Chart Title
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(chartName, x, y - 4);
+
+        // Chart Image
+        doc.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+
+        // Border around chart (optional)
+        doc.setDrawColor(180);
+        doc.rect(x, y, imgWidth, imgHeight);
+
+        chartCount++;
+
+        if (chartCount % 2 === 0) {
+            x = 10;
+            y += imgHeight + 20;
+        } else {
+            x += imgWidth + 10;
+        }
+
+        if (y + imgHeight > 260) {
+            // Footer with page number
+            const pageNumber = doc.internal.getNumberOfPages();
+            doc.setFontSize(10);
+            doc.text(`Página ${pageNumber}`, pageWidth - 30, 290);
+
+            doc.addPage();
+            x = 10;
+            y = 20;
+        }
+    }
+
+    // Footer
+    const currentPage = doc.internal.getNumberOfPages();
+    doc.setPage(currentPage);
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Exportado em: ${new Date().toLocaleString()}`, 10, 290);
+    doc.text(`Página ${currentPage}`, pageWidth - 30, 290);
+
+    const safeLocationName = locationDetails.value.location.replace(/[^a-zA-Z0-9]/g, '_');
+    doc.save(`export_${safeLocationName}.pdf`);
 }
 
 function dmsToDecimal(coordStr) {
@@ -140,6 +300,25 @@ function dmsToDecimal(coordStr) {
 
     const num = parseFloat(coordStr);
     return isNaN(num) ? null : num;
+}
+
+function decimalToDms(decimalCoord) {
+    decimalCoord = Number(decimalCoord);
+    if (typeof decimalCoord !== 'number') {
+        console.error('Invalid input: expected a number');
+        return null;
+    }
+
+    const isNegative = decimalCoord < 0;
+    const absoluteCoord = Math.abs(decimalCoord);
+
+    const degrees = Math.floor(absoluteCoord);
+    const minutes = Math.floor((absoluteCoord - degrees) * 60);
+    const seconds = ((absoluteCoord - degrees) * 60 - minutes) * 60;
+
+    const direction = isNegative ? (decimalCoord < 0 ? 'S' : 'W') : (decimalCoord > 0 ? 'N' : 'E');
+
+    return `${degrees}° ${minutes}' ${seconds.toFixed(2)}" ${direction}`;
 }
 
 const changeGranularity = (selectedGranularity) => {
@@ -189,6 +368,15 @@ const toggleUpdateForm = (aux) => {
     showUpdateForm.value = aux
 };
 
+function onMapClick(e) {
+    const { lat, lng } = e.latlng;
+    locationDetails.value = {
+        ...locationDetails.value, // Preserve existing properties
+        latitude: decimalToDms(lat.toFixed(6)), // Update latitude
+        longitude: decimalToDms(lng.toFixed(6)), // Update longitude
+    };
+}
+
 watch(showUpdateForm, (newShowUpdate) => {
     //carregar o mapa quando a localização ou o estado do formulário de atualização mudar
     if (newShowUpdate && locationDetails.value) {
@@ -205,24 +393,24 @@ onMounted(async () => {
             dmsToDecimal(locationDetails.value.longitude)
         ];
 
-        //selectedCharts.value = ['BarChart', 'DirectionRadar', 'LineChart', 'PieChart']
-
-        const tables = await storeAuth.getTables();
-        if (tables && tables.tables && tables.tables.Location) {
-            selectedCharts.value = tables.tables.Location;
-        }
-        () => locationDetails,
-            (newVal) => {
-                if (newVal) {
-                    nextTick(() => {
-                        const map = this.$refs.leafletMap?.mapObject
-                        if (map) {
-                            map.invalidateSize();
-                        }
-                    });
+        selectedCharts.value = ['BarChart', 'DirectionRadar', 'LineChart', 'PieChart']
+        /*
+                const tables = await storeAuth.getTables();
+                if (tables && tables.tables && tables.tables.Location) {
+                    selectedCharts.value = tables.tables.Location;
                 }
-            },
-            { immediate: true }
+                () => locationDetails,
+                    (newVal) => {
+                        if (newVal) {
+                            nextTick(() => {
+                                const map = this.$refs.leafletMap?.mapObject
+                                if (map) {
+                                    map.invalidateSize();
+                                }
+                            });
+                        }
+                    },
+                    { immediate: true }*/
     } catch (error) {
         console.error('Error fetching location details:', error);
         toast({
@@ -306,7 +494,7 @@ onMounted(async () => {
                 </div>
 
                 <div class="map-container">
-                    <l-map ref="leafletMap" :zoom="14" :center="center" style="height: 100%;">
+                    <l-map ref="leafletMap" :zoom="14" :center="center" style="height: 100%;" @click="onMapClick">
                         <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             attribution="&copy; OpenStreetMap contributors" />
                     </l-map>
@@ -354,6 +542,7 @@ onMounted(async () => {
             <div class="btn-actions export-buttons">
                 <button class="btn btn-edit" @click="exportExcel">Exportar Excel</button>
                 <button class="btn btn-edit" @click="exportCSV">Exportar CSV</button>
+                <button class="btn btn-edit" @click="exportPDF">Exportar PDF</button>
             </div>
         </section>
     </div>
