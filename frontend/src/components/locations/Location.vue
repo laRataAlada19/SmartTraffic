@@ -1,13 +1,12 @@
 <script setup>
-import { ref, onMounted, watch, inject, computed } from 'vue';
+import { ref, onMounted, watch, inject, reactive } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import { toast } from '@/components/ui/toast';
-import LocationUpdate from './LocationUpdate.vue';
 import { useAuthStore } from '@/stores/auth';
 import router from '@/router';
 import { useErrorStore } from '@/stores/error';
 import ChartDisplay from '@/components/charts/ChartDisplay.vue';
-import { LMap, LTileLayer, LCircleMarker, LPopup } from '@vue-leaflet/vue-leaflet'
+import { LMap, LTileLayer } from '@vue-leaflet/vue-leaflet'
 import * as XLSX from 'xlsx';
 
 const locationStore = useLocationStore();
@@ -24,16 +23,18 @@ const granularity = ref(3); //default diario
 const showUpdateForm = ref(false);
 const startDate = ref(new Date().toISOString().split('T')[0]); // Data atual no formato YYYY-MM-DD
 const endDate = ref(new Date().toISOString().split('T')[0]); // Data atual no formato YYYY-MM-DD
-//const selectedCharts = ref([]);//AQUI
+const selectedCharts = ref([]);
 const center = ref([])
 const chartRef = ref(null);
 
-//AQUI
-const selectedCharts = ref([
-    'LineChart',
-    'BarChart',
-    'PieChart'
-])
+const directions = reactive([
+    { name: 'Norte', id: '1' },
+    { name: 'Sul', id: '2' },
+    { name: 'Este', id: '3' },
+    { name: 'Oeste', id: '4' },
+    { name: 'Noroeste', id: '5' },
+    { name: 'Sudeste', id: '6' },
+]);
 
 function exportExcel() {
     if (!chartRef.value || !locationDetails.value) return;
@@ -166,17 +167,31 @@ function deleteLocation(id, name) {
         `Ao apagar este localização, seram apagdos todos os dados realtivos a mesma.`)
 }
 
-const toggleUpdateForm = () => {
-    showUpdateForm.value = !showUpdateForm.value;
+async function updateLocation(location) {
+    try {
+        await locationStore.updateLocation(location.location_id, location);
+        toast({
+            title: 'Sucesso',
+            description: `Localização ${location.location} atualizada com sucesso!`,
+        });
+        toggleUpdateForm(false); // só fecha o formulário depois da atualização real
+    } catch (error) {
+        console.error('Erro ao atualizar localização:', error);
+        toast({
+            title: 'Erro',
+            description: 'Ocorreu um erro ao atualizar a localização. Tente novamente.',
+            variant: 'destructive',
+        });
+    }
+}
+
+const toggleUpdateForm = (aux) => {
+    showUpdateForm.value = aux
 };
 
-const cancelUpdate = (canceledForm) => {
-    showUpdateForm.value = canceledForm.value;
-};
-
-watch([locationDetails, showUpdateForm], ([newLocation, newShowUpdate]) => {
+watch(showUpdateForm, (newShowUpdate) => {
     //carregar o mapa quando a localização ou o estado do formulário de atualização mudar
-    if (newLocation && !newShowUpdate) {
+    if (newShowUpdate && locationDetails.value) {
         center.value = [dmsToDecimal(locationDetails.value.latitude), dmsToDecimal(locationDetails.value.longitude)];
     }
 });
@@ -185,9 +200,12 @@ onMounted(async () => {
     try {
         locationDetails.value = await locationStore.fetchLocationById(locationId.value);
 
-        if (props.edit === true) {
-            showUpdateForm.value = true;
-        }
+        center.value = [
+            dmsToDecimal(locationDetails.value.latitude),
+            dmsToDecimal(locationDetails.value.longitude)
+        ];
+
+        //selectedCharts.value = ['BarChart', 'DirectionRadar', 'LineChart', 'PieChart']
 
         const tables = await storeAuth.getTables();
         if (tables && tables.tables && tables.tables.Location) {
@@ -218,8 +236,7 @@ onMounted(async () => {
 
 <template>
     <div v-if="locationDetails" class="location-container">
-        <LocationUpdate v-if="showUpdateForm" :location="locationDetails" @cancelUpdate="cancelUpdate" />
-        <div v-else>
+        <div v-if="!showUpdateForm">
             <h1 class="dashboard-title">Informação da Localização</h1>
             <div class="info-card">
                 <div class="info-grid">
@@ -233,12 +250,12 @@ onMounted(async () => {
                         <p>Longitude: {{ locationDetails.longitude }}</p>
                     </div>
                     <div>
-                        <h2>Designação da Câmara</h2>
-                        <p>{{ locationDetails.camera }}</p>
-                    </div>
-                    <div>
                         <h2>Direção da Câmara</h2>
                         <p>{{ locationDetails.direction }}</p>
+                    </div>
+                    <div>
+                        <h2>Limite Velocidade</h2>
+                        <p>{{ locationDetails.limite }} km/h</p>
                     </div>
                 </div>
 
@@ -250,14 +267,60 @@ onMounted(async () => {
                 </div>
 
                 <div class="btn-actions">
-                    <button class="btn btn-edit" @click="toggleUpdateForm">Editar</button>
+                    <button class="btn btn-edit" @click="toggleUpdateForm(true)">
+                        Editar
+                    </button>
                     <button class="btn btn-delete"
                         @click="deleteLocation(locationDetails.location_id, locationDetails.location)">
                         Eliminar
                     </button>
                 </div>
             </div>
-            <h1 class="dashboard-title">Estatísticas</h1>
+        </div>
+        <div v-else>
+            <h1 class="dashboard-title">Atualizar Localização</h1>
+            <div class="info-card">
+                <div class="info-grid">
+                    <div class="field-group">
+                        <h2>Localização</h2>
+                        <input id="location" v-model="locationDetails.location" />
+                    </div>
+                    <div class="field-group">
+                        <h2>Coordenadas</h2>
+                        <p>Latitude: <input v-model="locationDetails.latitude" /></p>
+                        <p>Longitude:<input v-model="locationDetails.longitude" /></p>
+                    </div>
+                    <div class="field-group">
+                        <h2>Direção da Câmara</h2>
+                        <select v-model="locationDetails.direction">
+                            <option disabled value="">Selecione a direção</option>
+                            <option v-for="direction in directions" :key="direction.id" :value="direction.name">
+                                {{ direction.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <h2>Limite Velocidade</h2>
+                        <input id="limite" v-model="locationDetails.limite" type="number" />
+                    </div>
+                </div>
+
+                <div class="map-container">
+                    <l-map ref="leafletMap" :zoom="14" :center="center" style="height: 100%;">
+                        <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            attribution="&copy; OpenStreetMap contributors" />
+                    </l-map>
+                </div>
+
+                <div class="btn-actions">
+                    <button class="btn btn-edit" @click="updateLocation(locationDetails)">Guardar</button>
+                    <button class="btn btn-delete" @click="toggleUpdateForm(false)">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+        <h1 class="dashboard-title">Estatísticas</h1>
 
         <section class="statistics-card">
             <div class="statistics-header">
@@ -294,9 +357,6 @@ onMounted(async () => {
             </div>
         </section>
     </div>
-        </div>
-
-        
     <div v-else>
         <p>A carregar os detalhes da localização...</p>
     </div>
@@ -496,5 +556,19 @@ onMounted(async () => {
     justify-content: center;
     /* Centraliza os botões */
     margin-top: 2rem;
+}
+
+.field-group input,
+.field-group select {
+    padding: 10px;
+    border-radius: 6px;
+    background-color: #0B132B;
+    color: white;
+    border: 1px solid #5BC0BE;
+    font-size: 1rem;
+}
+
+.field-group select {
+    appearance: none;
 }
 </style>

@@ -172,7 +172,7 @@ class Warehouse:
             query_vc = f"""
                 SELECT id AS vehicle_count_id, car, motorcycle, bike, truck, bus,
                     n, s, e, w, ne, nw, se, sw, 
-                    timestamp, location_id
+                    timestamp, location_id, excesso_velocidade, velocidade_media
                 FROM {DATABASE_SCHEMA}.vehicle_counts
                 WHERE id > %s
             """
@@ -191,7 +191,7 @@ class Warehouse:
             )
 
             query_loc = f"""
-                SELECT location_id, location, direction, updated_at, latitude, longitude
+                SELECT location_id, location, direction, updated_at, latitude, longitude, limite
                 FROM {DATABASE_SCHEMA}.locations
                 WHERE updated_at > %s
                 OR location_id = ANY(%s)
@@ -370,7 +370,7 @@ class Warehouse:
                 
                 # Get existing locations from dimension table
                 query = f"""
-                    SELECT location_id, location, direction, latitude, longitude
+                    SELECT location_id, location, direction, longitude, latitude, "limit"
                     FROM {WAREHOUSE_SCHEMA}.dim_location
                     WHERE location_id IN :ids
                 """
@@ -387,7 +387,8 @@ class Warehouse:
                             "location": row["location"],
                             "direction": row["direction"],
                             "latitude": row["latitude"],
-                            "longitude": row["longitude"]
+                            "longitude": row["longitude"],
+                            "limit": row["limit"]
                         }
                         for _, row in existing.iterrows()
                     }
@@ -402,20 +403,22 @@ class Warehouse:
                         direction = row["direction"]
                         latitude = row["latitude"]
                         longitude = row["longitude"]
+                        limit = row["limite"]
 
                         if location_id not in existing_dict:
                             # Insert new location
                             query_dl = f"""
-                                INSERT INTO {WAREHOUSE_SCHEMA}.dim_location (location_id, location, direction, latitude, longitude)
-                                VALUES (:location_id, :location, :direction, :latitude, :longitude)
+                                INSERT INTO {WAREHOUSE_SCHEMA}.dim_location (location_id, location, direction, longitude, latitude, "limit")
+                                VALUES (:location_id, :location, :direction, :longitude, :latitude, :limit)
                             """
 
                             params = {
                                 "location_id": location_id,
                                 "location": location,
                                 "direction": direction,
+                                "longitude": longitude,
                                 "latitude": latitude,
-                                "longitude": longitude
+                                "limit": limit
                             }
                             self.execute_query(query_dl, 2, params)
 
@@ -423,13 +426,15 @@ class Warehouse:
                         else:
                             existing_location = existing_dict[location_id]
                             # Update if either location name or direction has changed
-                            if (existing_location["location"] != location or existing_location["direction"] != direction):
+                            if (existing_location["location"] != location or existing_location["direction"] != direction or existing_location["limit"] != limit):
                                 query_dl = f"""
                                     UPDATE {WAREHOUSE_SCHEMA}.dim_location
                                     SET location = :location,
                                         direction = :new_direction,
+                                        "limit" = :limit,
                                         location_old = :old_location,
                                         direction_old = :old_direction,
+                                        limit_old = :old_limit
                                     WHERE location_id = :location_id
                                 """
 
@@ -437,8 +442,10 @@ class Warehouse:
                                     "location_id": location_id,
                                     "location": location,
                                     "new_direction": direction,
+                                    "limit": limit,
                                     "old_location": existing_location["location"],
-                                    "old_direction": existing_location["direction"]
+                                    "old_direction": existing_location["direction"],
+                                    "old_limit": existing_location["limit"],
                                 }
                                 self.execute_query(query_dl, 2, params)
 
@@ -486,7 +493,7 @@ class Warehouse:
             fact_df = fact_df[[
                 "date_id", "time_id", "location_id",
                 "car", "motorcycle", "bike", "truck", "bus",
-                "n", "s", "e", "w", "ne", "nw", "se", "sw"
+                "n", "s", "e", "w", "ne", "nw", "se", "sw", "excesso_velocidade", "velocidade_media"
             ]]
             
             with self.engine.begin() as conn:
@@ -505,11 +512,11 @@ class Warehouse:
                         INSERT INTO {WAREHOUSE_SCHEMA}.fact_vehicle_counts (
                                 date_id, time_id, location_id,
                                 car, motorcycle, bike, truck, bus,
-                                n, s, e, w, ne, nw, se, sw
+                                n, s, e, w, ne, nw, se, sw, excess_speed, average_speed
                             ) VALUES (
                                 :date_id, :time_id, :location_id,
                                 :car, :motorcycle, :bike, :truck, :bus,
-                                :n, :s, :e, :w, :ne, :nw, :se, :sw
+                                :n, :s, :e, :w, :ne, :nw, :se, :sw, :excess_speed, :average_speed
                             );
                         """
                     
@@ -541,11 +548,11 @@ class Warehouse:
                             INSERT INTO {WAREHOUSE_SCHEMA}.fact_vehicle_counts (
                                 date_id, time_id, location_id,
                                 car, motorcycle, bike, truck, bus,
-                                n, s, e, w, ne, nw, se, sw
+                                n, s, e, w, ne, nw, se, sw, excess_speed, average_speed
                             ) VALUES (
                                 :date_id, :time_id, :location_id,
                                 :car, :motorcycle, :bike, :truck, :bus,
-                                :n, :s, :e, :w, :ne, :nw, :se, :sw
+                                :n, :s, :e, :w, :ne, :nw, :se, :sw, :excesso_velocidade, :velocidade_media
                             )
                             ON CONFLICT (date_id, time_id, location_id) DO NOTHING;
                         """

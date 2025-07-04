@@ -79,6 +79,7 @@ class Database:
         except Exception as e:
             self.log(f"Erro ao obter o limite de velocidade da localização: {e}", level="ERROR")
             return None
+        
     def get_location_direction(self, location_id):
         try:
             print(f"Obtendo direção para a localização id: {location_id}")
