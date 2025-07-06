@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebElementEntity>
+   <description></description>
+   <name>div_LocalizaoDireoLimite VelocidadeAesteste_3804fe</name>
+   <tag></tag>
+   <elementGuidId>51104df6-d841-4750-bc9c-3113bf987c42</elementGuidId>
+   <selectorCollection>
+      <entry>
+         <key>CSS</key>
+         <value>div.locations-column</value>
+      </entry>
+      <entry>
+         <key>XPATH</key>
+         <value>//div[@id='app']/div[2]/main/div/div</value>
+      </entry>
+   </selectorCollection>
+   <selectorMethod>XPATH</selectorMethod>
+   <smartLocatorCollection>
+      <entry>
+         <key>SMART_LOCATOR</key>
+         <value>div >> internal:has-text=&quot;LocalizaçãoDireçãoLimite VelocidadeAçõestesteEste55 km/hSeleciona a câmaraGravar&quot;i >> nth=3</value>
+      </entry>
+   </smartLocatorCollection>
+   <smartLocatorEnabled>false</smartLocatorEnabled>
+   <useRalativeImagePath>true</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>tag</name>
+      <type>Main</type>
+      <value>div</value>
+      <webElementGuid>5a8d1943-1915-4c84-b1dd-a770dcf151c1</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>class</name>
+      <type>Main</type>
+      <value>locations-column</value>
+      <webElementGuid>8330c095-9b57-435a-a9eb-ff9711f6a4a2</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>text</name>
+      <type>Main</type>
+      <value>LocalizaçãoDireçãoLimite VelocidadeAçõestesteEste55 km/hSeleciona a câmaraGravarRua XPTOOOSul50 km/hSeleciona a câmaraGravarRua teste23Sudeste2 km/hSeleciona a câmaraGravar</value>
+      <webElementGuid>cce846da-ea8c-4303-8387-ebab1c5b3456</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>id(&quot;app&quot;)/div[@class=&quot;app-container&quot;]/main[@class=&quot;main-content&quot;]/div[@class=&quot;flex flex-col items-center&quot;]/div[@class=&quot;locations-column&quot;]</value>
+      <webElementGuid>75f7198d-37f6-4718-8fec-67de7986609b</webElementGuid>
+   </webElementProperties>
+   <webElementXpaths>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:idRelative</name>
+      <type>Main</type>
+      <value>//div[@id='app']/div[2]/main/div/div</value>
+      <webElementGuid>b7bab3b1-9172-44ad-aab9-ade9e4917137</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Localizações'])[2]/following::div[2]</value>
+      <webElementGuid>e8acc086-74d9-4ba7-935c-8ac8f85d394d</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Logout'])[1]/following::div[2]</value>
+      <webElementGuid>9ed7df4c-4056-44fd-9d86-066f4d198d90</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:position</name>
+      <type>Main</type>
+      <value>//main/div/div</value>
+      <webElementGuid>0cf36a9e-1320-4556-9c03-af79c0f363e3</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:customAttributes</name>
+      <type>Main</type>
+      <value>//div[(text() = 'LocalizaçãoDireçãoLimite VelocidadeAçõestesteEste55 km/hSeleciona a câmaraGravarRua XPTOOOSul50 km/hSeleciona a câmaraGravarRua teste23Sudeste2 km/hSeleciona a câmaraGravar' or . = 'LocalizaçãoDireçãoLimite VelocidadeAçõestesteEste55 km/hSeleciona a câmaraGravarRua XPTOOOSul50 km/hSeleciona a câmaraGravarRua teste23Sudeste2 km/hSeleciona a câmaraGravar')]</value>
+      <webElementGuid>5755efb6-246f-4b53-8927-00a3b21f659f</webElementGuid>
+   </webElementXpaths>
+</WebElementEntity>

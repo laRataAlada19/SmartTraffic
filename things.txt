@@ -155,3 +155,7 @@ adicionar no final isto -> host    all             all             192.168.65.0/
 
 npm install chartjs-chart-geo
 npm install xlsx
+
+###PARA DETETAR CAMS
+pip install flask-cors
+pip install flask

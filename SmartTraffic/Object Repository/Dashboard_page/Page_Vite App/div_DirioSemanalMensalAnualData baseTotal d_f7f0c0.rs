@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebElementEntity>
+   <description></description>
+   <name>div_DirioSemanalMensalAnualData baseTotal d_f7f0c0</name>
+   <tag></tag>
+   <elementGuidId>0cfc26fd-90bd-4178-b888-7ddf0c86fb60</elementGuidId>
+   <selectorCollection>
+      <entry>
+         <key>CSS</key>
+         <value>div.dashboard-container</value>
+      </entry>
+      <entry>
+         <key>XPATH</key>
+         <value>//div[@id='app']/div[2]/main/div</value>
+      </entry>
+   </selectorCollection>
+   <selectorMethod>XPATH</selectorMethod>
+   <smartLocatorCollection>
+      <entry>
+         <key>SMART_LOCATOR</key>
+         <value>div >> internal:has-text=&quot;DiárioSemanalMensalAnualData base:Total de veículos: 0Total de ligeiros: 0Total &quot;i >> nth=2</value>
+      </entry>
+   </smartLocatorCollection>
+   <smartLocatorEnabled>false</smartLocatorEnabled>
+   <useRalativeImagePath>true</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>tag</name>
+      <type>Main</type>
+      <value>div</value>
+      <webElementGuid>08fea050-370c-4257-b8bc-7407af0f68c3</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>class</name>
+      <type>Main</type>
+      <value>dashboard-container</value>
+      <webElementGuid>777db0d0-446e-4fc6-b33e-a782ceb59404</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>text</name>
+      <type>Main</type>
+      <value>DiárioSemanalMensalAnualData base:Total de veículos: 0Total de ligeiros: 0Total de motas: 0Total de camiões: 0Total de autocarros: 0Total de bicicletas: 0Mais movimentada: N/AMenos movimentada: N/AVeículos em excesso: 11Hora com mais tráfego: 18-19Hora com menos tráfego: 02-03Comparação com há 7 dias: +2%Localizações existentesLocalizaçãoDireçãoLimite VelocidadeAçõesRua teste23Sudeste1 km/hSeleciona a câmaraGravartesteEste55 km/hSeleciona a câmaraGravarRua XPTOOOSul50 km/hSeleciona a câmaraGravarNenhum gráfico selecionado.Atualizado em: </value>
+      <webElementGuid>b345e98c-13b9-4179-91bb-dab9cbb4f240</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>id(&quot;app&quot;)/div[@class=&quot;app-container&quot;]/main[@class=&quot;main-content&quot;]/div[@class=&quot;dashboard-container&quot;]</value>
+      <webElementGuid>928f396a-e86b-4015-a5b5-1ddefbb0ecc0</webElementGuid>
+   </webElementProperties>
+   <webElementXpaths>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:idRelative</name>
+      <type>Main</type>
+      <value>//div[@id='app']/div[2]/main/div</value>
+      <webElementGuid>bd626e06-83ba-43d7-ab2b-6b58b98f0686</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Dashboard'])[2]/following::div[1]</value>
+      <webElementGuid>ce29e1b8-b70f-405a-aabe-9a129400c7e2</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Logout'])[1]/following::div[1]</value>
+      <webElementGuid>8fc3972b-6be2-4bcc-b386-5faf88563af9</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:position</name>
+      <type>Main</type>
+      <value>//main/div</value>
+      <webElementGuid>831a85f8-4355-4da7-9974-55d4756e6086</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:customAttributes</name>
+      <type>Main</type>
+      <value>//div[(text() = 'DiárioSemanalMensalAnualData base:Total de veículos: 0Total de ligeiros: 0Total de motas: 0Total de camiões: 0Total de autocarros: 0Total de bicicletas: 0Mais movimentada: N/AMenos movimentada: N/AVeículos em excesso: 11Hora com mais tráfego: 18-19Hora com menos tráfego: 02-03Comparação com há 7 dias: +2%Localizações existentesLocalizaçãoDireçãoLimite VelocidadeAçõesRua teste23Sudeste1 km/hSeleciona a câmaraGravartesteEste55 km/hSeleciona a câmaraGravarRua XPTOOOSul50 km/hSeleciona a câmaraGravarNenhum gráfico selecionado.Atualizado em: ' or . = 'DiárioSemanalMensalAnualData base:Total de veículos: 0Total de ligeiros: 0Total de motas: 0Total de camiões: 0Total de autocarros: 0Total de bicicletas: 0Mais movimentada: N/AMenos movimentada: N/AVeículos em excesso: 11Hora com mais tráfego: 18-19Hora com menos tráfego: 02-03Comparação com há 7 dias: +2%Localizações existentesLocalizaçãoDireçãoLimite VelocidadeAçõesRua teste23Sudeste1 km/hSeleciona a câmaraGravartesteEste55 km/hSeleciona a câmaraGravarRua XPTOOOSul50 km/hSeleciona a câmaraGravarNenhum gráfico selecionado.Atualizado em: ')]</value>
+      <webElementGuid>7cca0356-7cd7-4d73-a48b-8af7d13b0853</webElementGuid>
+   </webElementXpaths>
+</WebElementEntity>

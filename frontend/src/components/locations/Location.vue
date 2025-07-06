@@ -67,8 +67,12 @@ function exportExcel() {
     });
 
     // Save the workbook with a friendly filename
-    const filename = `export_${location.location.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
+    const filename = `exportExcel_${location.location.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
     XLSX.writeFile(workbook, filename);
+    toast({
+        title: 'Sucesso',
+        description: `Localização ${location.location} exportada para Excel com sucesso!`,
+    });
 }
 
 function exportCSV() {
@@ -121,12 +125,16 @@ function exportCSV() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
 
-    const safeFilename = `export_${location.location.replace(/[^a-zA-Z0-9]/g, '_')}.csv`;
+    const safeFilename = `exportCSV_${location.location.replace(/[^a-zA-Z0-9]/g, '_')}.csv`;
     link.href = url;
     link.download = safeFilename;
     link.click();
 
     URL.revokeObjectURL(url);
+    toast({
+        title: 'Sucesso',
+        description: `Localização ${location.location} exportada para CSV com sucesso!`,
+    });
 }
 
 async function exportPDF() {
@@ -268,7 +276,11 @@ async function exportPDF() {
     doc.text(`Página ${currentPage}`, pageWidth - 30, 290);
 
     const safeLocationName = locationDetails.value.location.replace(/[^a-zA-Z0-9]/g, '_');
-    doc.save(`export_${safeLocationName}.pdf`);
+    doc.save(`exportPDF_${safeLocationName}.pdf`);
+    toast({
+        title: 'Sucesso',
+        description: `Localização ${locationDetails.value.location} exportada para PDF com sucesso!`,
+    });
 }
 
 function dmsToDecimal(coordStr) {

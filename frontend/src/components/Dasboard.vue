@@ -6,7 +6,7 @@ import ChartDisplay from '@/components/charts/ChartDisplay.vue';
 import LocationList from '@/components/locations/LocationList.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useFactVehicleStore } from '@/stores/factvehicle';
-import { toast } from './ui/toast';
+import { toast } from '@/components/ui/toast';
 
 const locationStore = useLocationStore();
 const factVehicleStore = useFactVehicleStore();
@@ -23,12 +23,12 @@ const selectedCharts = ref([]);
 const theme = ref(1);
 const selectedDate = ref(new Date().toISOString().split('T')[0]); // Data atual no formato YYYY-MM-DD
 const refreshTime = ref('')
+const data = ref([]);
 
 const changeTheme = (selectedTheme) => {
     theme.value = selectedTheme;
     fetchSummary();
 };
-const data = ref([]);
 
 const fetchSummary = async () => {
     try {
@@ -38,26 +38,27 @@ const fetchSummary = async () => {
         };
         data.value = await factVehicleStore.fetchDataFiltered(payload);
 
-        totalCars.value =data.value.reduce((acc, item) => acc + item.car, 0);
+        totalCars.value = data.value.reduce((acc, item) => acc + item.car, 0);
         totalBikes.value = data.value.reduce((acc, item) => acc + item.bike, 0);
-        totalTrucks.value =data.value.reduce((acc, item) => acc + item.truck, 0);
+        totalTrucks.value = data.value.reduce((acc, item) => acc + item.truck, 0);
         totalBuses.value = data.value.reduce((acc, item) => acc + item.bus, 0);
         totalMotorcycles.value = data.value.reduce((acc, item) => acc + item.motorcycle, 0);
         totalVehicles.value = totalCars.value + totalBikes.value + totalTrucks.value + totalBuses.value + totalMotorcycles.value;
         mostMovimentedStrests.value = await factVehicleStore.fetchMostMovimentedStress(payload);
         lessMovimentedStrests.value = await factVehicleStore.fetchLessMovimentedStress(payload);
     } catch (error) {
-        console.error('Erro ao buscar dados estatisticos:', error);
         toast({
             title: 'Erro',
             description: 'Não foi possível buscar os dados estatisticos. Tente novamente mais tarde.',
-            type: 'error',
+            variant: 'destructive',
         });
     }
 };
+
 watch(selectedDate, (newDate) => {
     fetchSummary();
 });
+
 onMounted(async () => {
     try {
         locationStore.fetchLocations();

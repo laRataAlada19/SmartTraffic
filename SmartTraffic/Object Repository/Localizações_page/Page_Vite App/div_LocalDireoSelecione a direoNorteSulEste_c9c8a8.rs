@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebElementEntity>
+   <description></description>
+   <name>div_LocalDireoSelecione a direoNorteSulEste_c9c8a8</name>
+   <tag></tag>
+   <elementGuidId>b749b41c-ade0-4352-9489-4c336c0cfde7</elementGuidId>
+   <selectorCollection>
+      <entry>
+         <key>CSS</key>
+         <value>div.create-location</value>
+      </entry>
+      <entry>
+         <key>XPATH</key>
+         <value>//div[@id='app']/div[2]/main/div[2]</value>
+      </entry>
+   </selectorCollection>
+   <selectorMethod>XPATH</selectorMethod>
+   <smartLocatorCollection>
+      <entry>
+         <key>SMART_LOCATOR</key>
+         <value>div >> internal:has-text=&quot;Local:Direção:Selecione a direçãoNorteSulEsteOesteNoroesteSudesteLimite de veloc&quot;i >> nth=2</value>
+      </entry>
+   </smartLocatorCollection>
+   <smartLocatorEnabled>false</smartLocatorEnabled>
+   <useRalativeImagePath>true</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>tag</name>
+      <type>Main</type>
+      <value>div</value>
+      <webElementGuid>efe49724-edf7-4085-af13-f38bc15ef54f</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>class</name>
+      <type>Main</type>
+      <value>create-location</value>
+      <webElementGuid>18d7917e-a0a7-47c8-a021-7e45ace68bec</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>text</name>
+      <type>Main</type>
+      <value>Local:Direção:Selecione a direçãoNorteSulEsteOesteNoroesteSudesteLimite de velocidade (km/h):Latitude*:Longitude*:+− Leaflet | © OpenStreetMap contributorsCriar</value>
+      <webElementGuid>7684f1f1-44e1-4052-9f63-1a6830010ccf</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>id(&quot;app&quot;)/div[@class=&quot;app-container&quot;]/main[@class=&quot;main-content&quot;]/div[@class=&quot;create-location&quot;]</value>
+      <webElementGuid>1ba3e7c9-1d0c-4aea-b582-fac181147569</webElementGuid>
+   </webElementProperties>
+   <webElementXpaths>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:idRelative</name>
+      <type>Main</type>
+      <value>//div[@id='app']/div[2]/main/div[2]</value>
+      <webElementGuid>6ab923f1-9108-4ae7-9f6d-026fd81a0cf2</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Criar Localização'])[1]/following::div[1]</value>
+      <webElementGuid>e9d7e9d0-abc8-4397-8aca-c1f47c4efb53</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Gravar'])[4]/following::div[1]</value>
+      <webElementGuid>4f855c4a-88a3-4672-a1f8-5ec90747308e</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:position</name>
+      <type>Main</type>
+      <value>//main/div[2]</value>
+      <webElementGuid>81b16237-e71c-4d60-baca-d2ec60cc45d9</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:customAttributes</name>
+      <type>Main</type>
+      <value>//div[(text() = 'Local:Direção:Selecione a direçãoNorteSulEsteOesteNoroesteSudesteLimite de velocidade (km/h):Latitude*:Longitude*:+− Leaflet | © OpenStreetMap contributorsCriar' or . = 'Local:Direção:Selecione a direçãoNorteSulEsteOesteNoroesteSudesteLimite de velocidade (km/h):Latitude*:Longitude*:+− Leaflet | © OpenStreetMap contributorsCriar')]</value>
+      <webElementGuid>dd7f19fc-c2d4-48e9-92c8-3aa6bdf0ac73</webElementGuid>
+   </webElementXpaths>
+</WebElementEntity>
