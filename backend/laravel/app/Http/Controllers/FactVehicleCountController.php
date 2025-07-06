@@ -86,7 +86,6 @@ class FactVehicleCountController extends Controller
         return FactVehicleCountResource::collection($query->get());
     }
 
-
     public function totalVehicles(Request $request)
     {
         return response()->json([

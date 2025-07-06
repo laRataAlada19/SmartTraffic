@@ -14,11 +14,13 @@ class UserController extends Controller
     {
         return new UserResource($request->user());
     }
+    
     public function index()
     {
         $users = \App\Models\User::all();
         return UserResource::collection($users);
     }
+
     public function update(Request $request, $id)
     {
         $user = \App\Models\User::findOrFail($id);
