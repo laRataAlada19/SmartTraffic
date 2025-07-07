@@ -1,6 +1,40 @@
+<template>
+  <div class="h-[500px] w-full">
+    <LMap
+      :zoom="13"
+      :center="[defaultLat, defaultLng]"
+      style="height: 100%; width: 100%"
+    >
+      <LTileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution="&copy; OpenStreetMap contributors"
+      />
+
+      <LMarker
+        v-for="(item, index) in props.data"
+        :key="index"
+        :lat-lng="[item.latitude, item.longitude]"
+        :icon="getIcon(item)"
+      >
+        <LPopup>
+          <div>
+            <p><strong>Localidade:</strong> {{ item.location }}</p>
+            <p>Carros: {{ item.car }}</p>
+            <p>Motociclos: {{ item.motorcycle }}</p>
+            <p>Bicicletas: {{ item.bike }}</p>
+            <p>Camiões: {{ item.truck }}</p>
+            <p>Autocarros: {{ item.bus }}</p>
+          </div>
+        </LPopup>
+      </LMarker>
+    </LMap>
+  </div>
+</template>
+
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import L from 'leaflet';
+import { defineProps } from 'vue'
+import { LMap, LTileLayer, LMarker, LPopup } from 'vue-leaflet';
+import L from 'leaflet'
 import 'leaflet/dist/leaflet.css';
 
 const props = defineProps({
@@ -9,120 +43,50 @@ const props = defineProps({
     required: true,
     default: () => [],
   },
-});
+})
 
-const mapContainer = ref(null);
-const map = ref(null);
-const geoJsonLayer = ref(null);
-const loading = ref(true);
-const error = ref(null);
+// Ícones por tipo de veículo mais dominante
+function getIcon(item) {
+  const maxType = getDominantType(item)
+  const color = typeColors[maxType] || 'gray'
 
-// Cores para o gradiente do mapa
-const getColor = (value, maxValue) => {
-  const ratio = value / maxValue;
-  return ratio > 0.75 ? '#800026' :
-         ratio > 0.5  ? '#BD0026' :
-         ratio > 0.25 ? '#E31A1C' :
-         ratio > 0.1  ? '#FC4E2A' :
-         ratio > 0    ? '#FD8D3C' :
-                        '#FFEDA0';
-};
+  return L.divIcon({
+    className: 'custom-icon',
+    html: `<div style="background:${color};width:14px;height:14px;border-radius:50%;border:2px solid white;"></div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+  })
+}
 
-const styleFeature = (feature, maxValue) => {
-  return {
-    fillColor: getColor(feature.properties.value || 0, maxValue),
-    weight: 1,
-    opacity: 1,
-    color: 'white',
-    dashArray: '3',
-    fillOpacity: 0.7
-  };
-};
+const typeColors = {
+  car: '#36A2EB',
+  motorcycle: '#FF6384',
+  bike: '#FFCE56',
+  truck: '#4BC0C0',
+  bus: '#9966FF',
+}
 
-onMounted(async () => {
-  try {
-    // Carrega o GeoJSON dos distritos de Portugal
-    const response = await fetch('https://raw.githubusercontent.com/datasets/geo-boundaries-world-110m/master/countries-10m.json');
-    const worldData = await response.json();
-    
-    // Filtra apenas Portugal (precisa de ajuste para distritos)
-    // NOTA: Este exemplo usa países, você precisará substituir por um GeoJSON de distritos portugueses
-    const portugalData = {
-      type: 'FeatureCollection',
-      features: worldData.features.filter(f => f.properties.name === 'Portugal')
-    };
-    
-    // Processa os dados de tráfego
-    const maxValue = Math.max(...props.data.map(item => item.value || 0), 1);
-    
-    // Cria o mapa
-    map.value = L.map(mapContainer.value).setView([39.3999, -8.2245], 6);
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map.value);
-    
-    // Adiciona os dados GeoJSON com estilo
-    geoJsonLayer.value = L.geoJSON(portugalData, {
-      style: (feature) => styleFeature(feature, maxValue),
-      onEachFeature: (feature, layer) => {
-        const districtData = props.data.find(d => d.district === feature.properties.name);
-        if (districtData) {
-          layer.bindPopup(`
-            <b>${feature.properties.name}</b><br>
-            Tráfego total: ${districtData.value} veículos
-          `);
-        }
-      }
-    }).addTo(map.value);
-    
-    loading.value = false;
-  } catch (err) {
-    console.error('Erro ao carregar mapa:', err);
-    error.value = 'Erro ao carregar o mapa. Por favor, tente novamente.';
-    loading.value = false;
-  }
-});
+// Determinar o tipo de veículo mais dominante na localização
+function getDominantType(item) {
+  const entries = [
+    ['car', item.car],
+    ['motorcycle', item.motorcycle],
+    ['bike', item.bike],
+    ['truck', item.truck],
+    ['bus', item.bus],
+  ]
+  return entries.reduce((max, curr) => (curr[1] > max[1] ? curr : max))[0]
+}
+
+// Coordenadas centrais (ajustáveis)
+const defaultLat = 39.75 // Leiria?
+const defaultLng = -8.8
 </script>
 
-<template>
-  <div class="map-container">
-    <h3>Mapa Geográfico de Tráfego em Portugal</h3>
-    <div v-if="loading" class="loading-message">
-      Carregando mapa...
-    </div>
-    <div v-else-if="error" class="error-message">
-      {{ error }}
-    </div>
-    <div v-else ref="mapContainer" class="map"></div>
-  </div>
-</template>
-
 <style scoped>
-.map-container {
-  width: 100%;
-  height: 600px;
-  position: relative;
-}
-
-.map {
-  width: 100%;
-  height: 100%;
-  background: #f0f0f0;
-}
-
-.loading-message, .error-message {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 20px;
-  background: white;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-.error-message {
-  color: #d32f2f;
+/* Opcional: remover ícones padrão dos marcadores */
+.custom-icon {
+  background: none !important;
+  border: none !important;
 }
 </style>

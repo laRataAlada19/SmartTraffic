@@ -2,6 +2,7 @@
 import { defineAsyncComponent, ref, onMounted, computed } from 'vue'
 import { useFactVehicleStore } from '@/stores/factvehicle'
 import charts from './chartsConfig'
+import 'leaflet/dist/leaflet.css';
 
 const props = defineProps({
   selectedCharts: {

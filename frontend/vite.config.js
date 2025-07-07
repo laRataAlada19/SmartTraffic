@@ -12,7 +12,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      'vue-leaflet': 'node_modules/vue-leaflet/dist/vue-leaflet.esm.js',
     }
   },
   server: {

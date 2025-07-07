@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useFactVehicleStore } from '@/stores/factvehicle';
 import { toast } from './ui/toast';
 
+
 const locationStore = useLocationStore();
 const factVehicleStore = useFactVehicleStore();
 const storeAuth = useAuthStore();
