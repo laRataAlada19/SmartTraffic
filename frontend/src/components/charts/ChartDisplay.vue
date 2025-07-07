@@ -4,6 +4,12 @@ import { useFactVehicleStore } from '@/stores/factvehicle'
 import charts from './chartsConfig'
 import 'leaflet/dist/leaflet.css';
 
+const store = useFactVehicleStore()
+const sharedData = ref([])
+const isDataLoaded = ref(false)
+const loadingError = ref(null)
+const selectedCharts = ref({});
+
 const props = defineProps({
   selectedCharts: {
     type: Array,
@@ -32,20 +38,12 @@ const componentsMap = {
   TimeMap: defineAsyncComponent(() => import('./types/TimeMap.vue'))
 }
 
-// Gerenciamento de dados
-const store = useFactVehicleStore()
-const sharedData = ref([])
-const isDataLoaded = ref(false)
-const loadingError = ref(null)
-const selectedCharts = ref({});
-
 // Busca os dados
 const fetchData = async () => {
   try {
     if (!isDataLoaded.value) {
       sharedData.value = await store.fetchData()
       isDataLoaded.value = true
-      console.log('Dados carregados:', sharedData.value)
     }
   } catch (error) {
     console.error('Erro ao carregar dados:', error)
@@ -66,25 +64,12 @@ const validCharts = computed(() => {
 })
 
 function getExportData() {
-  const selected = Object.keys(selectedCharts.value).filter(key => selectedCharts.value[key]?.length !== 0)
-  const filteredCharts = validCharts.value.filter(c => selected.includes(c.name))
-
-  // Só exporta os dados e nomes dos gráficos selecionados
   return {
-    charts: filteredCharts.map(c => ({
-      name: c.config?.name || c.name,
-      data: sharedData.value // Aqui podes filtrar mais se necessário
+    charts: validCharts.value.map(chart => ({
+      name: chart.name,
+      data: sharedData.value,
+      config: chart.config
     }))
-  }
-}
-
-function toggle(chartName) {
-  if (selectedCharts.value[chartName]) {
-    // If the chart is already selected, remove it
-    delete selectedCharts.value[chartName];
-  } else {
-    // If the chart is not selected, add it
-    selectedCharts.value[chartName] = true;
   }
 }
 
@@ -115,12 +100,8 @@ onMounted(() => {
       <div v-for="chart in validCharts" :key="chart.name" class="chart-wrapper">
         <div class="chart-header">
           <h3>{{ chart.config?.name || chart.name }}</h3>
-          <label>
-            Exportar
-            <input type="checkbox" :checked="selectedCharts[chart.name]" @change="toggle(chart.name)" />
-          </label>
         </div>
-        <div class="chart-container" :id="`chart-${chart.name}`">
+        <div class="chart-container">
           <component :is="chart.component" :data="sharedData" v-if="isDataLoaded" />
         </div>
         <p class="chart-description" v-if="chart.config?.description">

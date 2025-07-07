@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebElementEntity>
+   <description></description>
+   <name>p_Rua XPTOOO</name>
+   <tag></tag>
+   <elementGuidId>6642cd3c-9b48-4ddc-905c-bcbef2bc4e8a</elementGuidId>
+   <selectorCollection>
+      <entry>
+         <key>CSS</key>
+         <value>p</value>
+      </entry>
+      <entry>
+         <key>XPATH</key>
+         <value>//div[@id='app']/div[2]/main/div/div/div/div/div/p</value>
+      </entry>
+   </selectorCollection>
+   <selectorMethod>XPATH</selectorMethod>
+   <smartLocatorCollection>
+      <entry>
+         <key>SMART_LOCATOR</key>
+         <value>p >> internal:has-text=&quot;Rua XPTOOO&quot;i</value>
+      </entry>
+   </smartLocatorCollection>
+   <smartLocatorEnabled>false</smartLocatorEnabled>
+   <useRalativeImagePath>true</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>tag</name>
+      <type>Main</type>
+      <value>p</value>
+      <webElementGuid>e0449ca5-da41-47e6-82e0-d65176bb4fe1</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>text</name>
+      <type>Main</type>
+      <value>Rua XPTOOO</value>
+      <webElementGuid>1d179893-5a9e-4cae-825c-c7fe12f1457f</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>id(&quot;app&quot;)/div[@class=&quot;app-container&quot;]/main[@class=&quot;main-content&quot;]/div[@class=&quot;location-container&quot;]/div[1]/div[@class=&quot;info-card&quot;]/div[@class=&quot;info-grid&quot;]/div[1]/p[1]</value>
+      <webElementGuid>091dac60-0a5f-4fe6-bcdc-4828a313120c</webElementGuid>
+   </webElementProperties>
+   <webElementXpaths>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:idRelative</name>
+      <type>Main</type>
+      <value>//div[@id='app']/div[2]/main/div/div/div/div/div/p</value>
+      <webElementGuid>1d468f8f-17e6-45d0-87ac-fd3d8eb7b807</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Localização'])[1]/following::p[1]</value>
+      <webElementGuid>b7ae8a4b-c0e7-4f5f-8528-ea8be2673a07</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Informação da Localização'])[1]/following::p[1]</value>
+      <webElementGuid>a24a31bf-a549-4e0f-ae37-b49a529ff556</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Coordenadas'])[1]/preceding::p[1]</value>
+      <webElementGuid>0f9f5c95-5d07-4026-9f47-1ffeab5ed560</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Direção da Câmara'])[1]/preceding::p[3]</value>
+      <webElementGuid>8e49c74b-349d-4f11-a4d7-35d4b57a1594</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>//*/text()[normalize-space(.)='Rua XPTOOO']/parent::*</value>
+      <webElementGuid>f5f7b15b-3a40-405f-adfe-5e0baa8af3a6</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:position</name>
+      <type>Main</type>
+      <value>//p</value>
+      <webElementGuid>e82fe8a2-f814-4cb3-a991-1db782ae3eb9</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:customAttributes</name>
+      <type>Main</type>
+      <value>//p[(text() = 'Rua XPTOOO' or . = 'Rua XPTOOO')]</value>
+      <webElementGuid>938c1d78-61ff-41bd-9004-90e652a5c459</webElementGuid>
+   </webElementXpaths>
+</WebElementEntity>

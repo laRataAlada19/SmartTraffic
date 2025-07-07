@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description></description>
+   <name>exportCSV_Localização_Rua XPTO</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>124373e0-2f2c-4a46-a6b4-f20bf39cb822</testCaseGuid>
+</TestCaseEntity>

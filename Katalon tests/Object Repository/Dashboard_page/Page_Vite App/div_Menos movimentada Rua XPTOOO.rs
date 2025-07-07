@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebElementEntity>
+   <description></description>
+   <name>div_Menos movimentada Rua XPTOOO</name>
+   <tag></tag>
+   <elementGuidId>c7f7f6e1-6fc7-407c-bb15-8da937495a96</elementGuidId>
+   <selectorCollection>
+      <entry>
+         <key>CSS</key>
+         <value></value>
+      </entry>
+      <entry>
+         <key>XPATH</key>
+         <value>//div[@id='app']/div[2]/main/div/div/div/div[3]/div[8]</value>
+      </entry>
+   </selectorCollection>
+   <selectorMethod>XPATH</selectorMethod>
+   <smartLocatorCollection>
+      <entry>
+         <key>SMART_LOCATOR</key>
+         <value>internal:text=&quot;Menos movimentada: Rua XPTOOO&quot;i</value>
+      </entry>
+   </smartLocatorCollection>
+   <smartLocatorEnabled>false</smartLocatorEnabled>
+   <useRalativeImagePath>true</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>tag</name>
+      <type>Main</type>
+      <value>div</value>
+      <webElementGuid>127e286b-bb4c-41af-bf3e-f82c0297b01b</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>class</name>
+      <type>Main</type>
+      <value>stat-card</value>
+      <webElementGuid>3b29c343-5263-40a1-abc9-73d9e95cdf1d</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>text</name>
+      <type>Main</type>
+      <value>Menos movimentada: Rua XPTOOO</value>
+      <webElementGuid>89ec949e-1999-4d9c-b87a-a246d51e4f8b</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>id(&quot;app&quot;)/div[@class=&quot;app-container&quot;]/main[@class=&quot;main-content&quot;]/div[@class=&quot;dashboard-container&quot;]/div[@class=&quot;top-section&quot;]/div[@class=&quot;summary-column&quot;]/div[@class=&quot;stats-grid&quot;]/div[@class=&quot;stat-card&quot;]</value>
+      <webElementGuid>54fc36a8-fbb7-4e54-afcf-dde9b7103ccb</webElementGuid>
+   </webElementProperties>
+   <webElementXpaths>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:idRelative</name>
+      <type>Main</type>
+      <value>//div[@id='app']/div[2]/main/div/div/div/div[3]/div[8]</value>
+      <webElementGuid>b18d04c1-6132-41ed-b395-1a3f3a024a56</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Mais movimentada: Rua teste23'])[1]/following::div[1]</value>
+      <webElementGuid>8c08e79b-fe77-4d2b-ba21-d09752eb9c59</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Total de bicicletas: 0'])[1]/following::div[2]</value>
+      <webElementGuid>37af32f8-ed02-403e-a9a6-e6f8cb1faf6c</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Veículos em excesso: 11'])[1]/preceding::div[1]</value>
+      <webElementGuid>9f386134-6ddf-4467-9c1e-e5b70eb34604</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Hora com mais tráfego: 18-19'])[1]/preceding::div[2]</value>
+      <webElementGuid>dc3b5b31-2bb5-4ed2-9bad-5d5c7c59f074</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>//*/text()[normalize-space(.)='Menos movimentada: Rua XPTOOO']/parent::*</value>
+      <webElementGuid>a501c71b-d3e4-4c7c-9428-acd25aca467b</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:position</name>
+      <type>Main</type>
+      <value>//div[8]</value>
+      <webElementGuid>0ac4364a-415b-4dc8-b0e6-3e9ee9b1c179</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:customAttributes</name>
+      <type>Main</type>
+      <value>//div[(text() = 'Menos movimentada: Rua XPTOOO' or . = 'Menos movimentada: Rua XPTOOO')]</value>
+      <webElementGuid>e97a9f07-06d4-454d-8deb-0f639b186dbc</webElementGuid>
+   </webElementXpaths>
+</WebElementEntity>
