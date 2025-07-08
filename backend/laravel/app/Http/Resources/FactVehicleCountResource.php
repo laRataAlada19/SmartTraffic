@@ -38,6 +38,8 @@ class FactVehicleCountResource extends JsonResource
             'nw' => $this->nw,
             'se' => $this->se,
             'sw' => $this->sw,
+            'excess_speed' => $this->excess_speed,
+            'average_speed' => $this->average_speed
         ];
     }
 }

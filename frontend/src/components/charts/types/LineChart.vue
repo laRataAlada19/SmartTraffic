@@ -98,15 +98,17 @@ const chartOptions = {
 
 <template>
   <div>
-    <div style="margin-bottom: 1rem;">
-      <label>Localidade:
-        <select v-model="locationFilter">
+    <div class="filter-container">
+      <label class="filter-label">
+        Localidade:
+        <select v-model="locationFilter" class="filter-select">
           <option v-for="loc in locations" :key="loc" :value="loc">{{ loc }}</option>
         </select>
       </label>
 
-      <label style="margin-left: 2rem;">Intervalo:
-        <select v-model="timeInterval">
+      <label class="filter-label">
+        Intervalo:
+        <select v-model="timeInterval" class="filter-select">
           <option value="dia">Dia</option>
           <option value="semana">Semana</option>
           <option value="mes">Mês</option>
@@ -117,3 +119,38 @@ const chartOptions = {
     <Line :data="chartData" :options="chartOptions" />
   </div>
 </template>
+
+<style scoped>
+.filter-container {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-weight: 500;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.95rem;
+}
+
+.filter-select {
+  margin-top: 0.3rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background-color: #fff;
+  color: #333;
+  transition: border-color 0.2s;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #3b82f6; /* azul suave */
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+</style>

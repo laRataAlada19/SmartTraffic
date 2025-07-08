@@ -82,7 +82,7 @@ async function confirmarSelecao() {
     await storeAuth.addTable(formattedTable);
 
     router.push({
-      name: 'main',
+      name: 'dashboard',
       query: {
         charts: [...new Set([...dashboardCharts, ...locationCharts])].join(','),
       },

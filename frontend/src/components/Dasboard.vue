@@ -9,6 +9,7 @@ import { useFactVehicleStore } from '@/stores/factvehicle';
 import { toast } from '@/components/ui/toast';
 
 
+
 const locationStore = useLocationStore();
 const factVehicleStore = useFactVehicleStore();
 const storeAuth = useAuthStore();
@@ -18,6 +19,7 @@ const totalBikes = ref(0);
 const totalTrucks = ref(0);
 const totalBuses = ref(0);
 const totalMotorcycles = ref(0);
+const excesso= ref(0);
 const mostMovimentedStrests = ref([]);
 const lessMovimentedStrests = ref([]);
 const selectedCharts = ref([]);
@@ -25,7 +27,9 @@ const theme = ref(1);
 const selectedDate = ref(new Date().toISOString().split('T')[0]); // Data atual no formato YYYY-MM-DD
 const refreshTime = ref('')
 const data = ref([]);
-
+const avg= ref(0);
+const hourWithMostTraffic = ref('0');
+const hourWithLessTraffic = ref('0');
 const changeTheme = (selectedTheme) => {
     theme.value = selectedTheme;
     fetchSummary();
@@ -38,15 +42,31 @@ const fetchSummary = async () => {
             theme: theme.value,
         };
         data.value = await factVehicleStore.fetchDataFiltered(payload);
-
+        console.log("Data fetched:", data.value);
         totalCars.value = data.value.reduce((acc, item) => acc + item.car, 0);
         totalBikes.value = data.value.reduce((acc, item) => acc + item.bike, 0);
         totalTrucks.value = data.value.reduce((acc, item) => acc + item.truck, 0);
         totalBuses.value = data.value.reduce((acc, item) => acc + item.bus, 0);
         totalMotorcycles.value = data.value.reduce((acc, item) => acc + item.motorcycle, 0);
         totalVehicles.value = totalCars.value + totalBikes.value + totalTrucks.value + totalBuses.value + totalMotorcycles.value;
+        excesso.value = data.value.reduce((acc, item) => acc + item.excess_speed, 0);
+        console.log("Total vehicles:", totalVehicles.value);
+        avg.value = (data.value.reduce((acc, item) => acc + Number(item.average_speed), 0) )/ totalVehicles.value;
+        console.log("Average speed:", avg.value);
+        console.log("Excess speed:", excesso.value);
+        console.log("Average speed:", avg.value);
+        console.log("Excess speed:", excesso.value);
         mostMovimentedStrests.value = await factVehicleStore.fetchMostMovimentedStress(payload);
         lessMovimentedStrests.value = await factVehicleStore.fetchLessMovimentedStress(payload);
+        for (const item of data.value) {
+            if (item.hour_with_most_traffic) {
+                hourWithMostTraffic.value = item.hour_with_most_traffic;
+            }
+            if (item.hour_with_less_traffic) {
+                hourWithLessTraffic.value = item.hour_with_less_traffic;
+            }
+        }
+        
     } catch (error) {
         toast({
             title: 'Erro',
@@ -117,10 +137,8 @@ onMounted(async () => {
                     </div>
                     <div class="stat-card">Menos movimentada: {{ lessMovimentedStrests[0]?.location_name || 'N/A' }}
                     </div>
-                    <div class="stat-card">Veículos em excesso: 11</div>
-                    <div class="stat-card">Hora com mais tráfego: 18-19</div>
-                    <div class="stat-card">Hora com menos tráfego: 02-03</div>
-                    <div class="stat-card">Comparação com há 7 dias: +2%</div>
+                    <div class="stat-card">Veículos em excesso: {{ excesso }} </div>
+                    <div class="stat-card">Velocidade média: {{ avg }} km/h</div>
                 </div>
             </div>
             <!-- LOCATIONS SECTION -->
