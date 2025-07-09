@@ -19,25 +19,36 @@ const props = defineProps({
     required: true,
     default: () => [],
   }
-
 })
-const locations = computed(() => {
-  if (!Array.isArray(props.data)) return ['Todos'];
-  const unique = new Set(props.data.map(entry => entry.location || 'Desconhecido'));
-  return ['Todos', ...unique];
-});
-const selectedLocation = ref('all')
+
+const locationFilter = ref('Todos')
 const dateFrom = ref('')
 const dateTo = ref('')
 
-// Filtrar dados por localização e datas
+const locations = computed(() => {
+  if (!Array.isArray(props.data)) return ['Todos']
+  const unique = new Set(props.data.map(entry => entry.location || 'Desconhecido'))
+  return ['Todos', ...unique]
+})
+
 const filteredData = computed(() => {
-  return props.data.filter(d => {
-    const dateOk = (!dateFrom.value || d.full_date >= dateFrom.value) &&
-                   (!dateTo.value || d.full_date <= dateTo.value)
-    const locationOk = selectedLocation.value === 'all' || d.location === selectedLocation.value
-    return dateOk && locationOk
-  })
+  if (!Array.isArray(props.data)) return []
+
+  let filtered = [...props.data]
+
+  if (locationFilter.value !== 'Todos') {
+    filtered = filtered.filter(d => d.location === locationFilter.value)
+  }
+
+  if (dateFrom.value) {
+    filtered = filtered.filter(d => d.full_date >= dateFrom.value)
+  }
+
+  if (dateTo.value) {
+    filtered = filtered.filter(d => d.full_date <= dateTo.value)
+  }
+
+  return filtered
 })
 
 const chartData = computed(() => {
@@ -73,7 +84,7 @@ const chartData = computed(() => {
       ],
       borderColor: '#444',
       borderWidth: 1,
-      borderRadius: 5, // bordas arredondadas nas barras
+      borderRadius: 5,
     }]
   }
 })
@@ -81,8 +92,14 @@ const chartData = computed(() => {
 const chartOptions = {
   responsive: true,
   plugins: {
-    legend: { display: true, position: 'top' },
-    title: { display: true, text: 'Distribuição por Tipo de Veículo' },
+    legend: {
+      display: true,
+      position: 'top',
+    },
+    title: {
+      display: true,
+      text: 'Distribuição por Tipo de Veículo',
+    },
     tooltip: {
       callbacks: {
         label(ctx) {
@@ -92,13 +109,6 @@ const chartOptions = {
           return `${ctx.label}: ${val} (${percent}%)`
         }
       }
-    },
-    datalabels: { // se usares plugin chartjs-plugin-datalabels
-      anchor: 'end',
-      align: 'top',
-      color: '#444',
-      font: { weight: 'bold' },
-      formatter: value => value,
     }
   },
   scales: {
@@ -117,38 +127,69 @@ const chartOptions = {
 </script>
 
 <template>
-  <div class="filters">
-    <label class="filter-label">
+  <div>
+    <div class="filter-container">
+      <label class="filter-label">
         Localidade:
         <select v-model="locationFilter" class="filter-select">
           <option v-for="loc in locations" :key="loc" :value="loc">{{ loc }}</option>
         </select>
       </label>
 
-    <label>
-      Data Início:
-      <input type="date" v-model="dateFrom" />
-    </label>
+      <label class="filter-label">
+        Data Início:
+        <input 
+          type="date" 
+          v-model="dateFrom" 
+          class="filter-select"
+        />
+      </label>
 
-    <label>
-      Data Fim:
-      <input type="date" v-model="dateTo" />
-    </label>
+      <label class="filter-label">
+        Data Fim:
+        <input 
+          type="date" 
+          v-model="dateTo" 
+          class="filter-select"
+        />
+      </label>
+    </div>
+
+    <Bar :data="chartData" :options="chartOptions" />
   </div>
-
-  <Bar :data="chartData" :options="chartOptions" />
 </template>
 
 <style scoped>
-.filters {
+.filter-container {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
 }
-.filters label {
+
+.filter-label {
+  font-weight: 500;
+  color: #fff;
   display: flex;
   flex-direction: column;
-  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.filter-select {
+  margin-top: 0.3rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background-color: #fff;
+  color: #333;
+  transition: border-color 0.2s;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 </style>
