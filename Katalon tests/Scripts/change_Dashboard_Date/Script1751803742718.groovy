@@ -21,9 +21,11 @@ WebUI.openBrowser('')
 
 WebUI.navigateToUrl('http://localhost:8001/')
 
-WebUI.click(findTestObject('Object Repository/Dashboard_page/Page_Vite App/button_Semanal'))
+WebUI.click(findTestObject('Object Repository/Dashboard_page/Page_Vite App/main_DashboardDirioSemanalMensalAnualData b_9468c0'))
 
-WebUI.verifyElementVisible(findTestObject('Object Repository/Dashboard_page/Page_Vite App/div_Menos movimentada Rua XPTOOO'))
+WebUI.verifyElementVisible(findTestObject('Object Repository/Dashboard_page/Page_Vite App/h1_Dashboard'))
+
+WebUI.click(findTestObject('Object Repository/Dashboard_page/Page_Vite App/button_Mensal'))
 
 WebUI.closeBrowser()
 

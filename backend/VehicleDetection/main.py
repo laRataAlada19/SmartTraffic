@@ -1,6 +1,6 @@
 from config import total_class_counter, videos_directory
 from model import load_model
-from video_processing import process_video
+from video_processing1 import process_video
 from file_operations import clean_file
 from datetime import datetime
 import os

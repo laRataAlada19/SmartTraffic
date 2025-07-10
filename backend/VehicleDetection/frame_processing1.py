@@ -95,4 +95,4 @@ def process_frame(frame, model, detected_vehicles, class_counter, track_history,
         return annotated_frame, track_history,speed_violations  # Return track_history along with the annotated frame
     
     print("No boxes detected or no IDs assigned.")
-    return frame,track_history
+    return frame,track_history,speed_violations

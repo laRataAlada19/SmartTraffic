@@ -6,12 +6,11 @@
    <elementGuidId>c7f7f6e1-6fc7-407c-bb15-8da937495a96</elementGuidId>
    <selectorCollection>
       <entry>
-         <key>CSS</key>
-         <value></value>
-      </entry>
-      <entry>
          <key>XPATH</key>
          <value>//div[@id='app']/div[2]/main/div/div/div/div[3]/div[8]</value>
+      </entry>
+      <entry>
+         <key>CSS</key>
       </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
@@ -29,7 +28,7 @@
       <name>tag</name>
       <type>Main</type>
       <value>div</value>
-      <webElementGuid>127e286b-bb4c-41af-bf3e-f82c0297b01b</webElementGuid>
+      <webElementGuid>683ac823-762c-4f0d-bb2a-8c489295beff</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
@@ -37,7 +36,7 @@
       <name>class</name>
       <type>Main</type>
       <value>stat-card</value>
-      <webElementGuid>3b29c343-5263-40a1-abc9-73d9e95cdf1d</webElementGuid>
+      <webElementGuid>44c6a76e-2617-488e-a3fb-935bf156d0c4</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>true</isSelected>
@@ -45,7 +44,7 @@
       <name>text</name>
       <type>Main</type>
       <value>Menos movimentada: Rua XPTOOO</value>
-      <webElementGuid>89ec949e-1999-4d9c-b87a-a246d51e4f8b</webElementGuid>
+      <webElementGuid>1b1acc1a-723f-49f3-b0a1-8056d36800c9</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
@@ -53,7 +52,7 @@
       <name>xpath</name>
       <type>Main</type>
       <value>id(&quot;app&quot;)/div[@class=&quot;app-container&quot;]/main[@class=&quot;main-content&quot;]/div[@class=&quot;dashboard-container&quot;]/div[@class=&quot;top-section&quot;]/div[@class=&quot;summary-column&quot;]/div[@class=&quot;stats-grid&quot;]/div[@class=&quot;stat-card&quot;]</value>
-      <webElementGuid>54fc36a8-fbb7-4e54-afcf-dde9b7103ccb</webElementGuid>
+      <webElementGuid>e93bdf46-6276-4d9f-9826-a05b930b0437</webElementGuid>
    </webElementProperties>
    <webElementXpaths>
       <isSelected>true</isSelected>
@@ -61,7 +60,7 @@
       <name>xpath:idRelative</name>
       <type>Main</type>
       <value>//div[@id='app']/div[2]/main/div/div/div/div[3]/div[8]</value>
-      <webElementGuid>b18d04c1-6132-41ed-b395-1a3f3a024a56</webElementGuid>
+      <webElementGuid>efd23b07-26da-4a4b-a1d9-0e73246a1737</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
@@ -69,7 +68,7 @@
       <name>xpath:neighbor</name>
       <type>Main</type>
       <value>(.//*[normalize-space(text()) and normalize-space(.)='Mais movimentada: Rua teste23'])[1]/following::div[1]</value>
-      <webElementGuid>8c08e79b-fe77-4d2b-ba21-d09752eb9c59</webElementGuid>
+      <webElementGuid>7928c675-2ea5-46d9-a1be-3659920283e7</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
@@ -77,7 +76,7 @@
       <name>xpath:neighbor</name>
       <type>Main</type>
       <value>(.//*[normalize-space(text()) and normalize-space(.)='Total de bicicletas: 0'])[1]/following::div[2]</value>
-      <webElementGuid>37af32f8-ed02-403e-a9a6-e6f8cb1faf6c</webElementGuid>
+      <webElementGuid>1de1aab3-3976-410b-8bab-f522fa0897c9</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
@@ -85,7 +84,7 @@
       <name>xpath:neighbor</name>
       <type>Main</type>
       <value>(.//*[normalize-space(text()) and normalize-space(.)='Veículos em excesso: 11'])[1]/preceding::div[1]</value>
-      <webElementGuid>9f386134-6ddf-4467-9c1e-e5b70eb34604</webElementGuid>
+      <webElementGuid>a82e4598-9662-494f-bcea-3c5def3a1461</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
@@ -93,7 +92,7 @@
       <name>xpath:neighbor</name>
       <type>Main</type>
       <value>(.//*[normalize-space(text()) and normalize-space(.)='Hora com mais tráfego: 18-19'])[1]/preceding::div[2]</value>
-      <webElementGuid>dc3b5b31-2bb5-4ed2-9bad-5d5c7c59f074</webElementGuid>
+      <webElementGuid>a1e57147-a99a-4d2f-bcf3-878be31968f0</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
@@ -101,7 +100,7 @@
       <name>xpath:neighbor</name>
       <type>Main</type>
       <value>//*/text()[normalize-space(.)='Menos movimentada: Rua XPTOOO']/parent::*</value>
-      <webElementGuid>a501c71b-d3e4-4c7c-9428-acd25aca467b</webElementGuid>
+      <webElementGuid>d5a88b7a-3440-4276-ad21-6b92b88ef881</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
@@ -109,7 +108,7 @@
       <name>xpath:position</name>
       <type>Main</type>
       <value>//div[8]</value>
-      <webElementGuid>0ac4364a-415b-4dc8-b0e6-3e9ee9b1c179</webElementGuid>
+      <webElementGuid>fa408277-1031-44fd-a5d8-0fa5e7d4bb07</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
@@ -117,6 +116,6 @@
       <name>xpath:customAttributes</name>
       <type>Main</type>
       <value>//div[(text() = 'Menos movimentada: Rua XPTOOO' or . = 'Menos movimentada: Rua XPTOOO')]</value>
-      <webElementGuid>e97a9f07-06d4-454d-8deb-0f639b186dbc</webElementGuid>
+      <webElementGuid>2d2189e8-51b6-40d1-a8f0-86a0ce5ba396</webElementGuid>
    </webElementXpaths>
 </WebElementEntity>

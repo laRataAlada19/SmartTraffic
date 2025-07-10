@@ -1,11 +1,12 @@
 import cv2
-from backend.VehicleDetection.frame_processing1 import process_frame
+from frame_processing1 import process_frame
 from file_operations import save_results_to_file
 from database import Database
 from datetime import timedelta, datetime
 import math
 import os
 from config import detected_vehicles, class_counter, track_history, direction_summary, total_class_counter, average_speeds_summary
+
 
 db = Database()
 
@@ -241,13 +242,17 @@ def process_video(video_file, model, total_class_counter, time_of_start, locatio
 
         id = db.verify_id(location_id)
 
+        for class_name, speeds in average_speeds_summary.items():
+            if speeds:
+                avg_speed = sum(speeds) / len(speeds)
+
         if tempo_agrupado != ultimo_tempo_guardado:
             print("Salvando dados na base de dados...")
             if id is None:
                 print(f"Erro ao verificar o ID da localização '{location_id}'.")
                 return
             if not db.exists_result(tempo_agrupado, id):
-                db.save_results_to_bd(class_counter, total_class_counter, tempo_agrupado, id)
+                db.save_results_to_bd(class_counter, total_class_counter, tempo_agrupado, id, len(speed_violations), avg_speed)
                 print("Dados salvos na base de dados.")
             else:
                 print("Já existe entrada para este id. Ignorado.")
@@ -265,8 +270,8 @@ def process_video(video_file, model, total_class_counter, time_of_start, locatio
         total_class_counter[class_name] += count
 
     for class_name, speeds in average_speeds_summary.items():
-            if speeds:
-                avg_speed = sum(speeds) / len(speeds)
+        if speeds:
+            avg_speed = sum(speeds) / len(speeds)
 
     if not db.exists_result(ultimo_tempo_guardado, id):
         print("Salvando dados finais na base de dados (forçado no fim do vídeo)...")

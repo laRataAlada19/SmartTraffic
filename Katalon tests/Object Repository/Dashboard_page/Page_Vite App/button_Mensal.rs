@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WebElementEntity>
    <description></description>
-   <name>button_Semanal</name>
+   <name>button_Mensal</name>
    <tag></tag>
-   <elementGuidId>01854eca-6441-4314-ad25-dc116ca17fb9</elementGuidId>
+   <elementGuidId>f4a2c272-feca-46af-8576-38034496d28c</elementGuidId>
    <selectorCollection>
       <entry>
          <key>XPATH</key>
-         <value>//div[@id='app']/div[2]/main/div/div/div/div/button[2]</value>
+         <value>//div[@id='app']/div[2]/main/div/div/div/div/button[3]</value>
       </entry>
       <entry>
          <key>CSS</key>
-         <value>button:nth-of-type(2)</value>
+         <value>button:nth-of-type(3)</value>
       </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
    <smartLocatorCollection>
       <entry>
          <key>SMART_LOCATOR</key>
-         <value>internal:role=button[name=&quot;Semanal&quot;i]</value>
+         <value>internal:role=button[name=&quot;Mensal&quot;i]</value>
       </entry>
    </smartLocatorCollection>
    <smartLocatorEnabled>false</smartLocatorEnabled>
@@ -29,86 +29,86 @@
       <name>tag</name>
       <type>Main</type>
       <value>button</value>
-      <webElementGuid>3f52c755-2390-46af-b833-6f6b781e776b</webElementGuid>
+      <webElementGuid>6d207c0c-06f1-4b32-a359-017206c425bd</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>true</isSelected>
       <matchCondition>equals</matchCondition>
       <name>text</name>
       <type>Main</type>
-      <value>Semanal</value>
-      <webElementGuid>b3c34fe3-21c7-46d4-bf07-d44d0e78792a</webElementGuid>
+      <value>Mensal</value>
+      <webElementGuid>4299dafc-d81a-4fa5-99b5-3aabd3b880d3</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath</name>
       <type>Main</type>
-      <value>id(&quot;app&quot;)/div[@class=&quot;app-container&quot;]/main[@class=&quot;main-content&quot;]/div[@class=&quot;dashboard-container&quot;]/div[@class=&quot;top-section&quot;]/div[@class=&quot;summary-column&quot;]/div[@class=&quot;theme-buttons&quot;]/button[2]</value>
-      <webElementGuid>a4d87e88-188a-425c-9f67-5f059176f9c5</webElementGuid>
+      <value>id(&quot;app&quot;)/div[@class=&quot;app-container&quot;]/main[@class=&quot;main-content&quot;]/div[@class=&quot;dashboard-container&quot;]/div[@class=&quot;top-section&quot;]/div[@class=&quot;summary-column&quot;]/div[@class=&quot;theme-buttons&quot;]/button[3]</value>
+      <webElementGuid>fe2211d1-179b-48f4-aece-e1429182b314</webElementGuid>
    </webElementProperties>
    <webElementXpaths>
       <isSelected>true</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:idRelative</name>
       <type>Main</type>
-      <value>//div[@id='app']/div[2]/main/div/div/div/div/button[2]</value>
-      <webElementGuid>b72f22db-46c4-4301-99bf-394fd44ab9ca</webElementGuid>
+      <value>//div[@id='app']/div[2]/main/div/div/div/div/button[3]</value>
+      <webElementGuid>d437fb60-7496-4341-bb24-b9254f649239</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:neighbor</name>
       <type>Main</type>
-      <value>(.//*[normalize-space(text()) and normalize-space(.)='Diário'])[1]/following::button[1]</value>
-      <webElementGuid>599e594d-5c71-496e-90f2-618fd3d1d071</webElementGuid>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Semanal'])[1]/following::button[1]</value>
+      <webElementGuid>77fc4042-546c-492e-a988-167291978277</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:neighbor</name>
       <type>Main</type>
-      <value>(.//*[normalize-space(text()) and normalize-space(.)='Dashboard'])[2]/following::button[2]</value>
-      <webElementGuid>8bbc1d68-d5ff-4536-a0a4-0befa392357f</webElementGuid>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Diário'])[1]/following::button[2]</value>
+      <webElementGuid>643cd1a1-0126-44af-8718-f60798ecab9c</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:neighbor</name>
       <type>Main</type>
-      <value>(.//*[normalize-space(text()) and normalize-space(.)='Mensal'])[1]/preceding::button[1]</value>
-      <webElementGuid>1dd8f28c-b1b9-40a5-ad0f-e628c29855ba</webElementGuid>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Anual'])[1]/preceding::button[1]</value>
+      <webElementGuid>37ba2d70-ea47-4b6b-979e-e907f661b7d2</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:neighbor</name>
       <type>Main</type>
-      <value>(.//*[normalize-space(text()) and normalize-space(.)='Anual'])[1]/preceding::button[2]</value>
-      <webElementGuid>fec14518-1827-4753-85a9-c0d612fed0f6</webElementGuid>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Data base:'])[1]/preceding::button[2]</value>
+      <webElementGuid>bdaf3ae5-f638-4897-b627-0e4b66149156</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:neighbor</name>
       <type>Main</type>
-      <value>//*/text()[normalize-space(.)='Semanal']/parent::*</value>
-      <webElementGuid>f1d88588-b0c1-4cbf-8ff4-62bb09134d0f</webElementGuid>
+      <value>//*/text()[normalize-space(.)='Mensal']/parent::*</value>
+      <webElementGuid>c234d418-23a9-41ce-954e-28c306b33b5b</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:position</name>
       <type>Main</type>
-      <value>//button[2]</value>
-      <webElementGuid>6caa3c3b-d25a-4f61-b145-2c54fb0669e2</webElementGuid>
+      <value>//button[3]</value>
+      <webElementGuid>f67e1e8c-aa4f-401a-abe7-b7cbcc2a2617</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
       <matchCondition>equals</matchCondition>
       <name>xpath:customAttributes</name>
       <type>Main</type>
-      <value>//button[(text() = 'Semanal' or . = 'Semanal')]</value>
-      <webElementGuid>124f71e1-6412-4a89-8d36-62840f03e7f6</webElementGuid>
+      <value>//button[(text() = 'Mensal' or . = 'Mensal')]</value>
+      <webElementGuid>391a738e-39f9-40f8-ba60-496746025f8a</webElementGuid>
    </webElementXpaths>
 </WebElementEntity>
