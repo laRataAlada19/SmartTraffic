@@ -33,7 +33,6 @@ const componentsMap = {
   TypeVei: defineAsyncComponent(() => import('./types/TypeVei.vue')),
   Direction: defineAsyncComponent(() => import('./types/Direction.vue')),
   HeatMap: defineAsyncComponent(() => import('./types/HeatMap.vue')),
-  Geografic: defineAsyncComponent(() => import('./types/Geografic.vue')),
   HourPic: defineAsyncComponent(() => import('./types/HourPic.vue')),
   ComparePeriods: defineAsyncComponent(() => import('./types/ComparePeriods.vue')),
   GrowthRate: defineAsyncComponent(() => import('./types/GrowthRate.vue')),
