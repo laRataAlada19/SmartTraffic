@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <WebServiceRequestEntity>
    <description></description>
-   <name>logout</name>
+   <name>getUsers</name>
    <tag></tag>
-   <elementGuidId>6120fc13-f8a8-4c01-a6f4-425400fadc20</elementGuidId>
+   <elementGuidId>adb71e22-5ebb-4bcc-8a1e-3d6ab840362c</elementGuidId>
    <selectorMethod>BASIC</selectorMethod>
    <smartLocatorEnabled>false</smartLocatorEnabled>
    <useRalativeImagePath>false</useRalativeImagePath>
@@ -11,7 +11,7 @@
       <authorizationInfo>
          <entry>
             <key>bearerToken</key>
-            <value> 80|U1gCY3CUkAOUo90gt2MQfYrOjiTIQVCa9k4ApEbXc42cab2d</value>
+            <value> 81|pgpqzXFxvKulO27o7MpugYBmQWxZjJFXuAKxCSTy2daa0613</value>
          </entry>
       </authorizationInfo>
       <authorizationType>Bearer</authorizationType>
@@ -27,15 +27,15 @@
       <matchCondition>equals</matchCondition>
       <name>Authorization</name>
       <type>Main</type>
-      <value>Bearer 80|U1gCY3CUkAOUo90gt2MQfYrOjiTIQVCa9k4ApEbXc42cab2d</value>
-      <webElementGuid>16572ffc-6a47-49dc-a496-54ddec5e6920</webElementGuid>
+      <value>Bearer 81|pgpqzXFxvKulO27o7MpugYBmQWxZjJFXuAKxCSTy2daa0613</value>
+      <webElementGuid>2ce3f577-86b2-4afa-b0e3-0a01bdf796b9</webElementGuid>
    </httpHeaderProperties>
-   <katalonVersion>10.2.3</katalonVersion>
+   <katalonVersion>9.7.2</katalonVersion>
    <maxResponseSize>0</maxResponseSize>
    <migratedVersion>5.4.1</migratedVersion>
    <path></path>
-   <restRequestMethod>POST</restRequestMethod>
-   <restUrl>http://localhost:8000/api/auth/logout?Authorization=80|U1gCY3CUkAOUo90gt2MQfYrOjiTIQVCa9k4ApEbXc42cab2d</restUrl>
+   <restRequestMethod>GET</restRequestMethod>
+   <restUrl>http://localhost:8000/api/users/me/table</restUrl>
    <serviceType>RESTful</serviceType>
    <soapBody></soapBody>
    <soapHeader></soapHeader>
