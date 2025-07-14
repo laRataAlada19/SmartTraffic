@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebElementEntity>
+   <description></description>
+   <name>main_DashboardDirioSemanalMensalAnualData b_9468c0</name>
+   <tag></tag>
+   <elementGuidId>ea98e927-8af2-4594-b564-4bb278b90ffb</elementGuidId>
+   <selectorCollection>
+      <entry>
+         <key>XPATH</key>
+         <value>//div[@id='app']/div[2]/main</value>
+      </entry>
+      <entry>
+         <key>CSS</key>
+         <value>main.main-content</value>
+      </entry>
+   </selectorCollection>
+   <selectorMethod>XPATH</selectorMethod>
+   <smartLocatorCollection>
+      <entry>
+         <key>SMART_LOCATOR</key>
+         <value>internal:text=&quot;DashboardDiárioSemanalMensalAnualData base:Total de veículos: 0Total de ligeiros&quot;i</value>
+      </entry>
+   </smartLocatorCollection>
+   <smartLocatorEnabled>false</smartLocatorEnabled>
+   <useRalativeImagePath>true</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>tag</name>
+      <type>Main</type>
+      <value>main</value>
+      <webElementGuid>9de91b3f-0cdc-493d-91d3-f7fc5191eb60</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>class</name>
+      <type>Main</type>
+      <value>main-content</value>
+      <webElementGuid>c3347862-0abe-4ccf-b80e-3475b65e0191</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>text</name>
+      <type>Main</type>
+      <value>DashboardDiárioSemanalMensalAnualData base:Total de veículos: 0Total de ligeiros: 0Total de motas: 0Total de camiões: 0Total de autocarros: 0Total de bicicletas: 0Mais movimentada: N/AMenos movimentada: N/AVeículos em excesso: 11Hora com mais tráfego: 18-19Hora com menos tráfego: 02-03Comparação com há 7 dias: +2%Localizações existentesSem localizações disponíveis.Nenhum gráfico selecionado.Atualizado em: </value>
+      <webElementGuid>c1b34e1f-7bc2-484c-9094-cf0c7de22a48</webElementGuid>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>id(&quot;app&quot;)/div[@class=&quot;app-container&quot;]/main[@class=&quot;main-content&quot;]</value>
+      <webElementGuid>ba349cec-76c2-4789-8ad3-797f72981ae7</webElementGuid>
+   </webElementProperties>
+   <webElementXpaths>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:idRelative</name>
+      <type>Main</type>
+      <value>//div[@id='app']/div[2]/main</value>
+      <webElementGuid>dce5685c-00f9-44d4-865c-22789f660b92</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Logout'])[1]/following::main[1]</value>
+      <webElementGuid>5a5ca314-ac28-4ae4-a258-55a533685706</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:neighbor</name>
+      <type>Main</type>
+      <value>(.//*[normalize-space(text()) and normalize-space(.)='Login'])[1]/following::main[1]</value>
+      <webElementGuid>ba5b2527-d47a-47e4-89e0-e79ee062c31a</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:position</name>
+      <type>Main</type>
+      <value>//main</value>
+      <webElementGuid>b6d487a3-d083-4344-8104-1e3456843f7d</webElementGuid>
+   </webElementXpaths>
+   <webElementXpaths>
+      <isSelected>false</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath:customAttributes</name>
+      <type>Main</type>
+      <value>//main[(text() = 'DashboardDiárioSemanalMensalAnualData base:Total de veículos: 0Total de ligeiros: 0Total de motas: 0Total de camiões: 0Total de autocarros: 0Total de bicicletas: 0Mais movimentada: N/AMenos movimentada: N/AVeículos em excesso: 11Hora com mais tráfego: 18-19Hora com menos tráfego: 02-03Comparação com há 7 dias: +2%Localizações existentesSem localizações disponíveis.Nenhum gráfico selecionado.Atualizado em: ' or . = 'DashboardDiárioSemanalMensalAnualData base:Total de veículos: 0Total de ligeiros: 0Total de motas: 0Total de camiões: 0Total de autocarros: 0Total de bicicletas: 0Mais movimentada: N/AMenos movimentada: N/AVeículos em excesso: 11Hora com mais tráfego: 18-19Hora com menos tráfego: 02-03Comparação com há 7 dias: +2%Localizações existentesSem localizações disponíveis.Nenhum gráfico selecionado.Atualizado em: ')]</value>
+      <webElementGuid>cf7ed07c-106b-4fe7-b88e-926015a06e60</webElementGuid>
+   </webElementXpaths>
+</WebElementEntity>

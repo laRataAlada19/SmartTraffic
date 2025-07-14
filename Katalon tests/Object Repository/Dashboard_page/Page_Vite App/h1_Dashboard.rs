@@ -6,12 +6,12 @@
    <elementGuidId>93d97693-3350-400f-acf7-0737c2667721</elementGuidId>
    <selectorCollection>
       <entry>
-         <key>CSS</key>
-         <value>h1.dashboard-title</value>
-      </entry>
-      <entry>
          <key>XPATH</key>
          <value>//div[@id='app']/div[2]/main/h1</value>
+      </entry>
+      <entry>
+         <key>CSS</key>
+         <value>h1.dashboard-title</value>
       </entry>
    </selectorCollection>
    <selectorMethod>XPATH</selectorMethod>
@@ -29,7 +29,7 @@
       <name>tag</name>
       <type>Main</type>
       <value>h1</value>
-      <webElementGuid>5e0b138f-ce19-4aaa-951a-5d71b4edf7c6</webElementGuid>
+      <webElementGuid>3fd65a85-78f2-49de-a9eb-7bcd0572e3d5</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
@@ -37,7 +37,7 @@
       <name>class</name>
       <type>Main</type>
       <value>dashboard-title</value>
-      <webElementGuid>b23cc4b6-5a36-4d87-b09a-ef657eacb0a9</webElementGuid>
+      <webElementGuid>1bea9440-2a35-43b3-8bc6-b4bde2400ad2</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>true</isSelected>
@@ -45,7 +45,7 @@
       <name>text</name>
       <type>Main</type>
       <value>Dashboard</value>
-      <webElementGuid>4fc01d84-332d-4289-a0a0-66aac90a1df0</webElementGuid>
+      <webElementGuid>630ffb08-80f1-4314-b1fd-54f2f1f40b3c</webElementGuid>
    </webElementProperties>
    <webElementProperties>
       <isSelected>false</isSelected>
@@ -53,7 +53,7 @@
       <name>xpath</name>
       <type>Main</type>
       <value>id(&quot;app&quot;)/div[@class=&quot;app-container&quot;]/main[@class=&quot;main-content&quot;]/h1[@class=&quot;dashboard-title&quot;]</value>
-      <webElementGuid>8dfacc0d-ead8-4031-93fc-114d63e1d05e</webElementGuid>
+      <webElementGuid>1d431c57-f3a7-4cc3-85c6-e980ffc769c6</webElementGuid>
    </webElementProperties>
    <webElementXpaths>
       <isSelected>true</isSelected>
@@ -61,7 +61,7 @@
       <name>xpath:idRelative</name>
       <type>Main</type>
       <value>//div[@id='app']/div[2]/main/h1</value>
-      <webElementGuid>4fcf8704-29bb-454b-b4a6-4e10919ee535</webElementGuid>
+      <webElementGuid>6e68d68f-0ce4-446d-9746-dac24af31f98</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
@@ -69,7 +69,7 @@
       <name>xpath:neighbor</name>
       <type>Main</type>
       <value>(.//*[normalize-space(text()) and normalize-space(.)='Logout'])[1]/following::h1[1]</value>
-      <webElementGuid>dafc1e2d-7b45-4872-b3d8-a796d745d2bd</webElementGuid>
+      <webElementGuid>852353a3-ba67-48eb-8e0a-9bfabe94a843</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
@@ -77,7 +77,7 @@
       <name>xpath:neighbor</name>
       <type>Main</type>
       <value>(.//*[normalize-space(text()) and normalize-space(.)='Login'])[1]/following::h1[1]</value>
-      <webElementGuid>f448c8e6-273a-4a64-bdb8-8053a5a0fe28</webElementGuid>
+      <webElementGuid>4c4f839d-7125-461f-a3c7-1694cd71103c</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
@@ -85,7 +85,7 @@
       <name>xpath:neighbor</name>
       <type>Main</type>
       <value>(.//*[normalize-space(text()) and normalize-space(.)='Diário'])[1]/preceding::h1[1]</value>
-      <webElementGuid>508c9f20-c0b2-4e34-9998-b5b81d3f663a</webElementGuid>
+      <webElementGuid>4db3c5da-88c7-48e0-8d20-612630694e96</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
@@ -93,7 +93,7 @@
       <name>xpath:neighbor</name>
       <type>Main</type>
       <value>(.//*[normalize-space(text()) and normalize-space(.)='Semanal'])[1]/preceding::h1[1]</value>
-      <webElementGuid>953b3402-7686-466d-aeaa-e1eaa4a39ac6</webElementGuid>
+      <webElementGuid>728e7717-2f07-407d-ac90-37dd8eb741ee</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
@@ -101,7 +101,7 @@
       <name>xpath:position</name>
       <type>Main</type>
       <value>//h1</value>
-      <webElementGuid>d2de8d52-d34c-4774-923d-8fe3d121896f</webElementGuid>
+      <webElementGuid>632edbcf-9731-47dc-83e7-3b811296e563</webElementGuid>
    </webElementXpaths>
    <webElementXpaths>
       <isSelected>false</isSelected>
@@ -109,6 +109,6 @@
       <name>xpath:customAttributes</name>
       <type>Main</type>
       <value>//h1[(text() = 'Dashboard' or . = 'Dashboard')]</value>
-      <webElementGuid>5cfc14b8-963a-4036-92c6-97ff3a02f05f</webElementGuid>
+      <webElementGuid>b37aa3e6-bb7d-4d83-9f4c-c26d27a93849</webElementGuid>
    </webElementXpaths>
 </WebElementEntity>

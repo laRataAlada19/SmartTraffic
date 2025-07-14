@@ -129,7 +129,7 @@ class Database:
                 INSERT INTO {DATABASE_SCHEMA}.vehicle_counts (
                     car, motorcycle, bike, truck, bus,
                     n, s, e, w, ne, nw, se, sw,
-                    timestamp, location_id, excesso_velocidae,velocidade_media
+                    timestamp, location_id, excesso_velocidade,velocidade_media
                 ) VALUES (%s, %s, %s, %s, %s,
                     %s, %s, %s, %s, %s, %s, %s, %s,
                     %s, %s, %s, %s)
