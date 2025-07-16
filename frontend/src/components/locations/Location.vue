@@ -405,24 +405,23 @@ onMounted(async () => {
             dmsToDecimal(locationDetails.value.longitude)
         ];
 
-        selectedCharts.value = ['BarChart', 'DirectionRadar', 'LineChart', 'PieChart']
-        /*
-                const tables = await storeAuth.getTables();
-                if (tables && tables.tables && tables.tables.Location) {
-                    selectedCharts.value = tables.tables.Location;
-                }
-                () => locationDetails,
-                    (newVal) => {
-                        if (newVal) {
-                            nextTick(() => {
-                                const map = this.$refs.leafletMap?.mapObject
-                                if (map) {
-                                    map.invalidateSize();
-                                }
-                            });
+
+        const tables = await storeAuth.getTables();
+        if (tables && tables.tables && tables.tables.Location) {
+            selectedCharts.value = tables.tables.Location;
+        }
+        () => locationDetails,
+            (newVal) => {
+                if (newVal) {
+                    nextTick(() => {
+                        const map = this.$refs.leafletMap?.mapObject
+                        if (map) {
+                            map.invalidateSize();
                         }
-                    },
-                    { immediate: true }*/
+                    });
+                }
+            },
+            { immediate: true }
     } catch (error) {
         console.error('Error fetching location details:', error);
         toast({

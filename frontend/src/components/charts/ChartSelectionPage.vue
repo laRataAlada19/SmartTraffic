@@ -1,10 +1,10 @@
 <script setup>
-import { onMounted, ref, computed } from 'vue';
+import {defineAsyncComponent, onMounted, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import charts from './chartsConfig';
-import { defineAsyncComponent } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useFactVehicleStore } from '@/stores/factvehicle';
+import 'leaflet/dist/leaflet.css';
 
 const allData = ref([]);
 const selectedDestinations = ref({});
@@ -40,8 +40,7 @@ const componentsMap = {
   Trend: defineAsyncComponent(() => import('./types/Trend.vue')),
   DirectionRadar: defineAsyncComponent(() => import('./types/DirectionRadar.vue')),
   Anomalies: defineAsyncComponent(() => import('./types/Anomalies.vue')),
-  ODMatrix: defineAsyncComponent(() => import('./types/ODMatrix.vue')),
-  TimeMap: defineAsyncComponent(() => import('./types/TimeMap.vue'))
+  ODMatrix: defineAsyncComponent(() => import('./types/ODMatrix.vue'))
 };
 
 function toggle(chartComponentName, destination) {

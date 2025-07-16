@@ -26,7 +26,6 @@ const componentsMap = {
   TypeVei: defineAsyncComponent(() => import('./types/TypeVei.vue')),
   Direction: defineAsyncComponent(() => import('./types/Direction.vue')),
   HeatMap: defineAsyncComponent(() => import('./types/HeatMap.vue')),
-
   HourPic: defineAsyncComponent(() => import('./types/HourPic.vue')),
   ComparePeriods: defineAsyncComponent(() => import('./types/ComparePeriods.vue')),
   GrowthRate: defineAsyncComponent(() => import('./types/GrowthRate.vue')),
@@ -35,7 +34,6 @@ const componentsMap = {
   DirectionRadar: defineAsyncComponent(() => import('./types/DirectionRadar.vue')),
   Anomalies: defineAsyncComponent(() => import('./types/Anomalies.vue')),
   ODMatrix: defineAsyncComponent(() => import('./types/ODMatrix.vue')),
-  TimeMap: defineAsyncComponent(() => import('./types/TimeMap.vue'))
 }
 
 // Busca os dados
@@ -54,6 +52,13 @@ const fetchData = async () => {
 
 // Filtra apenas os gráficos selecionados que existem na configuração
 const validCharts = computed(() => {
+  console.log('Selected charts:',props.selectedCharts
+    .filter(chartName => componentsMap[chartName])
+    .map(chartName => ({
+      name: chartName,
+      component: componentsMap[chartName],
+      config: charts.find(c => c.component === chartName)
+    })))
   return props.selectedCharts
     .filter(chartName => componentsMap[chartName])
     .map(chartName => ({
