@@ -10,7 +10,6 @@ const props = defineProps({
   },
 });
 
-// Filtros
 const locationFilter = ref('Todos');
 const timeInterval = ref('dia');
 const dateRange = ref({
@@ -19,7 +18,6 @@ const dateRange = ref({
 });
 const vehicleTypeFilter = ref('Todos');
 
-// Opções de filtros
 const vehicleTypes = [
   { id: 'Todos', label: 'Todos os Veículos' },
   { id: 'car', label: 'Carros' },
@@ -29,7 +27,6 @@ const vehicleTypes = [
   { id: 'bus', label: 'Autocarros' }
 ];
 
-// Computed para localidades disponíveis
 const locations = computed(() => {
   const uniqueLocations = new Set();
   props.data.forEach(entry => {
@@ -39,11 +36,9 @@ const locations = computed(() => {
   return ['Todos', ...Array.from(uniqueLocations).sort()];
 });
 
-// Dados filtrados
 const filteredData = computed(() => {
   let data = [...props.data];
 
-  // Filtro por localização
   if (locationFilter.value !== 'Todos') {
     data = data.filter(d => 
       d.location === locationFilter.value || 
@@ -51,7 +46,6 @@ const filteredData = computed(() => {
     );
   }
 
-  // Filtro por intervalo de tempo
   if (timeInterval.value === 'custom' && dateRange.value.start && dateRange.value.end) {
     data = data.filter(d => {
       const date = dayjs(d.full_date);
@@ -75,18 +69,15 @@ const filteredData = computed(() => {
   return data;
 });
 
-// Matriz origem-destino
 const matrix = computed(() => {
   const result = {};
   const allLocations = locations.value.filter(loc => loc !== 'Todos');
 
-  // Inicializar matriz
   allLocations.forEach(origin => {
     result[origin] = {};
     allLocations.forEach(dest => (result[origin][dest] = 0));
   });
-  
-  // Preencher matriz com dados filtrados
+
   filteredData.value.forEach(entry => {
     if (entry.location && entry.destination) {
       let total = 0;
@@ -107,11 +98,9 @@ const matrix = computed(() => {
   return result;
 });
 
-// Escala de cor esverdeada original
 const getColor = (value) => {
   if (value === 0) return 'rgba(0,0,0,0)';
   
-  // Encontrar valor máximo para normalização
   const maxValue = Math.max(
     ...Object.values(matrix.value).flatMap(row => 
       Object.values(row)
@@ -119,11 +108,10 @@ const getColor = (value) => {
     1
   );
   
-  const alpha = Math.min(1, value / maxValue * 0.8 + 0.2); // Alpha entre 0.2 e 1
-  return `rgba(75, 192, 192, ${alpha})`; // Mantendo o verde-azulado original
+  const alpha = Math.min(1, value / maxValue * 0.8 + 0.2); 
+  return `rgba(75, 192, 192, ${alpha})`; 
 };
 
-// Localidades para exibição (exclui "Todos")
 const displayLocations = computed(() => 
   locations.value.filter(loc => loc !== 'Todos')
 );

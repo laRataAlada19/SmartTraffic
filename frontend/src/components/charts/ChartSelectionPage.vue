@@ -131,12 +131,12 @@ onMounted(async () => {
 </script>
 
 <template>
-  <!--<div v-if="!storeAuth.user" class="dashboard-wrapper">
+  <div v-if="!storeAuth.user" class="dashboard-wrapper">
     <h1 style="text-align: center; margin-top: 20px;">Aceda ao dashboard</h1>
     <p style="text-align: center; margin-bottom: 20px;">Por favor, faça login para aceder ao dashboard.</p>
   </div>
 
-  <div v-else class="dashboard-wrapper">-->
+  <div v-else class="dashboard-wrapper">
     <h1 class="dashboard-title">Selecionar Gráficos:</h1>
 
     <div class="chart-group" v-for="(charts, type) in groupedCharts" :key="type">
@@ -165,6 +165,7 @@ onMounted(async () => {
     </div>
 
     <button class="btn-confirm" @click="confirmarSelecao">Confirmar Seleção</button>
+    </div>
 </template>
 
 <style scoped>

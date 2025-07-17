@@ -34,7 +34,6 @@ export const useAuthStore = defineStore("auth", () => {
     return avatarNoneAssetURL;
   });
 
-  // This function is "private" - not exported by the store
   const clearUser = () => {
     resetIntervalToRefreshToken()
     user.value = null
@@ -46,7 +45,6 @@ export const useAuthStore = defineStore("auth", () => {
   const login = async (credentials) => {
     storeError.resetMessages();
     try {
-      console.log("Login attempt with credentials:", credentials);
       const responseLogin = await axios.post("auth/login", credentials);
       token.value = responseLogin.data.token;
       localStorage.setItem('token', token.value);
@@ -85,7 +83,7 @@ export const useAuthStore = defineStore("auth", () => {
       return false;
     }
   };
-  // These 2 functions and intervalToRefreshToken variable are "private" - not exported
+
   let intervalToRefreshToken = null;
   const resetIntervalToRefreshToken = () => {
     if (intervalToRefreshToken) {
@@ -114,10 +112,7 @@ export const useAuthStore = defineStore("auth", () => {
         );
         return false;
       }
-    }, 1000 * 60 * 110); // repeat every 110 minutes
-    // To test the refresh token, replace previous line with the following code
-    // This will repeat the refreshtoken endpoint every 10 seconds:
-    //}, 1000 * 10)
+    }, 1000 * 60 * 110); 
     return intervalToRefreshToken;
   };
   const restoreToken = async function () {

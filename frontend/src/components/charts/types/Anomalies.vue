@@ -4,10 +4,7 @@ import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, CategoryScale } from 'chart.js'
 
 
-
-
 ChartJS.register(LineElement, PointElement, LinearScale, CategoryScale)
-
 
 const data = ref([])
 const { sharedData } = useSharedData();

@@ -18,7 +18,6 @@ const props = defineProps({
   }
 })
 
-// Configuração dos componentes dinâmicos
 const componentsMap = {
   LineChart: defineAsyncComponent(() => import('./types/LineChart.vue')),
   BarChart: defineAsyncComponent(() => import('./types/Barchart.vue')),
@@ -36,7 +35,6 @@ const componentsMap = {
   ODMatrix: defineAsyncComponent(() => import('./types/ODMatrix.vue')),
 }
 
-// Busca os dados
 const fetchData = async () => {
   try {
     if (!isDataLoaded.value) {
@@ -50,7 +48,6 @@ const fetchData = async () => {
   }
 }
 
-// Filtra apenas os gráficos selecionados que existem na configuração
 const validCharts = computed(() => {
   console.log('Selected charts:',props.selectedCharts
     .filter(chartName => componentsMap[chartName])
@@ -89,7 +86,6 @@ onMounted(() => {
 
 <template>
   <div class="selected-charts-container">
-    <!-- Mensagem de carregamento ou erro -->
     <div v-if="!isDataLoaded && !loadingError" class="loading-message">
       <div class="spinner"></div>
       <p>Carregando dados...</p>
@@ -100,7 +96,6 @@ onMounted(() => {
       <button @click="fetchData" class="retry-button">Tentar novamente</button>
     </div>
 
-    <!-- Gráficos selecionados -->
     <div v-if="isDataLoaded" class="charts-grid">
       <div v-for="chart in validCharts" :key="chart.name" class="chart-wrapper">
         <div class="chart-header">

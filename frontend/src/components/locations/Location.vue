@@ -22,10 +22,10 @@ const props = defineProps({
 });
 const locationId = ref(props.id);
 const locationDetails = ref(null);
-const granularity = ref(3); //default diario
+const granularity = ref(3);
 const showUpdateForm = ref(false);
-const startDate = ref(new Date().toISOString().split('T')[0]); // Data atual no formato YYYY-MM-DD
-const endDate = ref(new Date().toISOString().split('T')[0]); // Data atual no formato YYYY-MM-DD
+const startDate = ref(new Date().toISOString().split('T')[0]); 
+const endDate = ref(new Date().toISOString().split('T')[0]); 
 const selectedCharts = ref([]);
 const center = ref([])
 const chartRef = ref(null);
@@ -47,7 +47,6 @@ function exportExcel() {
 
     const workbook = XLSX.utils.book_new();
 
-    // Create a sheet with location metadata
     const locationData = [
         ['Nome da Localização', location.location],
         ['Latitude', location.latitude],
@@ -58,15 +57,12 @@ function exportExcel() {
     const locationSheet = XLSX.utils.aoa_to_sheet(locationData);
     XLSX.utils.book_append_sheet(workbook, locationSheet, 'Localização');
 
-    // Add one sheet per selected chart
     charts.forEach(({ name, data }) => {
         if (!data || data.length === 0) return;
         const sheet = XLSX.utils.json_to_sheet(data);
-        // Sheet name max 31 characters per Excel limitations
         XLSX.utils.book_append_sheet(workbook, sheet, name.substring(0, 31));
     });
 
-    // Save the workbook with a friendly filename
     const filename = `exportExcel_${location.location.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`;
     XLSX.writeFile(workbook, filename);
     toast({
@@ -81,7 +77,6 @@ function exportCSV() {
     const { charts } = chartRef.value.getExportData();
     const location = locationDetails.value;
 
-    // Metadata section (Campo, Valor)
     const metadata = [
         ['Campo', 'Valor'],
         ['Nome da Localização', location.location],
@@ -91,25 +86,20 @@ function exportCSV() {
         ['Direção', location.direction],
     ];
 
-    // Convert metadata to CSV
     let csvContent = metadata.map(row =>
         row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')
     ).join('\n');
 
-    // Add spacing after metadata
     csvContent += '\n\n';
 
-    // Add chart data sections
     charts.forEach(({ name, data }) => {
         if (!data || data.length === 0) return;
 
-        // Add chart title
         csvContent += `"Gráfico: ${name}"\n`;
 
         const headers = Object.keys(data[0]);
         csvContent += headers.map(h => `"${h}"`).join(',') + '\n';
 
-        // Add chart rows
         data.forEach(row => {
             const values = headers.map(key =>
                 `"${String(row[key]).replace(/"/g, '""')}"`
@@ -117,10 +107,9 @@ function exportCSV() {
             csvContent += values.join(',') + '\n';
         });
 
-        csvContent += '\n'; // Extra spacing between charts
+        csvContent += '\n'; 
     });
 
-    // Trigger CSV download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -143,11 +132,10 @@ async function exportPDF() {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Load image as base64 data URL
     const loadImageToDataUrl = (src) => {
         return new Promise((resolve, reject) => {
             const img = new Image();
-            img.crossOrigin = 'anonymous'; // important if image hosted externally
+            img.crossOrigin = 'anonymous';
             img.onload = () => {
                 const canvas = document.createElement('canvas');
                 canvas.width = img.width;
@@ -174,8 +162,7 @@ async function exportPDF() {
         logoDataUrl = null;
     }
 
-    // Draw header background first so logo is visible on top
-    doc.setFillColor(33, 150, 243); // Blue
+    doc.setFillColor(33, 150, 243); 
     doc.rect(0, 0, pageWidth, 20, 'F');
 
     if (logoDataUrl) {
@@ -186,12 +173,11 @@ async function exportPDF() {
         doc.text('Logo not available', pageWidth - 50, 15);
     }
 
-    doc.setTextColor(255, 255, 255); // White text
+    doc.setTextColor(255, 255, 255); 
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.text('Detalhes da Localização', 10, 13);
 
-    // Restore default text color for the rest
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
@@ -213,12 +199,10 @@ async function exportPDF() {
         y += 7;
     });
 
-    // Divider
     doc.setDrawColor(200);
     doc.line(10, y + 2, pageWidth - 10, y + 2);
     y += 15;
 
-    // Charts Section
     let x = 10;
     const imgWidth = 85;
     const imgHeight = 60;
@@ -234,15 +218,12 @@ async function exportPDF() {
         const imgData = canvas.toDataURL('image/png');
         const chartName = `Gráfico ${chartCount + 1}`;
 
-        // Chart Title
         doc.setFontSize(12);
         doc.setFont('helvetica', 'bold');
         doc.text(chartName, x, y - 4);
 
-        // Chart Image
         doc.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
 
-        // Border around chart (optional)
         doc.setDrawColor(180);
         doc.rect(x, y, imgWidth, imgHeight);
 
@@ -256,7 +237,6 @@ async function exportPDF() {
         }
 
         if (y + imgHeight > 260) {
-            // Footer with page number
             const pageNumber = doc.internal.getNumberOfPages();
             doc.setFontSize(10);
             doc.text(`Página ${pageNumber}`, pageWidth - 30, 290);
@@ -267,7 +247,6 @@ async function exportPDF() {
         }
     }
 
-    // Footer
     const currentPage = doc.internal.getNumberOfPages();
     doc.setPage(currentPage);
     doc.setFontSize(10);
@@ -341,7 +320,6 @@ function deleteConfirmed(id) {
     storeError.resetMessages()
     locationStore.deleteLocation(id)
         .then(() => {
-            //redirect to a diferente page after deletion
             router.push({ name: 'Locations' });
             toast({
                 title: 'Sucesso',
@@ -365,7 +343,7 @@ async function updateLocation(location) {
             title: 'Sucesso',
             description: `Localização ${location.location} atualizada com sucesso!`,
         });
-        toggleUpdateForm(false); // só fecha o formulário depois da atualização real
+        toggleUpdateForm(false); 
     } catch (error) {
         console.error('Erro ao atualizar localização:', error);
         toast({
@@ -383,14 +361,13 @@ const toggleUpdateForm = (aux) => {
 function onMapClick(e) {
     const { lat, lng } = e.latlng;
     locationDetails.value = {
-        ...locationDetails.value, // Preserve existing properties
-        latitude: decimalToDms(lat.toFixed(6)), // Update latitude
-        longitude: decimalToDms(lng.toFixed(6)), // Update longitude
+        ...locationDetails.value, 
+        latitude: decimalToDms(lat.toFixed(6)), 
+        longitude: decimalToDms(lng.toFixed(6)), 
     };
 }
 
 watch(showUpdateForm, (newShowUpdate) => {
-    //carregar o mapa quando a localização ou o estado do formulário de atualização mudar
     if (newShowUpdate && locationDetails.value) {
         center.value = [dmsToDecimal(locationDetails.value.latitude), dmsToDecimal(locationDetails.value.longitude)];
     }
@@ -612,12 +589,10 @@ onMounted(async () => {
     border-radius: 12px;
     overflow: hidden;
     z-index: 0;
-    /*para garantir que o mapa não se meta em cima da navbar e toast*/
 }
 
 .leaflet-container {
     z-index: 0 !important;
-    /*para garantir que o mapa não se meta em cima da navbar e toast*/
 }
 
 .leaflet-pane,
@@ -625,7 +600,6 @@ onMounted(async () => {
 .leaflet-marker-icon,
 .leaflet-popup {
     z-index: 0 !important;
-    /*para garantir que o mapa não se meta em cima da navbar e toast*/
 }
 
 .btn-actions {

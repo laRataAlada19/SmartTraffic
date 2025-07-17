@@ -1,5 +1,4 @@
 <script setup>
-// filepath: /Users/franciscocordeiro/Documents/GitHub/projeto_informatico2/frontend/src/components/charts/types/LineChart.vue
 import { ref, computed } from 'vue';
 import { Line } from 'vue-chartjs';
 import {
@@ -17,7 +16,6 @@ import dayjs from 'dayjs';
 
 ChartJS.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement);
 
-// Accept the preloaded data as a prop
 const props = defineProps({
   data: {
     type: Array,
@@ -150,7 +148,7 @@ const chartOptions = {
 
 .filter-select:focus {
   outline: none;
-  border-color: #3b82f6; /* azul suave */
+  border-color: #3b82f6; 
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 </style>

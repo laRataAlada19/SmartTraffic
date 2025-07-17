@@ -27,27 +27,24 @@ const props = defineProps({
 const locationFilter = ref('Todos');
 const timeInterval = ref('dia');
 
-// Computed para obter localizações únicas
 const locations = computed(() => {
   if (!Array.isArray(props.data)) return ['Todos'];
   const unique = new Set(props.data.map(entry => entry.location || 'Desconhecido'));
   return ['Todos', ...unique];
 });
 
-// Computed para dados agrupados por tipo de veículo
+
 const vehicleTypeData = computed(() => {
   if (!Array.isArray(props.data)) return [];
 
   let filteredData = [...props.data];
 
-  // Filtro por localização
   if (locationFilter.value !== 'Todos') {
     filteredData = filteredData.filter(d => d.location === locationFilter.value);
   }
 
   const grouped = {};
 
-  // Agrupamento por intervalo temporal
   filteredData.forEach(entry => {
     let key = '';
 
@@ -84,7 +81,6 @@ const vehicleTypeData = computed(() => {
   return Object.values(grouped).sort((a, b) => new Date(a.date) - new Date(b.date));
 });
 
-// Configuração dos dados do gráfico
 const chartData = computed(() => ({
   labels: vehicleTypeData.value.map(d => {
     switch (timeInterval.value) {
@@ -140,7 +136,6 @@ const chartData = computed(() => ({
   ],
 }));
 
-// Opções do gráfico com melhorias
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,

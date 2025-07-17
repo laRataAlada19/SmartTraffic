@@ -28,24 +28,20 @@ const props = defineProps({
   }
 });
 
-// Estados dos filtros
 const day1 = ref('');
 const day2 = ref('');
 const selectedPeriod = ref('Todos');
-const compareMode = ref('periodo'); // 'periodo' ou 'dia'
+const compareMode = ref('periodo');
 
-// Computed para dias disponíveis
 const availableDays = computed(() => {
   const days = [...new Set(props.data.map(item => item.day))];
   return days.sort((a, b) => a - b);
 });
 
-// Computed para períodos disponíveis
 const availablePeriods = computed(() => {
   return ['Todos', ...new Set(props.data.map(item => item.period))];
 });
 
-// Filtra os dados para comparação
 const comparisonData = computed(() => {
   if (!day1.value || !day2.value) return [];
 
@@ -66,7 +62,6 @@ const comparisonData = computed(() => {
   ];
 });
 
-// Processa os dados para o gráfico
 const chartData = computed(() => {
   if (comparisonData.value.length === 0) return { labels: [], datasets: [] };
 
@@ -79,7 +74,6 @@ const chartData = computed(() => {
     'rgba(153, 102, 255, 0.7)'
   ];
 
-  // Labels baseados no modo de comparação
   const labels = comparisonData.value.map(item => {
     if (compareMode.value === 'periodo' && selectedPeriod.value !== 'Todos') {
       return `Dia ${item.day} (${selectedPeriod.value})`;
@@ -87,7 +81,7 @@ const chartData = computed(() => {
     return `Dia ${item.day}`;
   });
 
-  // Calcular totais por tipo de veículo para cada dia
+ 
   const datasets = vehicleTypes.map((type, index) => {
     const typeKey = {
       'Carro': 'car',
@@ -109,7 +103,7 @@ const chartData = computed(() => {
     };
   });
 
-  // Adicionar dataset para o total
+
   datasets.unshift({
     label: 'Total',
     data: comparisonData.value.map(item => {

@@ -1,5 +1,4 @@
 <script setup>
-// Importações necessárias
 import { ref, onMounted, watch } from 'vue';
 import { useLocationStore } from '@/stores/location';
 import ChartDisplay from '@/components/charts/ChartDisplay.vue';
@@ -8,11 +7,11 @@ import { useAuthStore } from '@/stores/auth';
 import { useFactVehicleStore } from '@/stores/factvehicle';
 import { toast } from '@/components/ui/toast';
 
-
-
+/*Definir Stores*/
 const locationStore = useLocationStore();
 const factVehicleStore = useFactVehicleStore();
 const storeAuth = useAuthStore();
+/*Definir variaveis reactivas*/
 const totalVehicles = ref(0);
 const totalCars = ref(0);
 const totalBikes = ref(0);
@@ -24,25 +23,36 @@ const mostMovimentedStrests = ref([]);
 const lessMovimentedStrests = ref([]);
 const selectedCharts = ref([]);
 const theme = ref(1);
-const selectedDate = ref(new Date().toISOString().split('T')[0]); // Data atual no formato YYYY-MM-DD
+const selectedDate = ref(new Date().toISOString().split('T')[0]);
 const refreshTime = ref('')
 const data = ref([]);
 const avg= ref(0);
 const hourWithMostTraffic = ref('0');
 const hourWithLessTraffic = ref('0');
+/*Esta funçao serve para ir buscar a informação consoante a presente no filtro*/ 
 const changeTheme = (selectedTheme) => {
     theme.value = selectedTheme;
     fetchSummary();
 };
-
+/*Esta funçao serve para ir buscar a informação*/
 const fetchSummary = async () => {
     try {
+        /*Verifica se o utilizador está autenticado antes de ir buscar os dados*/
+        if (!storeAuth.user) {
+            toast({
+                title: 'Acesso Negado',
+                description: 'Por favor, faça login para acessar o dashboard.',
+                variant: 'destructive',
+            });
+            return;
+        }
+        /*Carregar os dados filtrados com base na data selecionada e no tema*/
         const payload = {
             date: selectedDate.value,
             theme: theme.value,
         };
+        /*Vai buscar os dados filtrados*/
         data.value = await factVehicleStore.fetchDataFiltered(payload);
-        console.log("Data fetched:", data.value);
         totalCars.value = data.value.reduce((acc, item) => acc + item.car, 0);
         totalBikes.value = data.value.reduce((acc, item) => acc + item.bike, 0);
         totalTrucks.value = data.value.reduce((acc, item) => acc + item.truck, 0);
@@ -50,12 +60,7 @@ const fetchSummary = async () => {
         totalMotorcycles.value = data.value.reduce((acc, item) => acc + item.motorcycle, 0);
         totalVehicles.value = totalCars.value + totalBikes.value + totalTrucks.value + totalBuses.value + totalMotorcycles.value;
         excesso.value = data.value.reduce((acc, item) => acc + item.excess_speed, 0);
-        console.log("Total vehicles:", totalVehicles.value);
         avg.value = (data.value.reduce((acc, item) => acc + Number(item.average_speed), 0) )/ totalVehicles.value;
-        console.log("Average speed:", avg.value);
-        console.log("Excess speed:", excesso.value);
-        console.log("Average speed:", avg.value);
-        console.log("Excess speed:", excesso.value);
         mostMovimentedStrests.value = await factVehicleStore.fetchMostMovimentedStress(payload);
         lessMovimentedStrests.value = await factVehicleStore.fetchLessMovimentedStress(payload);
         for (const item of data.value) {
@@ -75,7 +80,7 @@ const fetchSummary = async () => {
         });
     }
 };
-
+/*Esta funçao serve para atualizar os dados quando a data selecionada for alterada*/
 watch(selectedDate, (newDate) => {
     fetchSummary();
 });
@@ -99,7 +104,6 @@ onMounted(async () => {
             description: 'Ocorreu um erro ao buscar as tabelas ou gráficos. Por favor, tente novamente.',
             type: 'error',
         });
-        //router.push({ name: 'login' });
     }
 });
 </script>
@@ -112,9 +116,7 @@ onMounted(async () => {
     <div v-else>
     <h1 class="dashboard-title">Dashboard</h1>
     <div class="dashboard-container">
-        <!-- LOCATIONS & STATS SECTION -->
         <div class="top-section">
-            <!-- SUMMARY SECTION -->
             <div class="summary-column">
                 <div class="theme-buttons">
                     <button @click="changeTheme(1)" :class="{ 'active': theme === 1 }">Diário</button>
@@ -141,7 +143,6 @@ onMounted(async () => {
                     <div class="stat-card">Velocidade média: {{ avg }} km/h</div>
                 </div>
             </div>
-            <!-- LOCATIONS SECTION -->
             <div class="locations-column">
                 <p>Localizações existentes</p>
                 <div v-if="locationStore.totalLocations > 0">
@@ -152,7 +153,6 @@ onMounted(async () => {
                 </div>
             </div>
         </div>
-        <!-- CHARTS SECTION -->
         <div v-if="selectedCharts.length > 0" class="charts-wrapper">
             <h2>Gráficos Selecionados</h2>
             <ChartDisplay :selectedCharts="selectedCharts" />
@@ -160,7 +160,6 @@ onMounted(async () => {
         <div v-else>
             <p>Nenhum gráfico selecionado.</p>
         </div>
-        <!-- LAST UPDATED -->
         <p class="updated-date">Atualizado em: {{ refreshTime }}</p>
     </div>
     </div>

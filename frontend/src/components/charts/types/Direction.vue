@@ -36,7 +36,6 @@ const locationFilter = ref('Todos');
 const timeInterval = ref('dia');
 const directions = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
 
-// Nomes completos das direções para exibição
 const directionNames = {
   n: 'Norte',
   ne: 'Nordeste',
@@ -48,27 +47,24 @@ const directionNames = {
   nw: 'Noroeste'
 };
 
-// Computed para obter localizações únicas
 const locations = computed(() => {
   if (!Array.isArray(props.data)) return ['Todos'];
   const unique = new Set(props.data.map(entry => entry.location || 'Desconhecido'));
   return ['Todos', ...unique];
 });
 
-// Computed para dados agrupados por direção
+
 const directionData = computed(() => {
   if (!Array.isArray(props.data)) return [];
 
   let filteredData = [...props.data];
 
-  // Filtro por localização
   if (locationFilter.value !== 'Todos') {
     filteredData = filteredData.filter(d => d.location === locationFilter.value);
   }
 
   const grouped = {};
 
-  // Agrupamento por intervalo temporal
   filteredData.forEach(entry => {
     let key = '';
 
@@ -99,7 +95,6 @@ const directionData = computed(() => {
   return Object.entries(grouped).sort((a, b) => new Date(a[0]) - new Date(b[0]));
 });
 
-// Função para obter cores das direções
 function getDirectionColors(dir, border = false) {
   const colors = {
     n: 'rgba(255, 99, 132, 0.7)',
@@ -126,7 +121,6 @@ function getDirectionColors(dir, border = false) {
   return border ? borderColors[dir] : colors[dir];
 }
 
-// Configuração dos dados do gráfico
 const chartData = computed(() => {
   const labels = directionData.value.map(d => {
     switch (timeInterval.value) {
@@ -140,7 +134,7 @@ const chartData = computed(() => {
   });
 
   const datasets = directions.map(dir => ({
-    label: directionNames[dir], // Usando nomes completos
+    label: directionNames[dir], 
     data: directionData.value.map(d => d[1][dir]),
     backgroundColor: getDirectionColors(dir),
     borderColor: getDirectionColors(dir, true),
@@ -151,7 +145,6 @@ const chartData = computed(() => {
   return { labels, datasets };
 });
 
-// Opções do gráfico com melhorias
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,

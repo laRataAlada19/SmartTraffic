@@ -17,13 +17,11 @@ onMounted(async () => {
 </script>
 
 <template>
-    <!--
     <div v-if="!storeAuth.user" class="dashboard-wrapper">
         <h1 style="text-align: center; margin-top: 20px;">Aceda ao dashboard</h1>
         <p style="text-align: center; margin-bottom: 20px;">Por favor, faça login para aceder ao dashboard.</p>
     </div>
     <div v-else>
-        -->
     <h1 class="dashboard-title">Localizações</h1>
 
     <div v-if="locationStore.totalLocations > 0" class="flex flex-col items-center">
@@ -39,7 +37,7 @@ onMounted(async () => {
     <LocationCreate />
     <br />
     <br />
-    <!--</div>-->
+</div>
 </template>
 
 <style scoped>
