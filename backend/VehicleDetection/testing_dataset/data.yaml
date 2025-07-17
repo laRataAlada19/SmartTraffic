@@ -1,0 +1,14 @@
+path: /home/user/projeto_informatico/backend/VehicleDetection/testing_dataset  
+
+train: train/images
+val: val/images
+
+names:
+  0: auto
+  1: bus
+  2: car
+  3: lcv
+  4: motorcycle
+  5: multiaxle
+  6: tractor
+  7: truck
