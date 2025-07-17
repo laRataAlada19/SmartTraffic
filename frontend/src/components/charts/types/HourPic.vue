@@ -31,7 +31,6 @@ const props = defineProps({
 const locationFilter = ref('Todos');
 const hourFilter = ref('Todos');
 
-// Computed para obter horas disponíveis
 const availableHours = computed(() => {
   if (!Array.isArray(props.data)) return [];
   return [...new Set(props.data.map(entry => entry.hour))]
@@ -42,32 +41,27 @@ const availableHours = computed(() => {
     }));
 });
 
-// Computed para obter localizações únicas
 const locations = computed(() => {
   if (!Array.isArray(props.data)) return ['Todos'];
   const unique = new Set(props.data.map(entry => entry.location || 'Desconhecido'));
   return ['Todos', ...unique];
 });
 
-// Computed para dados agrupados por hora
 const groupedData = computed(() => {
   if (!Array.isArray(props.data)) return [];
 
   let filteredData = [...props.data];
 
-  // Filtro por localização
   if (locationFilter.value !== 'Todos') {
     filteredData = filteredData.filter(d => d.location === locationFilter.value);
   }
 
-  // Filtro por hora específica
   if (hourFilter.value !== 'Todos') {
     filteredData = filteredData.filter(d => d.hour === parseInt(hourFilter.value));
   }
 
   const groupedByHour = {};
 
-  // Agrupamento por hora
   filteredData.forEach(entry => {
     const hour = entry.hour;
     if (!groupedByHour[hour]) {
@@ -97,7 +91,6 @@ const groupedData = computed(() => {
     }));
 });
 
-// Configuração dos dados do gráfico
 const chartData = computed(() => ({
   labels: groupedData.value.map(item => `${item.hour}:00`),
   datasets: [
@@ -157,7 +150,6 @@ const chartData = computed(() => ({
   ],
 }));
 
-// Opções do gráfico com melhorias
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,

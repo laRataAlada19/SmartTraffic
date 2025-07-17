@@ -27,25 +27,21 @@ const dateRange = ref({
   end: ''
 });
 
-// Computed para localizações disponíveis
 const locations = computed(() => {
   if (!Array.isArray(props.data)) return ['Todos'];
   const unique = new Set(props.data.map(entry => entry.location || 'Desconhecido'));
   return ['Todos', ...unique];
 });
 
-// Computed para dados filtrados e agregados
 const aggregatedVehicleCounts = computed(() => {
   if (!Array.isArray(props.data)) return {};
 
   let filteredData = [...props.data];
 
-  // Filtro por localização
   if (locationFilter.value !== 'Todos') {
     filteredData = filteredData.filter(d => d.location === locationFilter.value);
   }
 
-  // Filtro por intervalo de tempo
   if (timeInterval.value === 'custom' && dateRange.value.start && dateRange.value.end) {
     filteredData = filteredData.filter(d => {
       const date = dayjs(d.full_date);
@@ -60,12 +56,11 @@ const aggregatedVehicleCounts = computed(() => {
         case 'semana': return date.isAfter(now.subtract(1, 'week'));
         case 'mes': return date.isAfter(now.subtract(1, 'month'));
         case 'ano': return date.isAfter(now.subtract(1, 'year'));
-        default: return true; // 'dia' ou outros
+        default: return true;
       }
     });
   }
 
-  // Calcular totais
   const totals = {
     car: 0,
     motorcycle: 0,

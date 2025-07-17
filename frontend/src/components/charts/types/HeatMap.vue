@@ -27,14 +27,12 @@ const canvasRef = ref(null);
 const locationFilter = ref('Todos');
 const timeInterval = ref('dia');
 
-// Computed para localizações disponíveis
 const locations = computed(() => {
   if (!Array.isArray(props.data)) return ['Todos'];
   const unique = new Set(props.data.map(entry => entry.location || 'Desconhecido'));
   return ['Todos', ...unique];
 });
 
-// Computed para dados filtrados
 const filteredData = computed(() => {
   if (!Array.isArray(props.data)) return [];
   
@@ -47,7 +45,6 @@ const filteredData = computed(() => {
   return filtered;
 });
 
-// Tipos de veículos com tradução
 const vehicleTypes = [
   { id: 'car', label: 'Carros' },
   { id: 'motorcycle', label: 'Motociclos' },
@@ -56,12 +53,10 @@ const vehicleTypes = [
   { id: 'bus', label: 'Autocarros' }
 ];
 
-// Preparar dados para o heatmap
 const heatmapData = computed(() => {
   const result = [];
   const hourCounts = {};
 
-  // Inicializar contagens por hora e tipo
   for (let hour = 0; hour < 24; hour++) {
     hourCounts[hour] = {};
     vehicleTypes.forEach(type => {
@@ -69,7 +64,6 @@ const heatmapData = computed(() => {
     });
   }
 
-  // Somar os valores por hora e tipo
   filteredData.value.forEach(entry => {
     const hour = parseInt(entry.hour);
     vehicleTypes.forEach(type => {
@@ -77,7 +71,6 @@ const heatmapData = computed(() => {
     });
   });
 
-  // Formatando para o heatmap
   vehicleTypes.forEach(type => {
     for (let hour = 0; hour < 24; hour++) {
       result.push({
@@ -91,23 +84,20 @@ const heatmapData = computed(() => {
   return result;
 });
 
-// Função para cores do heatmap
 const backgroundColorFn = (ctx) => {
   const value = ctx.dataset.data[ctx.dataIndex].v;
   const maxValue = Math.max(...heatmapData.value.map(item => item.v), 1);
   const normalized = Math.min(1, value / maxValue);
   
-  // Escala de cores: azul (baixo) -> amarelo -> vermelho (alto)
   if (normalized < 0.5) {
     const intensity = normalized * 2;
-    return `rgba(75, 192, 192, ${intensity})`; // Azul
+    return `rgba(75, 192, 192, ${intensity})`; 
   } else {
     const intensity = (normalized - 0.5) * 2;
-    return `rgba(255, ${Math.round(205 * (1 - intensity))}, 86, ${intensity + 0.5})`; // Amarelo -> Vermelho
+    return `rgba(255, ${Math.round(205 * (1 - intensity))}, 86, ${intensity + 0.5})`;
   }
 };
 
-// Construir/atualizar o gráfico
 const buildChart = () => {
   if (chartInstance.value) {
     chartInstance.value.destroy();
@@ -210,7 +200,6 @@ const buildChart = () => {
   });
 };
 
-// Observar mudanças nos dados e reconstruir o gráfico
 watch([filteredData, locationFilter], () => {
   buildChart();
 });

@@ -24,7 +24,6 @@ const logout = () => {
   <Toaster />
   <GlobalAlertDialog ref="alert-dialog" />
   <div class="app-container">
-    <!-- Navigation -->
     <nav class="navbar">
       <RouterLink to="/" class="logo-link">
         <img src="@/assets/smart-traffic-logo.png" alt="Logo" class="logo-img" />
@@ -46,7 +45,6 @@ const logout = () => {
         Logout
       </button>
     </nav>
-    <!-- Main Content -->
     <main class="main-content">
       <RouterView />
     </main>

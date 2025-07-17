@@ -68,7 +68,6 @@ const chartData = computed(() => {
     totals.Autocarro += d.bus || 0
   })
 
-  // Ordenar por total desc
   const sortedEntries = Object.entries(totals).sort((a, b) => b[1] - a[1])
   return {
     labels: sortedEntries.map(e => e[0]),

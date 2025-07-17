@@ -20,7 +20,6 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 
-// Default Axios configuration
 axios.defaults.baseURL = 'http://localhost:8000/api'
 
 app.component('ErrorMessage', ErrorMessage)

@@ -224,12 +224,10 @@ function onMapClick(e) {
     border-radius: 12px;
     overflow: hidden;
     z-index: 0;
-    /*para garantir que o mapa não se meta em cima da navbar e toast*/
 }
 
 .leaflet-container {
     z-index: 0 !important;
-    /*para garantir que o mapa não se meta em cima da navbar e toast*/
 }
 
 .leaflet-pane,
@@ -237,6 +235,5 @@ function onMapClick(e) {
 .leaflet-marker-icon,
 .leaflet-popup {
     z-index: 0 !important;
-    /*para garantir que o mapa não se meta em cima da navbar e toast*/
 }
 </style>

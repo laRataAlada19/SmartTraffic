@@ -12,21 +12,19 @@ const props = defineProps({
 });
 
 
-// Estado
-const center = ref([39.748, -8.807]); // Leiria
+
+const center = ref([39.748, -8.807]);
 const zoom = ref(13);
 const selectedHour = ref(new Date().getHours());
 const locationFilter = ref('Todos');
 const timeInterval = ref('dia');
 
-// Lista de localidades únicas
 const locations = computed(() => {
   if (!Array.isArray(props.data)) return ['Todos'];
   const unique = new Set(props.data.map(entry => entry.location || 'Desconhecido'));
   return ['Todos', ...unique];
 });
 
-// Agrupamento por intervalo temporal
 const groupData = computed(() => {
   const filtered = props.data.filter(d => {
     const hour = parseInt(d.hour);
@@ -65,8 +63,6 @@ const groupData = computed(() => {
   return Object.values(grouped);
 });
 
-
-// Cálculo do total e cor dominante
 const filteredData = computed(() =>
   groupData.value.map(entry => ({
     ...entry,
@@ -94,7 +90,6 @@ const getColor = (entry) => {
   return '#9966FF';
 };
 
-// Ajusta centro ao primeiro ponto visível
 watch(filteredData, data => {
   console.log('Raw Data:', props.data);
 
@@ -110,8 +105,6 @@ watch(filteredData, data => {
 
     <div class="bg-slate-700 p-4 rounded-lg">
       <h3 class="text-md font-semibold mb-2">Evolução Temporal do Tráfego</h3>
-
-      <!-- Filtros -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div>
           <label class="block text-sm mb-1">Localidade:</label>
@@ -139,7 +132,6 @@ watch(filteredData, data => {
         </div>
       </div>
 
-      <!-- Mapa -->
       <LMap
         :zoom="zoom"
         :center="center"
