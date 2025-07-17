@@ -90,6 +90,7 @@ onMounted(async () => {
 
         if (tables && tables.tables && tables.tables.Dashboard) {
             selectedCharts.value = tables.tables.Dashboard;
+            console.log('Gráficos selecionados:', selectedCharts.value);
         }
     } catch (error) {
         console.error('Erro ao buscar tabelas ou gráficos:', error.message);
@@ -104,12 +105,11 @@ onMounted(async () => {
 </script>
 
 <template>
-    <!--
     <div v-if="!storeAuth.user" class="dashboard-wrapper">
         <h1 style="text-align: center; margin-top: 20px;">Aceda ao dashboard</h1>
         <p style="text-align: center; margin-bottom: 20px;">Por favor, faça login para aceder ao dashboard.</p>
     </div>
-    <div v-else>-->
+    <div v-else>
     <h1 class="dashboard-title">Dashboard</h1>
     <div class="dashboard-container">
         <!-- LOCATIONS & STATS SECTION -->
@@ -163,7 +163,7 @@ onMounted(async () => {
         <!-- LAST UPDATED -->
         <p class="updated-date">Atualizado em: {{ refreshTime }}</p>
     </div>
-    <!-- </div>-->
+    </div>
 </template>
 
 <style scoped>

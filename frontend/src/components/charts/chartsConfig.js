@@ -10,7 +10,6 @@ export default [
   {name: 'Taxa de Crescimento Diário do Tráfego',type: 'indicador',component: 'GrowthRate',description: 'Exibe a variação percentual no total de tráfego entre dois dias consecutivos, destacando aumentos ou quedas no fluxo de veículos.'},
   {name: 'Densidade de Tráfego por Minuto',type: 'line',component: 'TrafficDensity',description: 'Representa o fluxo de veículos ao longo dos minutos de um dia específico, útil para identificar picos de tráfego.'},  
   {name: 'Tendência Diária de Tráfego',type: 'line',component: 'Trend',description: 'Apresenta a variação do volume total de veículos ao longo dos dias, facilitando a análise de padrões de tráfego.'},  
-  {name: 'Radar de Direções de Tráfego', type: 'radar', component: 'DirectionsRadar', description: 'Mostra a intensidade acumulada do tráfego em cada uma das 8 direções (N, NE, E, SE, S, SW, W, NW) em formato radar.' },
-  {name: 'Mapa com evolução temporal', type: 'radar', component: 'TimeMap', description: 'Mapa que mostra a evolução dos dados ao longo do tempo.' },
+  {name: 'Radar de Direções de Tráfego', type: 'radar', component: 'DirectionRadar', description: 'Mostra a intensidade acumulada do tráfego em cada uma das 8 direções (N, NE, E, SE, S, SW, W, NW) em formato radar.' },
   {name: 'Matriz Origem-Destino de Veículos',type: 'matrix',component: 'ODMatrix',description: 'Representa os fluxos de tráfego entre localidades, com a intensidade das ligações exibida por uma escala de cor, facilitando a identificação de trajetos mais frequentes.'},
 ]

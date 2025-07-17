@@ -23,7 +23,6 @@ ChartJS.register(
   Title
 );
 
-// Props
 const props = defineProps({
   data: {
     type: Array,
@@ -32,21 +31,26 @@ const props = defineProps({
   },
 });
 
-// Filtros
 const locationFilter = ref('Todos');
 const timeInterval = ref('dia');
+const directions = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
 
-// Localidades únicas
+const directionLabels = {
+  n: 'Norte',
+  ne: 'Nordeste',
+  e: 'Leste',
+  se: 'Sudeste',
+  s: 'Sul',
+  sw: 'Sudoeste',
+  w: 'Oeste',
+  nw: 'Noroeste',
+};
+
 const locations = computed(() => {
-  if (!Array.isArray(props.data)) return ['Todos'];
   const unique = new Set(props.data.map(entry => entry.location || 'Desconhecido'));
   return ['Todos', ...unique];
 });
 
-// Direções
-const directions = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
-
-// Filtragem de dados
 const filteredData = computed(() => {
   let data = [...props.data];
 
@@ -65,13 +69,12 @@ const filteredData = computed(() => {
       case 'semana':
         key = dayjs(entry.full_date).startOf('week').format('YYYY-MM-DD');
         break;
-      case 'dia':
       default:
         key = entry.full_date;
     }
 
     if (!grouped[key]) {
-      grouped[key] = { ...Object.fromEntries(directions.map(dir => [dir, 0])) };
+      grouped[key] = Object.fromEntries(directions.map(dir => [dir, 0]));
     }
 
     directions.forEach(dir => {
@@ -82,70 +85,40 @@ const filteredData = computed(() => {
   return Object.values(grouped);
 });
 
-// Soma total por direção (com base nos dados filtrados)
 const totalByDir = computed(() =>
   directions.map(dir =>
     filteredData.value.reduce((sum, d) => sum + (d[dir] || 0), 0)
   )
 );
 
-// Dados para o radar
 const chartData = computed(() => ({
-  labels: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'],
+  labels: directions.map(dir => directionLabels[dir]),
   datasets: [
     {
-      label: 'Direção de tráfego',
+      label: 'Tráfego por Direção',
       data: totalByDir.value,
-      backgroundColor: 'rgba(75, 192, 192, 0.2)',
-      borderColor: 'rgba(75, 192, 192, 1)',
-      borderWidth: 2,
-      pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+      borderColor: 'rgba(54, 162, 235, 1)',
+      pointBackgroundColor: 'rgba(54, 162, 235, 1)',
       pointBorderColor: '#fff',
       pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: 'rgba(75, 192, 192, 1)',
+      pointHoverBorderColor: 'rgba(54, 162, 235, 1)',
+      borderWidth: 2,
+      fill: true,
     },
   ],
 }));
 
-// Opções do radar
 const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
-  scales: {
-    r: {
-      beginAtZero: true,
-      angleLines: {
-        color: 'rgba(0,0,0,0.1)',
-      },
-      grid: {
-        color: 'rgba(0,0,0,0.05)',
-      },
-      pointLabels: {
-        font: {
-          size: 14,
-          weight: 'bold',
-        },
-        color: '#333',
-      },
-      ticks: {
-        backdropColor: 'transparent',
-        color: '#666',
-        stepSize: 1,
-      },
-    },
-  },
   plugins: {
     legend: {
+      display: true,
       position: 'top',
       labels: {
         usePointStyle: true,
         padding: 20,
-        color: '#333',
-      },
-    },
-    tooltip: {
-      callbacks: {
-        label: context => `${context.label}: ${context.parsed.r}`,
       },
     },
     title: {
@@ -154,7 +127,29 @@ const chartOptions = {
       font: {
         size: 16,
       },
-      color: '#111',
+    },
+    tooltip: {
+      callbacks: {
+        label: context => `${context.label}: ${context.parsed.r}`,
+      },
+    },
+  },
+  scales: {
+    r: {
+      beginAtZero: true,
+      ticks: {
+        stepSize: 1,
+        backdropColor: 'transparent',
+      },
+      pointLabels: {
+        font: {
+          size: 14,
+          weight: 'bold',
+        },
+      },
+      grid: {
+        color: 'rgba(0, 0, 0, 0.05)',
+      },
     },
   },
 };
@@ -162,7 +157,6 @@ const chartOptions = {
 
 <template>
   <div>
-    <!-- Filtros -->
     <div class="filter-container">
       <label class="filter-label">
         Localidade:
@@ -181,7 +175,6 @@ const chartOptions = {
       </label>
     </div>
 
-    <!-- Gráfico -->
     <div class="chart-container">
       <Radar :data="chartData" :options="chartOptions" />
     </div>
